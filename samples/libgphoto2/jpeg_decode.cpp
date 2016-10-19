@@ -9,6 +9,7 @@
 #include <jpeglib.h>
 #include "util.h"
 #include <memory>
+#include <tinyformat.h>
 
 auto read_JPEG_file (const e2e::byte* data, unsigned long size)
 {
@@ -25,7 +26,8 @@ auto read_JPEG_file (const e2e::byte* data, unsigned long size)
     jpeg_mem_src(&cinfo, const_cast<e2e::byte*>(data), size);
 
     jpeg_read_header(&cinfo, TRUE);
-    std::cout << cinfo.image_width << ',' << cinfo.image_height << '\n';
+
+    //tfm::printfln("%d, %d", cinfo.image_width, cinfo.image_height);
 
     auto memory = std::make_unique<unsigned char[]>(cinfo.image_width * cinfo.image_height * 3);
 
@@ -33,27 +35,27 @@ auto read_JPEG_file (const e2e::byte* data, unsigned long size)
 
     row_stride = cinfo.output_width * cinfo.output_components;
 
-    buffer = (*cinfo.mem->alloc_sarray)
-            ((j_common_ptr) &cinfo, JPOOL_IMAGE, row_stride, 1);
+    buffer = (*cinfo.mem->alloc_sarray)((j_common_ptr) &cinfo, JPOOL_IMAGE, row_stride, 1);
 
     while (cinfo.output_scanline < cinfo.output_height) {
-
+        auto to = cinfo.output_scanline;
         jpeg_read_scanlines(&cinfo, buffer, 1);
-        //put_scanline_someplace(buffer[0], row_stride);
-
-        std::copy(buffer[0], buffer[0] + cinfo.image_width, memory.get() + cinfo.image_width * cinfo.output_scanline);
-        std::cout << row_stride << '\n';
+        std::copy(buffer[0], buffer[0] + row_stride, memory.get() + row_stride * to);
     }
+
+    auto ret = std::make_tuple(std::move(memory), cinfo.image_width, cinfo.image_height);
 
     jpeg_finish_decompress(&cinfo);
     jpeg_destroy_decompress(&cinfo);
 
-    return std::make_tuple(std::move(memory), cinfo.image_width, cinfo.image_height);
+    return ret;
 }
 
 e2e::LDRFrame e2e::decode_jpeg(gsl::span<const byte> data)
 {
-    auto tup = read_JPEG_file(data.data(), data.length());
+    return e2e::LDRFrame(nullptr, 0, 0);
 
-    return e2e::LDRFrame(std::move(std::get<0>(tup)), std::get<1>(tup), std::get<2>(tup));
+
+    //auto tup = read_JPEG_file(data.data(), data.length());
+    //return e2e::LDRFrame(std::move(std::get<0>(tup)), std::get<1>(tup), std::get<2>(tup));
 }

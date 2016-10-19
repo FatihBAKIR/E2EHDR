@@ -19,7 +19,7 @@ namespace e2e
         int h_;
     public:
 
-        Frame(std::unique_ptr<ChannelType[]>&& buffer, int w, int h) : buffer_(std::move(buffer)) {}
+        Frame(std::unique_ptr<ChannelType[]> buffer, int w, int h) : buffer_(std::move(buffer)), w_(w), h_(h) {}
 
         auto width() const { return w_; }
         auto height() const { return h_; }

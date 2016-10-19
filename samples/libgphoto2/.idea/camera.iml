@@ -18,6 +18,7 @@
           <root url="file:///usr/lib/gcc/x86_64-linux-gnu/5/include" />
           <root url="file:///usr/local/include" />
           <root url="file://$MODULE_DIR$/../../3rd_party/GSL" />
+          <root url="file://$MODULE_DIR$/../../3rd_party/tfm" />
         </CLASSES>
         <SOURCES>
           <root url="file:///usr/include" />
@@ -25,6 +26,7 @@
           <root url="file:///usr/lib/gcc/x86_64-linux-gnu/5/include" />
           <root url="file:///usr/local/include" />
           <root url="file://$MODULE_DIR$/../../3rd_party/GSL" />
+          <root url="file://$MODULE_DIR$/../../3rd_party/tfm" />
         </SOURCES>
       </library>
     </orderEntry>
