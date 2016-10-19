@@ -1,0 +1,3 @@
+[submodule "3rd_party/GSL"]
+	path = 3rd_party/GSL
+	url = git@github.com:Microsoft/GSL.git

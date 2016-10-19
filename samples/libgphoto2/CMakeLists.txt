@@ -1,21 +1,25 @@
 cmake_minimum_required(VERSION 3.6)
 project(camera)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall")
 
 find_package(PkgConfig REQUIRED)
 find_package(OpenGL REQUIRED)
+find_package(JPEG REQUIRED)
 
 pkg_check_modules(PC_LibGPhoto REQUIRED libgphoto2)
 
-set(SOURCE_FILES main.cpp)
+set(SOURCE_FILES main.cpp gphoto.cpp gphoto_wrapper.h util.h jpeg_decode.cpp)
 add_executable(camera ${SOURCE_FILES})
 
 target_link_libraries(camera ${PC_LibGPhoto_LIBRARIES})
 target_link_libraries(camera ${OPENGL_LIBRARIES})
+target_link_libraries(camera ${JPEG_LIBRARIES})
 
 target_include_directories(camera PUBLIC ${PC_LibGPhoto_INCLUDE_DIRS})
 target_include_directories(camera PUBLIC ${OPENGL_INCLUDE_DIR})
+target_include_directories(camera PUBLIC ${JPEG_INCLUDE_DIR})
+target_include_directories(camera PUBLIC ../../3rd_party/GSL)
 
 target_compile_options(camera PUBLIC ${PC_LibGPhoto_CFLAGS_OTHER})
 
