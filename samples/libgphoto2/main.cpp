@@ -20,7 +20,7 @@ int main() {
     e2e::gp::Camera c (cams[0], gp);
 
     bool run = true;
-    std::condition_variable cv;
+
     std::queue<e2e::LDRFrame> frameQueue;
     std::thread framer([&]{
         int frames = 0;
@@ -29,11 +29,11 @@ int main() {
         while (run)
         {
             frameQueue.push(c.LiveviewFrame());
-            std::this_thread::sleep_for(std::chrono::milliseconds(5));
+            std::this_thread::sleep_for(std::chrono::microseconds(100));
             frames++;
         }
         auto end = std::chrono::system_clock::now();
-        tfm::printf("Grab FPS: %lld", 1000 / (std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() / frames));
+        tfm::printfln("Grab FPS: %lld", 1000 / (std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() / frames));
     });
 
     std::thread displayer([&]{
@@ -48,18 +48,19 @@ int main() {
     auto begin = std::chrono::system_clock::now();
     while (run)
     {
+        if (frameQueue.empty()) continue;
         auto& frame = frameQueue.front();
         cv::Mat img(cv::Size(frame.width(), frame.height()), CV_8UC3, frame.buffer().data());
+        //tfm::printfln("%dx%d", frame.width(), frame.height());
         cv::cvtColor(img, img, CV_RGB2BGR);
         cv::imshow("hai", img);
         cv::waitKey(1);
-        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        std::this_thread::sleep_for(std::chrono::microseconds(100));
         frames++;
         frameQueue.pop();
     }
-
     auto end = std::chrono::system_clock::now();
-    tfm::printf("Display FPS: %lld", 1000 / (std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() / frames));
+    tfm::printfln("Display FPS: %lld", 1000 / (std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() / frames));
 
     framer.join();
     displayer.join();
