@@ -17,46 +17,52 @@ int main() {
         std::cout << c.first << ' ' << c.second << '\n';
     }
 
-    cv::namedWindow("hai");
-
     e2e::gp::Camera c (cams[0], gp);
 
-    int frames = 0;
-
-    c.LiveviewFrame();
-
+    bool run = true;
+    std::condition_variable cv;
     std::queue<e2e::LDRFrame> frameQueue;
     std::thread framer([&]{
-        while (true)
+        int frames = 0;
+        c.LiveviewFrame();
+        auto begin = std::chrono::system_clock::now();
+        while (run)
         {
             frameQueue.push(c.LiveviewFrame());
             std::this_thread::sleep_for(std::chrono::milliseconds(5));
+            frames++;
         }
+        auto end = std::chrono::system_clock::now();
+        tfm::printf("Grab FPS: %lld", 1000 / (std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() / frames));
     });
 
-    std::chrono::system_clock::time_point begin = std::chrono::system_clock::now();
-    while (true)
-    {
-        if (frameQueue.empty()) continue;
+    std::thread displayer([&]{
+        std::cin.get();
+        run = false;
+    });
 
+    std::this_thread::sleep_for(std::chrono::milliseconds(2500));
+    cv::namedWindow("hai");
+
+    int frames = 0;
+    auto begin = std::chrono::system_clock::now();
+    while (run)
+    {
         auto& frame = frameQueue.front();
         cv::Mat img(cv::Size(frame.width(), frame.height()), CV_8UC3, frame.buffer().data());
         cv::cvtColor(img, img, CV_RGB2BGR);
         cv::imshow("hai", img);
         cv::waitKey(1);
         std::this_thread::sleep_for(std::chrono::milliseconds(5));
-        //frames++;
+        frames++;
         frameQueue.pop();
-        tfm::printfln("hai");
     }
 
+    auto end = std::chrono::system_clock::now();
+    tfm::printf("Display FPS: %lld", 1000 / (std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() / frames));
 
-
-    std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
-
-    auto dur = end - begin;
-    auto total_ms = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
-    std::cout << 1000 / (total_ms / frames) << '\n';
+    framer.join();
+    displayer.join();
 
     return 0;
 }
