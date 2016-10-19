@@ -4,25 +4,34 @@
 
 #pragma once
 
-#include <gsl/span>
+#include <memory>
+#include <gsl/gsl>
 
 namespace e2e
 {
+    using byte = unsigned char;
+
     template <typename ChannelType, int ChannelNum>
     class Frame
     {
         std::unique_ptr<ChannelType[]> buffer_;
+        int w_;
+        int h_;
     public:
 
-        
+        Frame(std::unique_ptr<ChannelType[]>&& buffer, int w, int h) : buffer_(std::move(buffer)) {}
+
+        auto width() const { return w_; }
+        auto height() const { return h_; }
+        gsl::span<ChannelType> buffer() const { return { buffer_.get(), w_ * h_ * ChannelNum }; }
     };
 
-    using LDRFrame = Frame<gsl::byte, 3>;
+    using LDRFrame = Frame<byte, 3>;
 
     struct capture_error : public std::runtime_error
     {
         capture_error(const char* str) : std::runtime_error(str) {}
     };
 
-    LDRFrame decode_jpeg(gsl::span<const gsl::byte> data);
+    LDRFrame decode_jpeg(gsl::span<const byte> data);
 }

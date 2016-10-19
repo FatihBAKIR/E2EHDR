@@ -22,4 +22,3 @@ target_include_directories(camera PUBLIC ${JPEG_INCLUDE_DIR})
 target_include_directories(camera PUBLIC ../../3rd_party/GSL)
 
 target_compile_options(camera PUBLIC ${PC_LibGPhoto_CFLAGS_OTHER})
-

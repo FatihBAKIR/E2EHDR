@@ -6,6 +6,7 @@
 #include <gphoto2/gphoto2.h>
 #include "gphoto_wrapper.h"
 #include "jpeglib.h"
+#include <cstring>
 
 void ctx_error_func(GPContext *context, const char *str, void *data) {
     fprintf(stderr, "\n*** Contexterror ***              \n%s\n", str);
@@ -163,9 +164,11 @@ namespace gp
 
         printf("mime: %s\n", mime);
 
-        e2e::decode_jpeg(gsl::span<const gsl::byte>{reinterpret_cast<const gsl::byte *>(buffer), static_cast<long>(size)});
+        auto&& ret = e2e::decode_jpeg({reinterpret_cast<const byte*>(buffer), static_cast<long>(size)});
 
         gp_file_free(file);
+
+        return std::move(ret);
     }
 
     GPhoto::GPhoto() : ctx_(sample_create_context()) {}

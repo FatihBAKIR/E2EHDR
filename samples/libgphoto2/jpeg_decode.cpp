@@ -10,7 +10,7 @@
 #include "util.h"
 #include <memory>
 
-auto read_JPEG_file (const gsl::byte* data, unsigned long size)
+auto read_JPEG_file (const e2e::byte* data, unsigned long size)
 {
     struct jpeg_decompress_struct cinfo;
 
@@ -22,12 +22,12 @@ auto read_JPEG_file (const gsl::byte* data, unsigned long size)
 
     cinfo.err = jpeg_std_error(&jerr);
 
-    jpeg_mem_src(&cinfo, reinterpret_cast<unsigned char*>(const_cast<gsl::byte*>(data)), size);
+    jpeg_mem_src(&cinfo, const_cast<e2e::byte*>(data), size);
 
     jpeg_read_header(&cinfo, TRUE);
     std::cout << cinfo.image_width << ',' << cinfo.image_height << '\n';
 
-    auto memory = std::unique_ptr<unsigned char[]>{new unsigned char[cinfo.image_width * cinfo.image_height * 3]};
+    auto memory = std::make_unique<unsigned char[]>(cinfo.image_width * cinfo.image_height * 3);
 
     jpeg_start_decompress(&cinfo);
 
@@ -51,9 +51,9 @@ auto read_JPEG_file (const gsl::byte* data, unsigned long size)
     return std::make_tuple(std::move(memory), cinfo.image_width, cinfo.image_height);
 }
 
-e2e::LDRFrame e2e::decode_jpeg(gsl::span<const gsl::byte> data)
+e2e::LDRFrame e2e::decode_jpeg(gsl::span<const byte> data)
 {
     auto tup = read_JPEG_file(data.data(), data.length());
 
-    return { std::get<0>(tup) };
+    return e2e::LDRFrame(std::move(std::get<0>(tup)), std::get<1>(tup), std::get<2>(tup));
 }

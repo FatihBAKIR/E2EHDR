@@ -13,7 +13,8 @@ int main() {
     }
 
     e2e::gp::Camera c (cams[0], gp);
-    c.LiveviewFrame();
+
+    const auto& frame = c.LiveviewFrame();
 
     return 0;
 }
