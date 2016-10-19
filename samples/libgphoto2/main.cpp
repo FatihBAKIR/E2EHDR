@@ -5,6 +5,8 @@
 #include "gphoto_wrapper.h"
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <queue>
+#include <tinyformat.h>
 
 int main() {
     e2e::gp::GPhoto gp;
@@ -19,19 +21,36 @@ int main() {
 
     e2e::gp::Camera c (cams[0], gp);
 
-    std::chrono::system_clock::time_point begin = std::chrono::system_clock::now();
     int frames = 0;
 
-    while (frames < 60)
+    c.LiveviewFrame();
+
+    std::queue<e2e::LDRFrame> frameQueue;
+    std::thread framer([&]{
+        while (true)
+        {
+            frameQueue.push(c.LiveviewFrame());
+            std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        }
+    });
+
+    std::chrono::system_clock::time_point begin = std::chrono::system_clock::now();
+    while (true)
     {
-        auto frame = c.LiveviewFrame();
-        //cv::Mat img(cv::Size(frame.width(), frame.height()), CV_8UC3, frame.buffer().data());
-        //cv::cvtColor(img, img, CV_RGB2BGR);
-        //cv::imshow("hai", img);
-        //cv::waitKey(1);
-        //std::this_thread::sleep_for(std::chrono::milliseconds(5));
-        frames++;
+        if (frameQueue.empty()) continue;
+
+        auto& frame = frameQueue.front();
+        cv::Mat img(cv::Size(frame.width(), frame.height()), CV_8UC3, frame.buffer().data());
+        cv::cvtColor(img, img, CV_RGB2BGR);
+        cv::imshow("hai", img);
+        cv::waitKey(1);
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        //frames++;
+        frameQueue.pop();
+        tfm::printfln("hai");
     }
+
+
 
     std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
 

@@ -53,9 +53,8 @@ auto read_JPEG_file (const e2e::byte* data, unsigned long size)
 
 e2e::LDRFrame e2e::decode_jpeg(gsl::span<const byte> data)
 {
-    return e2e::LDRFrame(nullptr, 0, 0);
+    //return e2e::LDRFrame(nullptr, 0, 0);
 
-
-    //auto tup = read_JPEG_file(data.data(), data.length());
-    //return e2e::LDRFrame(std::move(std::get<0>(tup)), std::get<1>(tup), std::get<2>(tup));
+    auto tup = read_JPEG_file(data.data(), data.length());
+    return e2e::LDRFrame(std::move(std::get<0>(tup)), std::get<1>(tup), std::get<2>(tup));
 }
