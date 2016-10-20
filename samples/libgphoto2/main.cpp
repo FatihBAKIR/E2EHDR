@@ -19,7 +19,7 @@ int main() {
 
     e2e::gp::Camera c (cams[0], gp);
 
-    bool run = true;
+    volatile bool run = true;
 
     std::queue<e2e::LDRFrame> frameQueue;
     std::thread framer([&]{
