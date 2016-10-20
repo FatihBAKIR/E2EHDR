@@ -10,9 +10,9 @@
 #include <boost/thread.hpp>
 #include <boost/predef.h>
 
-#if defined(BOOST_OS_LINUX) || defined(BOOST_OS_WINDOWS)
+#if BOOST_OS_LINUX || BOOST_OS_WINDOWS
 #include <GL/gl.h>
-#elif defined(BOOST_OS_MACOS)
+#elif BOOST_OS_MACOS
 #include <OpenGL/gl.h>
 #endif
 
