@@ -9,6 +9,10 @@
 #include <cstring>
 #include <tinyformat.h>
 #include <chrono>
+#include <bitset>
+#include <queue>
+#include <boost/thread.hpp>
+#include <boost/circular_buffer.hpp>
 
 namespace
 {
@@ -26,7 +30,7 @@ namespace
         return context;
     }
 
-    int sample_open_camera (Camera ** camera, const char *model, const char *port, GPContext *context) {
+    int open_camera(Camera **camera, const char *model, const char *port, GPContext *context) {
         static GPPortInfoList		*portinfolist = nullptr;
         static CameraAbilitiesList	*abilities = nullptr;
 
@@ -88,12 +92,11 @@ namespace e2e
 {
 namespace gp
 {
-
     Camera::Camera(const CameraInfo &info, GPhoto &gp) :
             gp_(gp)
     {
         gp_camera_new(&ptr_);
-        sample_open_camera(&ptr_, info.first.c_str(), info.second.c_str(), gp_.ctx_);
+        open_camera(&ptr_, info.first.c_str(), info.second.c_str(), gp_.ctx_);
     }
 
     Camera::~Camera()
@@ -101,52 +104,48 @@ namespace gp
         gp_camera_free(ptr_);
     }
 
-    CameraFile *file = ([]{CameraFile* fp; gp_file_new(&fp); return fp;})();
-
-    LDRFrame Camera::LiveviewFrame()
-    {
-        int retval;
-        //std::chrono::system_clock::time_point begin = std::chrono::system_clock::now();
-
-        retval = gp_camera_capture_preview(ptr_, file, gp_.ctx_);
-
-        /*std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
-
-        auto dur = end - begin;
-        auto total_ms = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
-        std::cout << total_ms << '\n';*/
-
-        if (retval != GP_OK)
+    boost::circular_buffer<CameraFile*> pool{64};
+    int _ = ([]{
+        pool.resize(64);
+        for (auto& cf : pool)
         {
-            throw capture_error("Preview capture failed");
+            gp_file_new(&cf);
         }
+        return 0;
+    })();
 
+    void return_cf(CameraFile* ptr)
+    {
+        pool.push_back(ptr);
+    }
+
+    LDRFrame decode(CameraFile *file) {
         const char* buffer;
         unsigned long size;
 
-
-        retval = gp_file_get_data_and_size (file, &buffer, &size);
+        int retval = gp_file_get_data_and_size (file, &buffer, &size);
 
         if (retval != GP_OK)
         {
             throw capture_error("File get data failed");
         }
 
-        //const char* mime;
-        //retval = gp_file_get_mime_type(file, &mime);
+        return e2e::decode_jpeg({reinterpret_cast<const byte*>(buffer), static_cast<long>(size)});
+    }
+
+    CameraFile* Camera::LiveviewFrame()
+    {
+        auto file = pool.front();
+        pool.pop_front();
+
+        int retval = gp_camera_capture_preview(ptr_, file, gp_.ctx_);
 
         if (retval != GP_OK)
         {
-            throw capture_error("Mime type failed");
+            throw capture_error("Preview capture failed");
         }
 
-        //tfm::printf("mime: %s\n", mime);
-
-        auto ret = e2e::decode_jpeg({reinterpret_cast<const byte*>(buffer), static_cast<long>(size)});
-
-        //gp_file_free(file);
-
-        return ret;
+        return file;
     }
 
     GPhoto::GPhoto() : ctx_(create_context()) {}

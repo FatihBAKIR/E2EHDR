@@ -1,12 +1,15 @@
 cmake_minimum_required(VERSION 3.6)
 project(camera)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -O3 -pthread")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -O3")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "/usr/local/cmake_mod/")
 
 find_package(PkgConfig REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(JPEG REQUIRED)
 find_package(OpenCV REQUIRED)
+find_package(Boost REQUIRED COMPONENTS date_time filesystem system thread)
+find_package(SFML 2 REQUIRED system window graphics network audio)
 
 pkg_check_modules(PC_LibGPhoto REQUIRED libgphoto2)
 
@@ -17,11 +20,15 @@ target_link_libraries(camera ${PC_LibGPhoto_LIBRARIES})
 target_link_libraries(camera ${OPENGL_LIBRARIES})
 target_link_libraries(camera ${OpenCV_LIBS})
 target_link_libraries(camera ${JPEG_LIBRARIES})
+target_link_libraries(camera ${Boost_LIBRARIES})
+target_link_libraries(camera ${SFML_LIBRARIES})
 
 target_include_directories(camera PUBLIC ${PC_LibGPhoto_INCLUDE_DIRS})
 target_include_directories(camera PUBLIC ${OPENGL_INCLUDE_DIR})
 target_include_directories(camera PUBLIC ${OPENCV_INCLUDE_DIR})
 target_include_directories(camera PUBLIC ${JPEG_INCLUDE_DIR})
+target_include_directories(camera PUBLIC ${SFML_INCLUDE_DIR})
+target_include_directories(camera PUBLIC ${Boost_INCLUDE_DIRS})
 target_include_directories(camera PUBLIC ../../3rd_party/GSL)
 target_include_directories(camera PUBLIC ../../3rd_party/tfm)
 
