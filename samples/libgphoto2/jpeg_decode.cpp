@@ -11,6 +11,23 @@
 #include <memory>
 #include <tinyformat.h>
 
+#include <boost/circular_buffer.hpp>
+
+boost::circular_buffer<std::unique_ptr<e2e::byte[]>> memory_pool {64};
+
+void e2e::init_jpg_pool(int w, int h)
+{
+    for (int i = 0; i < (int)memory_pool.capacity(); ++i)
+    {
+        memory_pool.push_back(std::make_unique<e2e::byte []>(w * h * 3));
+    }
+}
+
+void e2e::return_buffer(LDRFrame frame)
+{
+    memory_pool.push_back(std::move(frame.u_ptr()));
+}
+
 auto read_JPEG_file (const e2e::byte* data, unsigned long size)
 {
     struct jpeg_decompress_struct cinfo;
@@ -29,7 +46,8 @@ auto read_JPEG_file (const e2e::byte* data, unsigned long size)
 
     //tfm::printfln("%d, %d", cinfo.image_width, cinfo.image_height);
 
-    auto memory = std::make_unique<unsigned char[]>(cinfo.image_width * cinfo.image_height * 3);
+    auto memory = memory_pool.size() ? std::move(memory_pool.front()) : std::make_unique<unsigned char[]>(cinfo.image_width * cinfo.image_height * 3);
+    if (memory_pool.size()) memory_pool.pop_front();
 
     jpeg_start_decompress(&cinfo);
 

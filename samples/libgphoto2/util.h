@@ -24,6 +24,7 @@ namespace e2e
         auto width() const { return w_; }
         auto height() const { return h_; }
         gsl::span<ChannelType> buffer() const { return { buffer_.get(), w_ * h_ * ChannelNum }; }
+        auto u_ptr() { return std::move(buffer_); }
     };
 
     using LDRFrame = Frame<byte, 3>;
@@ -33,5 +34,7 @@ namespace e2e
         capture_error(const char* str) : std::runtime_error(str) {}
     };
 
+    void init_jpg_pool(int w, int h);
+    void return_buffer(LDRFrame);
     LDRFrame decode_jpeg(gsl::span<const byte> data);
 }

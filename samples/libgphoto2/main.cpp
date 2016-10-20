@@ -8,9 +8,14 @@
 #include <queue>
 #include <tinyformat.h>
 #include <boost/thread.hpp>
-#include <SFML/Window.hpp>
-#include <SFML/Graphics.hpp>
+#include <boost/predef.h>
+
+#if defined(BOOST_OS_LINUX) || defined(BOOST_OS_WINDOWS)
+#include <GL/gl.h>
+#elif defined(BOOST_OS_MACOS)
 #include <OpenGL/gl.h>
+#endif
+
 
 int main() {
     e2e::gp::GPhoto gp;
@@ -27,15 +32,27 @@ int main() {
 
     std::queue<CameraFile*> jpgQueue;
     std::queue<e2e::LDRFrame> frameQueue;
+    boost::condition_variable cv;
+    boost::mutex m;
+
     boost::thread framer([&]{
         int frames = 0;
-        jpgQueue.push(c.LiveviewFrame());
+        auto f = c.LiveviewFrame();
+        auto frame = e2e::gp::decode(f);
+        e2e::init_jpg_pool(frame.width(), frame.height());
+        frameQueue.push(std::move(frame));
+        e2e::gp::return_cf(f);
+
         auto begin = std::chrono::system_clock::now();
+
         while (run)
         {
-            jpgQueue.push(c.LiveviewFrame());
+            auto f = c.LiveviewFrame();
+            jpgQueue.push(f);
             frames++;
+            cv.notify_one();
         }
+
         auto end = std::chrono::system_clock::now();
         tfm::printfln("Grab FPS: %lld", 1000 / (std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() / frames));
     });
@@ -56,6 +73,7 @@ int main() {
             e2e::gp::return_cf(file);
             frames++;
         }
+
         auto end = std::chrono::system_clock::now();
         tfm::printfln("Decode FPS: %lld", 1000 / (std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() / frames));
     });
@@ -65,44 +83,17 @@ int main() {
         run = false;
     });
 
-    sf::RenderWindow App(sf::VideoMode(800, 600), "SFML window");
-    App.setFramerateLimit(60);
-
     boost::this_thread::sleep_for(boost::chrono::milliseconds(2500));
 
-    int frames = 0;
-    sf::Texture texture;
-    sf::Sprite sprite;
-    sprite.setTexture(texture);
-    auto begin = std::chrono::system_clock::now();
-
-    while (App.isOpen() && run) {
-        sf::Event Event;
-        while (App.pollEvent(Event)) {
-            if (Event.type == sf::Event::Closed)
-            {
-                run = false;
-            }
-        }
-
+    while (run)
+    {
         if (frameQueue.empty()) continue;
-        auto& frame = frameQueue.front();
 
-        GLint textureBinding;
-        glGetIntegerv(GL_TEXTURE_BINDING_2D, &textureBinding);
-        sf::Texture::bind(&texture);
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, frame.width(), frame.height(), GL_RGB, GL_UNSIGNED_BYTE, frame.buffer().data());
-        glBindTexture(GL_TEXTURE_2D, textureBinding);
-
-        App.draw(sprite);
-
-        frames++;
+        auto frame = std::move(frameQueue.front());
         frameQueue.pop();
-        App.display();
-    }
 
-    auto end = std::chrono::system_clock::now();
-    tfm::printfln("Display FPS: %lld", 1000 / (std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() / frames));
+        e2e::return_buffer(std::move(frame));
+    }
 
     framer.join();
     decoder.join();
