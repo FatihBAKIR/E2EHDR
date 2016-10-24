@@ -29,7 +29,7 @@ constexpr uint32_t crc32_impl(const char* p, size_t len, uint32_t crc) {
 }
 
 constexpr uint32_t crc32(const char* data, size_t length) {
-    return ~crc32_impl(data, length, ~0);
+    return ~crc32_impl(data, length, ~0U);
 }
 
 constexpr size_t strlen_c(const char* str) {
@@ -38,6 +38,12 @@ constexpr size_t strlen_c(const char* str) {
 
 constexpr int WSID(const char* str) {
     return crc32(str, strlen_c(str));
+}
+
+template <size_t N>
+constexpr int WSID(const char (&str)[N])
+{
+    return crc32(str, N);
 }
 
 #endif //CAMERA_HASH_H

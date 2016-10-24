@@ -43,6 +43,8 @@ int main() {
     std::queue<e2e::LDRFrame, boost::circular_buffer<e2e::LDRFrame>> frameQueue (std::move(buf));
 
     boost::thread framer([&]{
+        init_profiler("Grabber Thread");
+
         int frames = 0;
         auto f = c.LiveviewFrame();
         auto frame = e2e::gp::decode(f);
@@ -50,45 +52,38 @@ int main() {
         frameQueue.push(std::move(frame));
         e2e::gp::return_cf(f);
 
-        auto begin = std::chrono::system_clock::now();
-
         while (run)
         {
+            named_profile("Grab liveview frame");
             auto f = c.LiveviewFrame();
             jpgQueue.push(f);
             frames++;
         }
 
-        auto end = std::chrono::system_clock::now();
-        tfm::printfln("Grab FPS: %lld", 1000 / (std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() / frames));
+        print_tree();
     });
 
     boost::thread decoder([&]{
+        init_profiler("Decoder Thread");
         int frames = 0;
 
-        auto begin = std::chrono::system_clock::now();
         while (run)
         {
             if (jpgQueue.empty()) continue;
 
             {
-                profile();
+                named_profile("Jpeg Decoding");
                 auto file = jpgQueue.front();
                 jpgQueue.pop();
 
                 frameQueue.push(e2e::gp::decode(file));
 
-                if (frames % 10 == 0)
-                    tfm::printfln("Frames: %d", frames);
-                if (frames > 900)
-                    run = false;
                 e2e::gp::return_cf(file);
                 frames++;
             }
         }
 
-        auto end = std::chrono::system_clock::now();
-        tfm::printfln("Decode FPS: %lld", 1000 / (std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() / frames));
+        print_tree();
     });
 
     boost::thread displayer([&]{
@@ -96,30 +91,35 @@ int main() {
         run = false;
     });
 
-
     boost::this_thread::sleep_for(boost::chrono::milliseconds(2500));
 
+    init_profiler("Main Thread");
     int frames = 0;
     while (run)
     {
         if (frameQueue.empty()) continue;
 
-        auto frame = std::move(frameQueue.front());
-        frameQueue.pop();
+        {
+            named_profile("Display")
+            auto frame = std::move(frameQueue.front());
+            frameQueue.pop();
 
-        //cv::Mat img (cv::Size(frame.width(), frame.height()), CV_8UC3, frame.buffer().data());
-        //cv::cvtColor(img, img, CV_RGB2BGR);
-        //cv::imshow("hai", img);
-        //cv::waitKey(1);
+            cv::Mat img (cv::Size(frame.width(), frame.height()), CV_8UC3, frame.buffer().data());
+            cv::cvtColor(img, img, CV_RGB2BGR);
+            cv::imshow("hai", img);
+            cv::waitKey(1);
 
-        frames++;
+            frames++;
 
-        e2e::return_buffer(std::move(frame));
+            e2e::return_buffer(std::move(frame));
+        }
     }
 
     framer.join();
     decoder.join();
     displayer.join();
+
+    print_tree();
 
     return 0;
 }

@@ -2,7 +2,6 @@
 // Created by Mehmet Fatih BAKIR on 19/10/2016.
 //
 
-
 #include <iostream>
 #include <fstream>
 #include <cstddef>
@@ -31,6 +30,7 @@ void e2e::return_buffer(LDRFrame frame)
 
 auto read_JPEG_file (const e2e::byte* data, unsigned long size)
 {
+    scope_profile();
     //profile();
     struct jpeg_decompress_struct cinfo;
 
@@ -55,7 +55,10 @@ auto read_JPEG_file (const e2e::byte* data, unsigned long size)
 
     row_stride = cinfo.output_width * cinfo.output_components;
 
-    buffer = (*cinfo.mem->alloc_sarray)((j_common_ptr) &cinfo, JPOOL_IMAGE, row_stride, 1);
+    {
+        named_profile("Buffer Allocation");
+        buffer = (*cinfo.mem->alloc_sarray)((j_common_ptr) &cinfo, JPOOL_IMAGE, row_stride, 1);
+    }
 
     while (cinfo.output_scanline < cinfo.output_height) {
         auto to = cinfo.output_scanline;
