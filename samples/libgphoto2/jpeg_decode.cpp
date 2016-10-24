@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <jpeglib.h>
 #include "util.h"
+#include "profiler.h"
 #include <memory>
 #include <tinyformat.h>
 
@@ -25,11 +26,12 @@ void e2e::init_jpg_pool(int w, int h)
 
 void e2e::return_buffer(LDRFrame frame)
 {
-    memory_pool.push_back(std::move(frame.u_ptr()));
+    memory_pool.push_back(frame.u_ptr());
 }
 
 auto read_JPEG_file (const e2e::byte* data, unsigned long size)
 {
+    //profile();
     struct jpeg_decompress_struct cinfo;
 
     JSAMPARRAY buffer;

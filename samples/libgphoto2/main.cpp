@@ -10,16 +10,20 @@
 #include <boost/thread.hpp>
 #include <boost/predef.h>
 #include <boost/circular_buffer.hpp>
+#include <spdlog/spdlog.h>
 
-#if defined(BOOST_OS_LINUX) || defined(BOOST_OS_WINDOWS)
+#if BOOST_OS_LINUX || BOOST_OS_WINDOWS
 #include <GL/gl.h>
-#elif defined(BOOST_OS_MACOS)
+#elif BOOST_OS_MACOS
 #include <OpenGL/gl.h>
 #endif
 
+#include "profiler.h"
 
 
 int main() {
+    spdlog::stdout_color_mt("console");
+
     e2e::gp::GPhoto gp;
 
     auto cams = gp.ListCameras();
@@ -67,17 +71,20 @@ int main() {
         {
             if (jpgQueue.empty()) continue;
 
-            auto file = jpgQueue.front();
-            jpgQueue.pop();
+            {
+                profile();
+                auto file = jpgQueue.front();
+                jpgQueue.pop();
 
-            frameQueue.push(e2e::gp::decode(file));
+                frameQueue.push(e2e::gp::decode(file));
 
-            e2e::gp::return_cf(file);
-            frames++;
-
-            if (frames % 10 == 0)
-                tfm::printfln("Frames: %d", frames);
-            if (frames > 900) run = false;
+                if (frames % 10 == 0)
+                    tfm::printfln("Frames: %d", frames);
+                if (frames > 900)
+                    run = false;
+                e2e::gp::return_cf(file);
+                frames++;
+            }
         }
 
         auto end = std::chrono::system_clock::now();
@@ -88,6 +95,7 @@ int main() {
         std::cin.get();
         run = false;
     });
+
 
     boost::this_thread::sleep_for(boost::chrono::milliseconds(2500));
 
