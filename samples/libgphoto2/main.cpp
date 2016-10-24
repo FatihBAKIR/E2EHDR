@@ -9,12 +9,14 @@
 #include <tinyformat.h>
 #include <boost/thread.hpp>
 #include <boost/predef.h>
+#include <boost/circular_buffer.hpp>
 
 #if defined(BOOST_OS_LINUX) || defined(BOOST_OS_WINDOWS)
 #include <GL/gl.h>
 #elif defined(BOOST_OS_MACOS)
 #include <OpenGL/gl.h>
 #endif
+
 
 
 int main() {
@@ -30,10 +32,11 @@ int main() {
 
     volatile bool run = true;
 
-    std::queue<CameraFile*> jpgQueue;
-    std::queue<e2e::LDRFrame> frameQueue;
-    boost::condition_variable cv;
-    boost::mutex m;
+    boost::circular_buffer<e2e::LDRFrame> buf(64);
+    boost::circular_buffer<CameraFile*> buf2(64);
+
+    std::queue<CameraFile*, boost::circular_buffer<CameraFile*>> jpgQueue (buf2);
+    std::queue<e2e::LDRFrame, boost::circular_buffer<e2e::LDRFrame>> frameQueue (std::move(buf));
 
     boost::thread framer([&]{
         int frames = 0;
@@ -50,7 +53,6 @@ int main() {
             auto f = c.LiveviewFrame();
             jpgQueue.push(f);
             frames++;
-            cv.notify_one();
         }
 
         auto end = std::chrono::system_clock::now();
@@ -72,6 +74,10 @@ int main() {
 
             e2e::gp::return_cf(file);
             frames++;
+
+            if (frames % 10 == 0)
+                tfm::printfln("Frames: %d", frames);
+            if (frames > 900) run = false;
         }
 
         auto end = std::chrono::system_clock::now();
@@ -85,12 +91,20 @@ int main() {
 
     boost::this_thread::sleep_for(boost::chrono::milliseconds(2500));
 
+    int frames = 0;
     while (run)
     {
         if (frameQueue.empty()) continue;
 
         auto frame = std::move(frameQueue.front());
         frameQueue.pop();
+
+        //cv::Mat img (cv::Size(frame.width(), frame.height()), CV_8UC3, frame.buffer().data());
+        //cv::cvtColor(img, img, CV_RGB2BGR);
+        //cv::imshow("hai", img);
+        //cv::waitKey(1);
+
+        frames++;
 
         e2e::return_buffer(std::move(frame));
     }
