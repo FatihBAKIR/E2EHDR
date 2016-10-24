@@ -3,11 +3,14 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/gphoto_wrapper.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/profiler.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/profiler.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/main.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/gphoto.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/jpeg_decode.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/util.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/hash.h" isTestSource="false" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">
@@ -183,6 +186,7 @@
           <root url="file:///System/Library/Frameworks/Accelerate.framework/Headers" />
           <root url="file:///System/Library/Frameworks/Accelerate.framework/Frameworks/vImage.framework/Headers" />
           <root url="file:///System/Library/Frameworks/Accelerate.framework/Frameworks/vecLib.framework/Headers" />
+          <root url="file://$MODULE_DIR$/../../3rd_party/spdlog/include" />
           <root url="file://$MODULE_DIR$/../../3rd_party/tfm" />
           <root url="file://$MODULE_DIR$/../../3rd_party/GSL" />
           <root url="file:///Library/Developer/CommandLineTools/usr/lib/clang/8.0.0/include" />
@@ -365,6 +369,7 @@
           <root url="file:///System/Library/Frameworks/Accelerate.framework/Headers" />
           <root url="file:///System/Library/Frameworks/Accelerate.framework/Frameworks/vImage.framework/Headers" />
           <root url="file:///System/Library/Frameworks/Accelerate.framework/Frameworks/vecLib.framework/Headers" />
+          <root url="file://$MODULE_DIR$/../../3rd_party/spdlog/include" />
           <root url="file://$MODULE_DIR$/../../3rd_party/tfm" />
           <root url="file://$MODULE_DIR$/../../3rd_party/GSL" />
           <root url="file:///Library/Developer/CommandLineTools/usr/lib/clang/8.0.0/include" />
