@@ -9,7 +9,7 @@
 #include "hash.h"
 #include <spdlog/spdlog.h>
 
-template <int fname_hash, int line>
+template <unsigned fname_hash, unsigned line>
 class profiler {
     static std::chrono::high_resolution_clock::time_point begin;
 
@@ -19,17 +19,17 @@ public:
     ~profiler();
 };
 
-template <int hash, int line>
+template <unsigned hash, unsigned line>
 profiler<hash, line>::profiler() {
     begin = std::chrono::high_resolution_clock::now();
 }
 
-template <int hash, int line>
+template <unsigned hash, unsigned line>
 profiler<hash, line>::~profiler() {
     auto diff = std::chrono::high_resolution_clock::now() - begin;
     auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(diff).count();
 }
-template <int hash, int line>
+template <unsigned hash, unsigned line>
 std::chrono::high_resolution_clock::time_point profiler<hash, line>::begin;
 
 #define profile() profiler<WSID(__FILE__), __LINE__> __p__;
