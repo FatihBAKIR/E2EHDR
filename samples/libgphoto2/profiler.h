@@ -8,6 +8,7 @@
 #include <chrono>
 #include <boost/current_function.hpp>
 #include "hash.h"
+#include <algorithm>
 
 struct profiler_data
 {
@@ -21,6 +22,8 @@ struct profiler_data
     long            total_duration;
     unsigned long   total_hits;
     long            last_us;
+    long            min_us;
+    long            max_us;
 
     profiler_data*  parent;
     profiler_data*  child;
@@ -33,7 +36,7 @@ struct profiler_data
 
 extern thread_local profiler_data* current_prof;
 
-template <unsigned file_hash, unsigned line>
+template <int file_hash, int line>
 class profiler
 {
     static thread_local profiler_data data;
@@ -61,12 +64,14 @@ public:
 
         data.total_duration += us;
         data.last_us = us;
+        data.min_us = std::min<long>(data.min_us, us);
+        data.max_us = std::max<long>(data.max_us, us);
         ++data.total_hits;
         current_prof = data.parent;
     }
 };
 
-template <unsigned file_hash, unsigned line>
+template <int file_hash, int line>
 thread_local profiler_data profiler<file_hash, line>::data {line};
 
 #define scope_profile() profiler<WSID(__FILE__), __LINE__> __p__ {__FILE__, BOOST_CURRENT_FUNCTION};

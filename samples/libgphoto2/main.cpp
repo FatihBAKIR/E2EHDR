@@ -20,7 +20,6 @@
 
 #include "profiler.h"
 
-
 int main() {
     spdlog::stdout_color_mt("console");
 
@@ -104,10 +103,10 @@ int main() {
             auto frame = std::move(frameQueue.front());
             frameQueue.pop();
 
-            cv::Mat img (cv::Size(frame.width(), frame.height()), CV_8UC3, frame.buffer().data());
+            /*cv::Mat img (cv::Size(frame.width(), frame.height()), CV_8UC3, frame.buffer().data());
             cv::cvtColor(img, img, CV_RGB2BGR);
             cv::imshow("hai", img);
-            cv::waitKey(1);
+            cv::waitKey(1);*/
 
             frames++;
 
