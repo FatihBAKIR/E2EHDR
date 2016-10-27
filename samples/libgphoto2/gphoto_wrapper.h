@@ -10,7 +10,6 @@ namespace e2e
 namespace gp
 {
     using CameraInfo = std::pair<std::string, std::string>;
-    //using JpegContent = std::tuple<
 
     class GPhoto
     {
