@@ -6,6 +6,7 @@
 #include <gphoto2/gphoto2.h>
 #include "gphoto_wrapper.h"
 #include "jpeglib.h"
+#include "../jpeg_decode.h"
 #include <cstring>
 #include <tinyformat.h>
 #include <chrono>
@@ -104,8 +105,8 @@ namespace gp
         gp_camera_free(ptr_);
     }
 
-    boost::circular_buffer<CameraFile*> pool{64};
-    int _ = ([]{
+    boost::circular_buffer<::CameraFile*> pool{64};
+    int _ = ([] {
         pool.resize(64);
         for (auto& cf : pool)
         {
@@ -114,12 +115,14 @@ namespace gp
         return 0;
     })();
 
-    void return_cf(CameraFile* ptr)
+    void return_cf(::CameraFile* ptr)
     {
         pool.push_back(ptr);
     }
 
-    LDRFrame decode(CameraFile *file) {
+    LDRFrame decode(::CameraFile *file)
+    {
+        Expects(file != nullptr);
         const char* buffer;
         unsigned long size;
 
@@ -130,10 +133,11 @@ namespace gp
             throw capture_error("File get data failed");
         }
 
+        Ensures(buffer != nullptr);
         return e2e::decode_jpeg({reinterpret_cast<const byte*>(buffer), static_cast<long>(size)});
     }
 
-    CameraFile* Camera::LiveviewFrame()
+    CameraFile Camera::liveview_frame()
     {
         auto file = pool.front();
         pool.pop_front();
@@ -145,7 +149,7 @@ namespace gp
             throw capture_error("Preview capture failed");
         }
 
-        return file;
+        return {file};
     }
 
     GPhoto::GPhoto() : ctx_(create_context()) {}
@@ -160,7 +164,8 @@ namespace gp
 
         std::vector<CameraInfo> cameras;
 
-        for (int i = 0; i < gp_list_count(cams); i++) {
+        for (int i = 0; i < gp_list_count(cams); i++)
+        {
             const char *name, *value;
             gp_list_get_name(cams, i, &name);
             gp_list_get_value(cams, i, &value);
@@ -171,5 +176,19 @@ namespace gp
 
         return cameras;
     };
+
+    CameraFile::operator gsl::span<const byte>()
+    {
+        const char *buffer;
+        unsigned long size;
+
+        int retval = gp_file_get_data_and_size(internal_, &buffer, &size);
+
+        if (retval != GP_OK) {
+            throw capture_error("File get data failed");
+        }
+
+        return {reinterpret_cast<const byte*>(buffer), static_cast<long>(size)};
+    }
 }
 }

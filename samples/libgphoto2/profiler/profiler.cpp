@@ -36,6 +36,8 @@ boost::property_tree::ptree prof_to_tree(const profiler_data& data)
     self.put("total_hits", data.total_hits);
     self.put("avg_us", data.total_duration * 1.0f / data.total_hits);
     self.put("last_us", data.last_us);
+    self.put("min_us", data.min_us);
+    self.put("max_us", data.max_us);
 
     ptree children;
 

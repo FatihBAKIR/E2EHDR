@@ -22,8 +22,8 @@ struct profiler_data
     long            total_duration;
     unsigned long   total_hits;
     long            last_us;
-    long            min_us;
-    long            max_us;
+    long            min_us = 1000 * 1000;
+    long            max_us = 0;
 
     profiler_data*  parent;
     profiler_data*  child;
@@ -74,8 +74,13 @@ public:
 template <int file_hash, int line>
 thread_local profiler_data profiler<file_hash, line>::data {line};
 
+#if !defined(NDEBUG) || (defined(DO_PROFILE) && DO_PROFILE)
 #define scope_profile() profiler<WSID(__FILE__), __LINE__> __p__ {__FILE__, BOOST_CURRENT_FUNCTION};
 #define named_profile(name) profiler<WSID(__FILE__), __LINE__> __p__ {__FILE__, (name)};
+#else
+#define scope_profile()
+#define named_profile(name)
+#endif
 
 void print_tree();
 void init_profiler(const char* name);

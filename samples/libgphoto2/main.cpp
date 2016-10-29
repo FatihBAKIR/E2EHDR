@@ -2,7 +2,7 @@
 #include <thread>
 #include <chrono>
 #include <vector>
-#include "gphoto_wrapper.h"
+#include "gphoto_wrap/gphoto_wrapper.h"
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <queue>
@@ -11,6 +11,8 @@
 #include <boost/predef.h>
 #include <boost/circular_buffer.hpp>
 #include <spdlog/spdlog.h>
+#include <boost/lockfree/spsc_queue.hpp>
+#include "jpeg_decode.h"
 
 #if BOOST_OS_LINUX || BOOST_OS_WINDOWS
 #include <GL/gl.h>
@@ -18,7 +20,43 @@
 #include <OpenGL/gl.h>
 #endif
 
-#include "profiler.h"
+#include "profiler/profiler.h"
+
+struct thread_wrapper
+{
+    boost::thread t_;
+
+    thread_wrapper(boost::thread&& t) : t_(std::move(t)) {}
+    thread_wrapper(thread_wrapper&& rhs) : t_(std::move(rhs.t_)) {}
+    ~thread_wrapper()
+    {
+        t_.interrupt();
+        t_.join();
+    }
+};
+
+template <class CBType>
+auto pull_frames(e2e::gp::Camera& cam, CBType callback)
+{
+    boost::thread pull([&cam, callback] {
+        init_profiler("Grabber Thread");
+
+        {
+            named_profile("Initial frame grab");
+            callback(cam.liveview_frame());
+        }
+
+        while (!boost::this_thread::interruption_requested())
+        {
+            named_profile("Grab liveview frame");
+            callback(cam.liveview_frame());
+        }
+
+        print_tree();
+    });
+
+    return thread_wrapper { std::move(pull) };
+}
 
 int main() {
     spdlog::stdout_color_mt("console");
@@ -26,6 +64,13 @@ int main() {
     e2e::gp::GPhoto gp;
 
     auto cams = gp.ListCameras();
+
+    if (cams.size() < 1)
+    {
+        tfm::format(std::cerr, "No camera was found!");
+        return -1;
+    }
+
     for (auto&& c : cams)
     {
         std::cout << c.first << ' ' << c.second << '\n';
@@ -35,36 +80,24 @@ int main() {
 
     volatile bool run = true;
 
-    boost::circular_buffer<e2e::LDRFrame> buf(64);
-    boost::circular_buffer<CameraFile*> buf2(64);
+    std::queue<e2e::LDRFrame> frameQueue;
+    std::queue<e2e::gp::CameraFile> jpgQueue;
 
-    std::queue<CameraFile*, boost::circular_buffer<CameraFile*>> jpgQueue (buf2);
-    std::queue<e2e::LDRFrame, boost::circular_buffer<e2e::LDRFrame>> frameQueue (std::move(buf));
-
-    boost::thread framer([&]{
-        init_profiler("Grabber Thread");
-
-        int frames = 0;
-        auto f = c.LiveviewFrame();
-        auto frame = e2e::gp::decode(f);
-        e2e::init_jpg_pool(frame.width(), frame.height());
-        frameQueue.push(std::move(frame));
-        e2e::gp::return_cf(f);
-
-        while (run)
-        {
-            named_profile("Grab liveview frame");
-            auto f = c.LiveviewFrame();
-            jpgQueue.push(f);
-            frames++;
-        }
-
-        print_tree();
+    auto p = pull_frames(c, [&](auto&& frame)
+    {
+        jpgQueue.push(std::move(frame));
     });
 
     boost::thread decoder([&]{
         init_profiler("Decoder Thread");
         int frames = 0;
+
+        while (jpgQueue.empty());
+
+        auto f = std::move(jpgQueue.front());
+        jpgQueue.pop();
+
+        e2e::JpgDecoder decoder {f};
 
         while (run)
         {
@@ -72,12 +105,11 @@ int main() {
 
             {
                 named_profile("Jpeg Decoding");
-                auto file = jpgQueue.front();
+                auto file = std::move(jpgQueue.front());
                 jpgQueue.pop();
 
-                frameQueue.push(e2e::gp::decode(file));
+                frameQueue.push(decoder.decode(file));
 
-                e2e::gp::return_cf(file);
                 frames++;
             }
         }
@@ -85,7 +117,7 @@ int main() {
         print_tree();
     });
 
-    boost::thread displayer([&]{
+    boost::thread io([&]{
         std::cin.get();
         run = false;
     });
@@ -114,9 +146,8 @@ int main() {
         }
     }
 
-    framer.join();
     decoder.join();
-    displayer.join();
+    io.join();
 
     print_tree();
 
