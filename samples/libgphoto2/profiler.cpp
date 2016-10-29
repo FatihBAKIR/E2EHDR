@@ -71,3 +71,7 @@ void print_tree() {
 
     std::cout << json;
 }
+
+const profiler_data &current_profile() {
+    return *current_prof;
+}

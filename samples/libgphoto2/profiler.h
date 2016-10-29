@@ -29,6 +29,9 @@ struct profiler_data
     profiler_data(unsigned line) :
             line{line}, total_duration{0}, total_hits{0}, parent{nullptr}, child{nullptr}, sibling{nullptr}
     {}
+
+    profiler_data(const profiler_data&) = delete;
+    profiler_data(profiler_data&&) = default;
 };
 
 extern thread_local profiler_data* current_prof;
@@ -74,4 +77,6 @@ thread_local profiler_data profiler<file_hash, line>::data {line};
 
 void print_tree();
 void init_profiler(const char* name);
+
+const profiler_data& current_profile();
 #endif //CAMERA_PROFILER_H
