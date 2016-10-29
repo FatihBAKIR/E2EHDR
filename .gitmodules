@@ -7,6 +7,3 @@
 [submodule "3rd_party/spdlog"]
 	path = 3rd_party/spdlog
 	url = git@github.com:gabime/spdlog.git
-[submodule "3rd_party/rapid_json"]
-	path = 3rd_party/rapid_json
-	url = git@github.com:miloyip/rapidjson.git
