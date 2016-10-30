@@ -13,6 +13,7 @@
 #include <spdlog/spdlog.h>
 #include <boost/lockfree/spsc_queue.hpp>
 #include "jpeg_decode.h"
+#include <boost/optional.hpp>
 
 #if BOOST_OS_LINUX || BOOST_OS_WINDOWS
 #include <GL/gl.h>
@@ -88,16 +89,17 @@ int main() {
         jpgQueue.push(std::move(frame));
     });
 
+    boost::optional<e2e::JpgDecoder> d;
+
     boost::thread decoder([&]{
         init_profiler("Decoder Thread");
         int frames = 0;
 
         while (jpgQueue.empty());
 
-        auto f = std::move(jpgQueue.front());
-        jpgQueue.pop();
-
-        e2e::JpgDecoder decoder {f};
+        auto& f = jpgQueue.front();
+        d = e2e::JpgDecoder {f};
+        auto& decoder = d.get();
 
         while (run)
         {
@@ -122,8 +124,6 @@ int main() {
         run = false;
     });
 
-    boost::this_thread::sleep_for(boost::chrono::milliseconds(2500));
-
     init_profiler("Main Thread");
     int frames = 0;
     while (run)
@@ -135,14 +135,15 @@ int main() {
             auto frame = std::move(frameQueue.front());
             frameQueue.pop();
 
-            /*cv::Mat img (cv::Size(frame.width(), frame.height()), CV_8UC3, frame.buffer().data());
+            cv::Mat img (cv::Size(frame.width(), frame.height()), CV_8UC3, frame.buffer().data());
             cv::cvtColor(img, img, CV_RGB2BGR);
             cv::imshow("hai", img);
-            cv::waitKey(1);*/
+            cv::waitKey(1);
 
             frames++;
 
-            e2e::return_buffer(std::move(frame));
+            // return the frame ...
+            d->return_buffer(std::move(frame));
         }
     }
 

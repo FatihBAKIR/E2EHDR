@@ -19,6 +19,7 @@ namespace e2e
     public:
         JpgDecoder(gsl::span<const byte> initial_frame);
         LDRFrame decode(gsl::span<const byte> data);
+        void return_buffer(LDRFrame frame);
     };
 
     void init_jpg_pool(int w, int h);

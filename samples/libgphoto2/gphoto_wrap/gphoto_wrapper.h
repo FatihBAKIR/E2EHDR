@@ -32,13 +32,16 @@ namespace gp
     public:
         CameraFile(::CameraFile* ptr) : internal_(ptr) {}
         CameraFile(const CameraFile&) = delete;
-        CameraFile(CameraFile&& rhs) : internal_(rhs.internal_) {}
+        CameraFile(CameraFile&& rhs) : internal_(rhs.internal_) {
+            rhs.internal_ = nullptr;
+        }
 
         operator gsl::span<const byte>();
 
         ~CameraFile()
         {
-            return_cf(internal_);
+            if (internal_)
+                return_cf(internal_);
         }
     };
 

@@ -105,9 +105,9 @@ namespace gp
         gp_camera_free(ptr_);
     }
 
-    boost::circular_buffer<::CameraFile*> pool{64};
+    boost::circular_buffer<::CameraFile*> pool{256};
     int _ = ([] {
-        pool.resize(64);
+        pool.resize(256);
         for (auto& cf : pool)
         {
             gp_file_new(&cf);

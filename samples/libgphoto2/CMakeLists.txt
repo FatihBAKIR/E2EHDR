@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.6)
 project(camera)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -O3 -pthread")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -O2 -pthread")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "/usr/local/cmake_modules/")
 
 find_package(PkgConfig REQUIRED)

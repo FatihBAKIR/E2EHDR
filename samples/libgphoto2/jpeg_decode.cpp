@@ -37,7 +37,9 @@ auto read_jpeg_header(gsl::span<const e2e::byte> img)
     struct jpeg_decompress_struct cinfo;
     jpeg_create_decompress(&cinfo);
 
-    cinfo.err = jpeg_std_error(nullptr);
+    struct jpeg_error_mgr jerr;
+
+    cinfo.err = jpeg_std_error(&jerr);
 
     jpeg_mem_src(&cinfo, const_cast<e2e::byte*>(img.data()), img.length());
     jpeg_read_header(&cinfo, TRUE);
@@ -154,5 +156,10 @@ namespace e2e {
         memory_pool.pop_front();
         read_jpeg_file(data, mem.get());
         return {std::move(mem), width, height};
+    }
+
+    void JpgDecoder::return_buffer(LDRFrame frame)
+    {
+        memory_pool.push_back(frame.u_ptr());
     }
 }
