@@ -14,6 +14,7 @@
 #include <boost/lockfree/spsc_queue.hpp>
 #include "jpeg_decode.h"
 #include <boost/optional.hpp>
+#include "spsc/spsc_queue.h"
 
 #if BOOST_OS_LINUX || BOOST_OS_WINDOWS
 #include <GL/gl.h>
@@ -81,8 +82,8 @@ int main() {
 
     volatile bool run = true;
 
-    std::queue<e2e::LDRFrame> frameQueue;
-    std::queue<e2e::gp::CameraFile> jpgQueue;
+    e2e::spsc_queue<e2e::gp::CameraFile> jpgQueue;
+    e2e::spsc_queue<e2e::LDRFrame> frameQueue;
 
     auto p = pull_frames(c, [&](auto&& frame)
     {

@@ -7,6 +7,7 @@
 #include "gphoto_wrapper.h"
 #include "jpeglib.h"
 #include "../jpeg_decode.h"
+#include "../profiler/profiler.h"
 #include <cstring>
 #include <tinyformat.h>
 #include <chrono>
@@ -142,7 +143,9 @@ namespace gp
         auto file = pool.front();
         pool.pop_front();
 
-        int retval = gp_camera_capture_preview(ptr_, file, gp_.ctx_);
+        int retval;
+
+        retval = gp_camera_capture_preview(ptr_, file, gp_.ctx_);
 
         if (retval != GP_OK)
         {

@@ -7,3 +7,6 @@
 [submodule "3rd_party/spdlog"]
 	path = 3rd_party/spdlog
 	url = git@github.com:gabime/spdlog.git
+[submodule "samples/libgphoto2/spsc"]
+	path = samples/libgphoto2/spsc
+	url = git@github.com:FatihBAKIR/spsc.git
