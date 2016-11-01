@@ -13,19 +13,18 @@ find_package(Boost REQUIRED COMPONENTS system)
 set(SOURCE_FILES
     shaders/hdr.frag
     shaders/hdr.vert
-    main.cpp
     pipeline.cpp
     pipeline.h
     quad.cpp
     quad.h Window.cpp Window.h)
 
-add_executable(gl ${SOURCE_FILES})
+add_library(e2e_gl STATIC ${SOURCE_FILES})
 
-target_link_libraries(gl ${OPENGL_LIBRARIES})
-target_link_libraries(gl ${GLEW_LIBRARIES})
-target_link_libraries(gl glfw)
-target_link_libraries(gl ${Boost_LIBRARIES})
+target_link_libraries(e2e_gl ${OPENGL_LIBRARIES})
+target_link_libraries(e2e_gl ${GLEW_LIBRARIES})
+target_link_libraries(e2e_gl glfw)
+target_link_libraries(e2e_gl ${Boost_LIBRARIES})
 
-target_include_directories(gl PUBLIC ${OPENGL_INCLUDE_DIR})
-target_include_directories(gl PUBLIC ${GLEW_INCLUDE_DIR})
-target_include_directories(gl PUBLIC ${Boost_INCLUDE_DIRS})
+target_include_directories(e2e_gl PUBLIC ${OPENGL_INCLUDE_DIR})
+target_include_directories(e2e_gl PUBLIC ${GLEW_INCLUDE_DIR})
+target_include_directories(e2e_gl PUBLIC ${Boost_INCLUDE_DIRS})

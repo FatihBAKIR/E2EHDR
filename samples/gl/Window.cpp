@@ -13,8 +13,18 @@ namespace
 {
     struct GLFW
     {
-        GLFW() { glfwInit(); }
-        ~GLFW() { glfwTerminate(); }
+        GLFW()
+        {
+            auto ret = glfwInit();
+            if (ret != GLFW_TRUE)
+            {
+                throw std::runtime_error("GLFW Init failed, amk cocugu");
+            }
+        }
+        ~GLFW()
+        {
+            glfwTerminate();
+        }
     };
 
     struct GLEW
@@ -41,21 +51,25 @@ namespace e2e
             : w(width), h(height)
     {
         static GLFW glfw_global;
-        //OpenGL//
-        //Lower left point is (0,0). Top right point is (g_SCREEN_WIDTH, g_SCREEN_HEIGHT).
-        glViewport(0, 0, w, h);
-        glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
 
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
 
         //Create a window.
         window = glfwCreateWindow(w, h, "E2EHDR", nullptr, nullptr);
+        assert(window);
         glfwMakeContextCurrent(window);
+
         GLEW g;
+
+        //OpenGL//
+        //Lower left point is (0,0). Top right point is (g_SCREEN_WIDTH, g_SCREEN_HEIGHT).
+        glViewport(0, 0, w * 2, h * 2);
+        glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
     }
 
     void Window::Loop(const Quad& q)

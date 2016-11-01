@@ -187,7 +187,8 @@ namespace gp
 
         int retval = gp_file_get_data_and_size(internal_, &buffer, &size);
 
-        if (retval != GP_OK) {
+        if (retval != GP_OK)
+        {
             throw capture_error("File get data failed");
         }
 
