@@ -13,7 +13,7 @@ namespace e2e
 {
     class JpgDecoder
     {
-        boost::circular_buffer<std::unique_ptr<e2e::byte[]>> memory_pool {64};
+        boost::circular_buffer<std::unique_ptr<e2e::byte[]>> memory_pool {1024};
         short width, height;
 
     public:

@@ -15,6 +15,9 @@
 #include "jpeg_decode.h"
 #include <boost/optional.hpp>
 #include "spsc/spsc_queue.h"
+#include <pipeline.h>
+#include <quad.h>
+#include <Window.h>
 
 #if BOOST_OS_LINUX || BOOST_OS_WINDOWS
 #include <GL/gl.h>
@@ -82,8 +85,8 @@ int main() {
 
     volatile bool run = true;
 
-    e2e::spsc_queue<e2e::gp::CameraFile> jpgQueue;
-    e2e::spsc_queue<e2e::LDRFrame> frameQueue;
+    e2e::spsc_queue<e2e::gp::CameraFile, e2e::constant_storage<e2e::gp::CameraFile, 1024>> jpgQueue;
+    e2e::spsc_queue<e2e::LDRFrame, e2e::constant_storage<e2e::LDRFrame, 1024>> frameQueue;
 
     auto p = pull_frames(c, [&](auto&& frame)
     {
@@ -120,36 +123,42 @@ int main() {
         print_tree();
     });
 
-    boost::thread io([&]{
-        std::cin.get();
-        run = false;
-    });
-
     init_profiler("Main Thread");
+
+    e2e::Window w(800, 600);
+
+    Material hdr;
+    hdr.attachShader(Material::VERTEX_SHADER, "/Users/fatih/Bitirme/samples/gl/shaders/hdr.vert");
+    hdr.attachShader(Material::FRAGMENT_SHADER, "/Users/fatih/Bitirme/samples/gl/shaders/hdr.frag");
+    hdr.link();
+
+    e2e::Quad quad;
+    quad.create();
+    quad.set_material(hdr);
+
     int frames = 0;
-    while (run)
+
+    while (!w.ShouldClose())
     {
         if (frameQueue.empty()) continue;
 
-        {
-            named_profile("Display")
-            auto frame = std::move(frameQueue.front());
-            frameQueue.pop();
+        named_profile("Display")
+        auto frame = std::move(frameQueue.front());
+        frameQueue.pop();
 
-            cv::Mat img (cv::Size(frame.width(), frame.height()), CV_8UC3, frame.buffer().data());
-            cv::cvtColor(img, img, CV_RGB2BGR);
-            cv::imshow("hai", img);
-            cv::waitKey(1);
+        quad.addTexture(frame.buffer().data(), frame.width(), frame.height());
 
-            frames++;
+        w.Loop(quad);
 
-            // return the frame ...
-            d->return_buffer(std::move(frame));
-        }
+        frames++;
+
+        // return the frame ...
+        d->return_buffer(std::move(frame));
     }
 
+    run = false;
+
     decoder.join();
-    io.join();
 
     print_tree();
 

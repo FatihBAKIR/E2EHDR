@@ -15,7 +15,7 @@ int main()
 	e2e::Quad quad;
 	quad.create();
     unsigned char image[] = {
-            255, 255, 255,
+            255, 0, 0,
             255, 255, 255,
             255, 255, 255,
             255, 255, 255,
