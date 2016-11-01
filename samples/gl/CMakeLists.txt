@@ -16,9 +16,10 @@ set(SOURCE_FILES
     pipeline.cpp
     pipeline.h
     quad.cpp
-    quad.h Window.cpp Window.h)
+    quad.h Window.cpp Window.h main.cpp)
 
-add_library(e2e_gl STATIC ${SOURCE_FILES})
+#add_library(e2e_gl STATIC ${SOURCE_FILES})
+add_executable(e2e_gl ${SOURCE_FILES})
 
 target_link_libraries(e2e_gl ${OPENGL_LIBRARIES})
 target_link_libraries(e2e_gl ${GLEW_LIBRARIES})
