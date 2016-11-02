@@ -67,15 +67,18 @@ void Quad::addTexture(unsigned char* image, int width, int height)
 
 	glBindTexture(GL_TEXTURE_2D, m_texture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
-	glGenerateMipmap(GL_TEXTURE_2D);
+	//glGenerateMipmap(GL_TEXTURE_2D);
 
 	//Settings
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
-	glBindTexture(GL_TEXTURE_2D, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Quad::draw() const
@@ -84,6 +87,9 @@ void Quad::draw() const
 
 	material->use();
 	glBindVertexArray(m_vertex_array);
+
+    glUniform2f(glGetUniformLocation(material->get_pipeline(), "scale"), m_scale_factor_x, m_scale_factor_y);
+    glUniform2f(glGetUniformLocation(material->get_pipeline(), "translate"), m_position_x, m_position_y);
 
 	if (m_texture)
 	{
@@ -99,5 +105,17 @@ void Quad::draw() const
 void Quad::set_material(Material &mat)
 {
 	material = mat;
+}
+
+void Quad::set_position(float x, float y)
+{
+    m_position_x = x;
+    m_position_y = y;
+}
+
+void Quad::set_scale_factor(float x, float y)
+{
+    m_scale_factor_x = x;
+    m_scale_factor_y = y;
 }
 }
