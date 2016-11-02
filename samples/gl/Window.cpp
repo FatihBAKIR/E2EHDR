@@ -67,12 +67,12 @@ namespace e2e
 
         //OpenGL//
         //Lower left point is (0,0). Top right point is (g_SCREEN_WIDTH, g_SCREEN_HEIGHT).
-        glViewport(0, 0, w * 2, h * 2);
+        glViewport(0, 0, w, h);
         glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
     }
 
-    void Window::Loop(const Quad& q)
+    void Window::Loop(const std::vector<std::reference_wrapper<Quad>>& quads)
     {
         /*INPUT*/
         //Poll events before handling.
@@ -85,7 +85,10 @@ namespace e2e
 
         /*RENDER*/
         glClear(GL_COLOR_BUFFER_BIT);
-        q.draw();
+        for (auto&& q : quads)
+        {
+            q.get().draw();
+        }
         glfwSwapBuffers(window);
     }
 
