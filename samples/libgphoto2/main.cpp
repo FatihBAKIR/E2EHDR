@@ -141,7 +141,15 @@ int main() {
 
     e2e::Quad quad;
     quad.create();
+    quad.set_position(-0.5, 0);
+    quad.set_scale_factor(0.5, 0.5);
     quad.set_material(hdr);
+
+    e2e::Quad quad1;
+    quad1.create();
+    quad1.set_position(0.5, 0);
+    quad1.set_scale_factor(0.5, 0.5);
+    quad1.set_material(hdr);
 
     int frames = 0;
 
@@ -154,8 +162,9 @@ int main() {
         frameQueue.pop();
 
         quad.addTexture(frame.buffer().data(), frame.width(), frame.height());
+        quad1.addTexture(frame.buffer().data(), frame.width(), frame.height());
 
-        w.Loop(quad);
+        w.Loop({quad, quad1});
 
         frames++;
 
