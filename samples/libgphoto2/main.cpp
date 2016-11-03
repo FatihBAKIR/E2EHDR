@@ -70,7 +70,7 @@ int main() {
 
     auto cams = gp.ListCameras();
 
-    if (cams.size() < 1)
+    if (cams.size() < 2)
     {
         tfm::format(std::cerr, "No camera was found!");
         return -1;
@@ -82,15 +82,22 @@ int main() {
     }
 
     e2e::gp::Camera c (cams[0], gp);
+    e2e::gp::Camera c1 (cams[1], gp);
 
     volatile bool run = true;
 
     e2e::spsc_queue<e2e::gp::CameraFile, e2e::constant_storage<e2e::gp::CameraFile, 1024>> jpgQueue;
+    e2e::spsc_queue<e2e::gp::CameraFile, e2e::constant_storage<e2e::gp::CameraFile, 1024>> jpgQueue1;
     e2e::spsc_queue<e2e::LDRFrame, e2e::constant_storage<e2e::LDRFrame, 1024>> frameQueue;
 
     auto p = pull_frames(c, [&](auto&& frame)
     {
         jpgQueue.push(std::move(frame));
+    });
+
+    auto p2 = pull_frames(c1, [&](auto&& frame)
+    {
+        jpgQueue1.push(std::move(frame));
     });
 
     boost::optional<e2e::JpgDecoder> d;
