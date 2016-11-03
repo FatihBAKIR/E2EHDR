@@ -89,6 +89,7 @@ int main() {
     e2e::spsc_queue<e2e::gp::CameraFile, e2e::constant_storage<e2e::gp::CameraFile, 1024>> jpgQueue;
     e2e::spsc_queue<e2e::gp::CameraFile, e2e::constant_storage<e2e::gp::CameraFile, 1024>> jpgQueue1;
     e2e::spsc_queue<e2e::LDRFrame, e2e::constant_storage<e2e::LDRFrame, 1024>> frameQueue;
+    e2e::spsc_queue<e2e::LDRFrame, e2e::constant_storage<e2e::LDRFrame, 1024>> frameQueue1;
 
     auto p = pull_frames(c, [&](auto&& frame)
     {
@@ -101,30 +102,39 @@ int main() {
     });
 
     boost::optional<e2e::JpgDecoder> d;
+    boost::optional<e2e::JpgDecoder> d1;
 
     boost::thread decoder([&]{
         init_profiler("Decoder Thread");
         int frames = 0;
 
-        while (jpgQueue.empty());
+        auto cam = [&](auto& queue, auto& decoder, auto& to){
+            if (queue.empty()) return;
+            {
+                named_profile("Jpeg Decoding");
+                auto file = std::move(queue.front());
+                queue.pop();
 
+                to.push(decoder.decode(file));
+
+                frames++;
+            }
+        };
+
+        while (jpgQueue.empty());
         auto& f = jpgQueue.front();
         d = e2e::JpgDecoder {f};
         auto& decoder = d.get();
 
+        while (jpgQueue1.empty());
+        auto& f1 = jpgQueue1.front();
+        d1 = e2e::JpgDecoder {f1};
+        auto& decoder1 = d1.get();
+
         while (run)
         {
-            if (jpgQueue.empty()) continue;
-
-            {
-                named_profile("Jpeg Decoding");
-                auto file = std::move(jpgQueue.front());
-                jpgQueue.pop();
-
-                frameQueue.push(decoder.decode(file));
-
-                frames++;
-            }
+            cam(jpgQueue, decoder, frameQueue);
+            cam(jpgQueue1, decoder1, frameQueue1);
         }
 
         print_tree();
@@ -135,8 +145,8 @@ int main() {
     e2e::Window w(800, 600);
 
     Material hdr;
-    hdr.attachShader(Material::VERTEX_SHADER, "/Users/fatih/Bitirme/samples/gl/shaders/hdr.vert");
-    hdr.attachShader(Material::FRAGMENT_SHADER, "/Users/fatih/Bitirme/samples/gl/shaders/hdr.frag");
+    hdr.attachShader(Material::VERTEX_SHADER, "/home/fatih/E2EHDR/samples/gl/shaders/hdr.vert");
+    hdr.attachShader(Material::FRAGMENT_SHADER, "/home/fatih/E2EHDR/samples/gl/shaders/hdr.frag");
     hdr.link();
 
     e2e::Quad quad;
@@ -155,14 +165,17 @@ int main() {
 
     while (!w.ShouldClose())
     {
-        if (frameQueue.empty()) continue;
+        if (frameQueue.empty() || frameQueue1.empty()) continue;
 
         named_profile("Display")
         auto frame = std::move(frameQueue.front());
         frameQueue.pop();
 
+        auto frame1 = std::move(frameQueue1.front());
+        frameQueue1.pop();
+
         quad.addTexture(frame.buffer().data(), frame.width(), frame.height());
-        quad1.addTexture(frame.buffer().data(), frame.width(), frame.height());
+        quad1.addTexture(frame1.buffer().data(), frame1.width(), frame1.height());
 
         w.Loop({quad, quad1});
 
@@ -170,6 +183,7 @@ int main() {
 
         // return the frame ...
         d->return_buffer(std::move(frame));
+        d1->return_buffer(std::move(frame1));
     }
 
     run = false;
