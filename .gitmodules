@@ -10,3 +10,6 @@
 [submodule "samples/libgphoto2/spsc"]
 	path = samples/libgphoto2/spsc
 	url = git@github.com:FatihBAKIR/spsc.git
+[submodule "3rd_party/imgui"]
+	path = 3rd_party/imgui
+	url = git@github.com:ocornut/imgui.git
