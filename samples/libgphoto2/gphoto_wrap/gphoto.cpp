@@ -95,47 +95,20 @@ namespace e2e
 namespace gp
 {
     Camera::Camera(const CameraInfo &info, GPhoto &gp) :
-            gp_(gp)
+            gp_(gp), pool(1024)
     {
         gp_camera_new(&ptr_);
         open_camera(&ptr_, info.first.c_str(), info.second.c_str(), gp_.ctx_);
+        pool.resize(1024);
+        for (auto& cf : pool)
+        {
+            gp_file_new(&cf);
+        }
     }
 
     Camera::~Camera()
     {
         gp_camera_free(ptr_);
-    }
-
-    boost::circular_buffer<::CameraFile*> pool{256};
-    int _ = ([] {
-        pool.resize(256);
-        for (auto& cf : pool)
-        {
-            gp_file_new(&cf);
-        }
-        return 0;
-    })();
-
-    void return_cf(::CameraFile* ptr)
-    {
-        pool.push_back(ptr);
-    }
-
-    LDRFrame decode(::CameraFile *file)
-    {
-        Expects(file != nullptr);
-        const char* buffer;
-        unsigned long size;
-
-        int retval = gp_file_get_data_and_size (file, &buffer, &size);
-
-        if (retval != GP_OK)
-        {
-            throw capture_error("File get data failed");
-        }
-
-        Ensures(buffer != nullptr);
-        return e2e::decode_jpeg({reinterpret_cast<const byte*>(buffer), static_cast<long>(size)});
     }
 
     CameraFile Camera::liveview_frame()
@@ -152,7 +125,11 @@ namespace gp
             throw capture_error("Preview capture failed");
         }
 
-        return {file};
+        return {*this, file};
+    }
+
+    void Camera::return_cf(::CameraFile* f) {
+        pool.push_back(f);
     }
 
     GPhoto::GPhoto() : ctx_(create_context()) {}
@@ -193,6 +170,12 @@ namespace gp
         }
 
         return {reinterpret_cast<const byte*>(buffer), static_cast<long>(size)};
+    }
+
+    CameraFile::~CameraFile()
+    {
+        if (internal_)
+            cam.return_cf(internal_);
     }
 }
 }

@@ -40,8 +40,8 @@ struct thread_wrapper
     }
 };
 
-template <class CBType>
-auto pull_frames(e2e::gp::Camera& cam, CBType callback)
+template <class CamType, class CBType>
+auto pull_frames(CamType& cam, CBType callback)
 {
     boost::thread pull([&cam, callback] {
         init_profiler("Grabber Thread");
@@ -54,7 +54,8 @@ auto pull_frames(e2e::gp::Camera& cam, CBType callback)
         while (!boost::this_thread::interruption_requested())
         {
             named_profile("Grab liveview frame");
-            callback(cam.liveview_frame());
+            auto frame = cam.liveview_frame();
+            callback(std::move(frame));
         }
 
         print_tree();
@@ -115,7 +116,9 @@ int main() {
                 auto file = std::move(queue.front());
                 queue.pop();
 
-                to.push(decoder.decode(file));
+                auto frame = decoder.decode(file);
+                frame.set_time(file.get_time());
+                to.push(std::move(frame));
 
                 frames++;
             }
@@ -145,8 +148,8 @@ int main() {
     e2e::Window w(800, 600);
 
     Material hdr;
-    hdr.attachShader(Material::VERTEX_SHADER, "/home/fatih/E2EHDR/samples/gl/shaders/hdr.vert");
-    hdr.attachShader(Material::FRAGMENT_SHADER, "/home/fatih/E2EHDR/samples/gl/shaders/hdr.frag");
+    hdr.attachShader(Material::VERTEX_SHADER, "/Users/fatih/Bitirme/samples/gl/shaders/hdr.vert");
+    hdr.attachShader(Material::FRAGMENT_SHADER, "/Users/fatih/Bitirme/samples/gl/shaders/hdr.frag");
     hdr.link();
 
     e2e::Quad quad;
@@ -178,6 +181,10 @@ int main() {
         quad1.addTexture(frame1.buffer().data(), frame1.width(), frame1.height());
 
         w.Loop({quad, quad1});
+
+        auto diff = std::chrono::duration_cast<std::chrono::milliseconds> (frame1.get_time() - frame.get_time()).count();
+
+        tfm::printfln("%ld", diff);
 
         frames++;
 
