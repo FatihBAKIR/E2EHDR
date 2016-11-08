@@ -4,7 +4,7 @@
 #include <GL/glew.h>
 
 //Forward decl.
-class Pipeline;
+class GLSLProgram;
 
 class Quad
 {
@@ -14,7 +14,7 @@ public:
 
 	void create();
 	void addTexture(unsigned char* image, int width, int height);
-	void draw(const Pipeline& pipeline) const;
+	void draw(const GLSLProgram& program) const;
 
 private:
 	GLuint m_vertex_array;
