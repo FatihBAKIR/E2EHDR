@@ -71,7 +71,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\Mustafa\Desktop\Dependency\Include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Mustafa\Desktop\Dependency\Include;C:\Users\Mustafa\Documents\E2EHDR\3rd_party\imgui;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\Mustafa\Desktop\Dependency\Library;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -79,7 +79,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Users\Mustafa\Desktop\Dependency\Include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Mustafa\Desktop\Dependency\Include;C:\Users\Mustafa\Documents\E2EHDR\3rd_party\imgui;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\Mustafa\Desktop\Dependency\Library;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -148,12 +148,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\3rd_party\imgui\imgui.cpp" />
+    <ClCompile Include="..\..\..\..\3rd_party\imgui\imgui_demo.cpp" />
+    <ClCompile Include="..\..\..\..\3rd_party\imgui\imgui_draw.cpp" />
+    <ClCompile Include="gui.cpp" />
+    <ClCompile Include="imgui_wrapper.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="pipeline.cpp" />
+    <ClCompile Include="glsl_program.cpp" />
     <ClCompile Include="quad.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="pipeline.h" />
+    <ClInclude Include="..\..\..\..\3rd_party\imgui\imconfig.h" />
+    <ClInclude Include="..\..\..\..\3rd_party\imgui\imgui.h" />
+    <ClInclude Include="..\..\..\..\3rd_party\imgui\imgui_internal.h" />
+    <ClInclude Include="..\..\..\..\3rd_party\imgui\stb_rect_pack.h" />
+    <ClInclude Include="..\..\..\..\3rd_party\imgui\stb_textedit.h" />
+    <ClInclude Include="..\..\..\..\3rd_party\imgui\stb_truetype.h" />
+    <ClInclude Include="glsl_program.h" />
+    <ClInclude Include="gui.h" />
+    <ClInclude Include="imgui_wrapper.h" />
     <ClInclude Include="quad.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

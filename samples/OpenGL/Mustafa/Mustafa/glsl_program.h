@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-class Pipeline
+class GLSLProgram
 {
 public:
 	//To be updated if another shader is needed.
@@ -18,17 +18,17 @@ public:
 	};
 
 public:
-	Pipeline() = default;
-	~Pipeline();
+	GLSLProgram() = default;
+	~GLSLProgram();
 
 	void attachShader(ShaderType type, const std::string& shader_path);
 	void create();
 	void use() const;
 
 	//To be removed if addUniform() kinda functions are added.
-	inline GLuint get_pipeline() const { return m_pipeline; }
+	inline GLuint get_pipeline() const { return m_program; }
 
 private:
-	GLuint m_pipeline;
+	GLuint m_program;
 	std::vector<GLuint> m_shaders;
 };

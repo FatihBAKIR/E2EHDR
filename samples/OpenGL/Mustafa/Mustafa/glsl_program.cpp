@@ -1,17 +1,17 @@
 //FRAMEWORK
-#include "pipeline.h"
+#include "glsl_program.h"
 
 //CPP
 #include <iostream>
 #include <fstream>
 #include <sstream>
 
-Pipeline::~Pipeline()
+GLSLProgram::~GLSLProgram()
 {
-	glDeleteProgram(m_pipeline);
+	glDeleteProgram(m_program);
 }
 
-void Pipeline::attachShader(ShaderType type, const std::string& shader_path)
+void GLSLProgram::attachShader(ShaderType type, const std::string& shader_path)
 {
 	std::ifstream shader_file;
 	std::string shader_code;
@@ -69,16 +69,16 @@ void Pipeline::attachShader(ShaderType type, const std::string& shader_path)
 	}
 }
 
-void Pipeline::create()
+void GLSLProgram::create()
 {
-	m_pipeline = glCreateProgram();
+	m_program = glCreateProgram();
 
 	for (auto shader : m_shaders)
 	{
-		glAttachShader(m_pipeline, shader);
+		glAttachShader(m_program, shader);
 	}
 
-	glLinkProgram(m_pipeline);
+	glLinkProgram(m_program);
 
 	for (auto shader : m_shaders)
 	{
@@ -89,15 +89,15 @@ void Pipeline::create()
 	//Check errors, if any.
 	GLint success;
 	GLchar info_log[1024];
-	glGetProgramiv(m_pipeline, GL_LINK_STATUS, &success);
+	glGetProgramiv(m_program, GL_LINK_STATUS, &success);
 	if (!success)
 	{
-		glGetProgramInfoLog(m_pipeline, 1024, nullptr, info_log);
+		glGetProgramInfoLog(m_program, 1024, nullptr, info_log);
 		std::cout << "ERROR::pipeline.cpp::create::LINKING_FAILED\n" << info_log << std::endl;
 	}
 }
 
-void Pipeline::use() const
+void GLSLProgram::use() const
 {
-	glUseProgram(m_pipeline);
+	glUseProgram(m_program);
 }
