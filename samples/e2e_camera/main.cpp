@@ -2,7 +2,7 @@
 #include <thread>
 #include <chrono>
 #include <vector>
-#include "gphoto_wrap/gphoto_wrapper.h"
+#include <gphoto/gphoto.h>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <queue>
@@ -12,9 +12,9 @@
 #include <boost/circular_buffer.hpp>
 #include <spdlog/spdlog.h>
 #include <boost/lockfree/spsc_queue.hpp>
-#include "jpeg_decode.h"
+#include <jpeg/jpeg_decode.h>
 #include <boost/optional.hpp>
-#include "spsc/spsc_queue.h"
+#include <spsc/spsc_queue.h>
 #include <pipeline.h>
 #include <quad.h>
 #include <Window.h>
@@ -25,7 +25,7 @@
 #include <OpenGL/gl.h>
 #endif
 
-#include "profiler/profiler.h"
+#include <profiler/profiler.h>
 
 struct thread_wrapper
 {
