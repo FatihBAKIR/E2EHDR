@@ -2,10 +2,7 @@
 // Created by Mehmet Fatih BAKIR on 27/10/2016.
 //
 
-#ifndef CAMERA_FAME_H
-#define CAMERA_FAME_H
-
-
+#pragma once
 #include <gsl/span>
 #include <memory>
 #include <chrono>
@@ -36,5 +33,3 @@ public:
 
 using LDRFrame = Frame<byte, 3>;
 }
-
-#endif //CAMERA_FAME_H
