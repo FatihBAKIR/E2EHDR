@@ -1,6 +1,6 @@
 //FRAMEWORK
 #include "quad.h"
-#include "pipeline.h"
+#include "glsl_program.h"
 
 Quad::Quad()
 	: m_vertex_array(0)
@@ -74,14 +74,14 @@ void Quad::addTexture(unsigned char* image, int width, int height)
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Quad::draw(const Pipeline& pipeline) const
+void Quad::draw(const GLSLProgram& program) const
 {
 	glBindVertexArray(m_vertex_array);
 
 	if (m_texture)
 	{
 		glActiveTexture(GL_TEXTURE0);
-		glUniform1i(glGetUniformLocation(pipeline.get_pipeline(), "texture0"), 0);
+		glUniform1i(glGetUniformLocation(program.get_pipeline(), "texture0"), 0);
 		glBindTexture(GL_TEXTURE_2D, m_texture);
 	}
 
