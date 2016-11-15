@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="CPP_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$">
+<<<<<<< HEAD:samples/debevec/.idea/debevec.iml
+      <sourceFolder url="file://$MODULE_DIR$/main.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/debevec.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/debevec.h" isTestSource="false" />
+=======
+      <sourceFolder url="file://$MODULE_DIR$/e2e_crf.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/main.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/e2e_crf.cpp" isTestSource="false" />
+>>>>>>> c31998a065e69d72bd20f099bf2e5cb49caadbce:samples/e2e_crf/.idea/debevec.iml
+    </content>
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module-library">
+      <library name="Header Search Paths">
+        <CLASSES>
+          <root url="file:///usr/lib/gcc/x86_64-linux-gnu/5/include" />
+          <root url="file:///usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
+          <root url="file:///usr/include" />
+          <root url="file:///usr/local/include" />
+          <root url="file://$MODULE_DIR$/../e2e_utils" />
+          <root url="file://$MODULE_DIR$/../../3rd_party/GSL" />
+          <root url="file://$MODULE_DIR$/../../3rd_party/eigen" />
+        </CLASSES>
+        <SOURCES>
+          <root url="file:///usr/lib/gcc/x86_64-linux-gnu/5/include" />
+          <root url="file:///usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
+          <root url="file:///usr/include" />
+          <root url="file:///usr/local/include" />
+          <root url="file://$MODULE_DIR$/../e2e_utils" />
+          <root url="file://$MODULE_DIR$/../../3rd_party/GSL" />
+          <root url="file://$MODULE_DIR$/../../3rd_party/eigen" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+  </component>
+</module>
