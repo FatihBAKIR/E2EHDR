@@ -15,13 +15,13 @@ cv::Mat Edges(const cv::Mat image)
     cv::Mat contours;
     cv::Mat hsv;
     cv::cvtColor(image, hsv, CV_RGB2GRAY);
-    cv::Canny(image,contours,10,350);
+    cv::Canny(hsv, contours, 10, 350);
     return contours;
 }
 
 cv::Mat e2e_crf::Sample(const Exposure& exp)
 {
-    cv::Mat image(exp.h, exp.w, CV_8UC1, &exp.data[0]);
+    cv::Mat image(exp.h, exp.w, CV_8UC3, &exp.data[0]);
     auto contours = Edges(image);
 
     return contours;

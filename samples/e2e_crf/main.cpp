@@ -21,32 +21,34 @@ int main()
     }
 
     ifstream inFile;
-    size_t size = 0;
     cout << images[0] << endl;
 
     e2e::byte* oData[NUM];
+
+    vector<size_t> sizes;
+    sizes.reserve(5);
 
     for (auto i = 0; i < NUM; i++) {
         inFile.open(images[i], ios::in|ios::binary|ios::ate);
         inFile.clear();
         if (inFile.is_open()) {
             inFile.seekg(0, ios::end);
-            size = inFile.tellg();
-            cout << size << endl;
+            sizes[i] = inFile.tellg();
+            cout << sizes[i] << endl;
             inFile.seekg(0, ios::beg);
 
-            oData[i] = new e2e::byte[size + 1];
-            inFile.read(reinterpret_cast<char *>(oData[i]), size);
+            oData[i] = new e2e::byte[sizes[i] + 1];
+            inFile.read(reinterpret_cast<char *>(oData[i]), sizes[i]);
         }
     }
 
-    e2e::JpgDecoder decoder {gsl::span<e2e::byte>{oData[0], (long)size}};
+    e2e::JpgDecoder decoder {gsl::span<e2e::byte>{oData[0], (long)sizes[0]}};
 
-    auto frame0 = decoder.decode(gsl::span<e2e::byte>{oData[0], (long)size});
-    auto frame1 = decoder.decode(gsl::span<e2e::byte>{oData[1], (long)size});
-    auto frame2 = decoder.decode(gsl::span<e2e::byte>{oData[2], (long)size});
-    auto frame3 = decoder.decode(gsl::span<e2e::byte>{oData[3], (long)size});
-    auto frame4 = decoder.decode(gsl::span<e2e::byte>{oData[4], (long)size});
+    auto frame0 = decoder.decode(gsl::span<e2e::byte>{oData[0], (long)sizes[0]});
+    auto frame1 = decoder.decode(gsl::span<e2e::byte>{oData[1], (long)sizes[1]});
+    auto frame2 = decoder.decode(gsl::span<e2e::byte>{oData[2], (long)sizes[2]});
+    auto frame3 = decoder.decode(gsl::span<e2e::byte>{oData[3], (long)sizes[3]});
+    auto frame4 = decoder.decode(gsl::span<e2e::byte>{oData[4], (long)sizes[4]});
 
     e2e_crf CRF;
     //CRF.LoadImage(reinterpret_cast<char*>(frame.buffer().data()), frame.width(), frame.height());
