@@ -13,12 +13,13 @@ link_directories(../libs/)
 
 add_executable(debevec ${SOURCE_FILES})
 
+target_link_libraries(debevec e2e_utils)
+
 target_link_libraries(debevec ${OpenCV_LIBS})
 target_link_libraries(debevec ${JPEG_LIBRARIES})
-
-target_link_libraries(debevec e2e_utils)
 
 target_include_directories(debevec PUBLIC "../e2e_utils/")
 target_include_directories(debevec PUBLIC "../../3rd_party/eigen/")
 target_include_directories(debevec PUBLIC "../../3rd_party/GSL/")
+
 target_include_directories(debevec PUBLIC ${JPEG_INCLUDES})

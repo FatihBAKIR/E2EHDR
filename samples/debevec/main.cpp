@@ -1,14 +1,17 @@
 #include <iostream>
 #include <fstream>
 #include "debevec.h"
-#include <opencv2/core.hpp>
+#include <opencv2/core/core.hpp>
 #include <jpeg/jpeg_decode.h>
+#include <profiler/profiler.h>
 
 using namespace std;
 
 int main()
 {
-    auto img = "/Users/goksu/Documents/E2EHDR/samples/debevec/sample.jpg";
+    init_profiler("lel");
+
+    auto img = "/home/fatih/Downloads/jigsaw.jpg";
     ifstream inFile;
     size_t size = 0;
     inFile.open(img, ios::in|ios::binary|ios::ate);
