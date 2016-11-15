@@ -2,9 +2,9 @@
 // Created by fatih on 29.10.2016.
 //
 
-#ifndef GL_WINDOW_H
-#define GL_WINDOW_H
+#pragma once
 
+//CPP
 #include <functional>
 #include <vector>
 
@@ -16,8 +16,8 @@ namespace e2e
 
     class Window
     {
-        int w, h;
-        GLFWwindow* window;
+        int m_width, m_height;
+        GLFWwindow* m_window;
 
     public:
         Window(int width, int height);
@@ -25,5 +25,3 @@ namespace e2e
         bool ShouldClose() const;
     };
 }
-
-#endif //GL_WINDOW_H
