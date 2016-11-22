@@ -2,21 +2,8 @@
 <module type="CPP_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
-      <sourceFolder url="file://$MODULE_DIR$/imgui_wrapper.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/texture.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/quad.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/quad.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/gui.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/Window.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/glsl_program.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/glsl_program.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/main.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/gui.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/shaders/hdr.vert" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/shaders/hdr.frag" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/Window.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/imgui_wrapper.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/texture.h" isTestSource="false" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">
@@ -193,7 +180,6 @@
           <root url="file:///System/Library/Frameworks/Accelerate.framework/Headers" />
           <root url="file:///System/Library/Frameworks/Accelerate.framework/Frameworks/vImage.framework/Headers" />
           <root url="file:///System/Library/Frameworks/Accelerate.framework/Frameworks/vecLib.framework/Headers" />
-          <root url="file://$MODULE_DIR$/../../3rd_party/imgui" />
           <root url="file:///Library/Developer/CommandLineTools/usr/lib/clang/8.0.0/include" />
           <root url="file:///Library/Developer/CommandLineTools/usr/include" />
           <root url="file:///Library/Frameworks/iTunesLibrary.framework/Headers" />
@@ -374,7 +360,6 @@
           <root url="file:///System/Library/Frameworks/Accelerate.framework/Headers" />
           <root url="file:///System/Library/Frameworks/Accelerate.framework/Frameworks/vImage.framework/Headers" />
           <root url="file:///System/Library/Frameworks/Accelerate.framework/Frameworks/vecLib.framework/Headers" />
-          <root url="file://$MODULE_DIR$/../../3rd_party/imgui" />
           <root url="file:///Library/Developer/CommandLineTools/usr/lib/clang/8.0.0/include" />
           <root url="file:///Library/Developer/CommandLineTools/usr/include" />
           <root url="file:///Library/Frameworks/iTunesLibrary.framework/Headers" />

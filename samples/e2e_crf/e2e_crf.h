@@ -6,6 +6,7 @@
 #include <gsl/span>
 #include <opencv2/core/core.hpp>
 #include <opencv2/core/mat.hpp>
+#include <util.h>
 
 using std::vector;
 using namespace Eigen;
@@ -14,19 +15,19 @@ class e2e_crf
 {
     struct Pixel
     {
-        char red;
-        char green;
-        char blue;
+        e2e::byte red;
+        e2e::byte green;
+        e2e::byte blue;
 
-        Pixel(char r, char g, char b) : red(r), green(g), blue(b) {}
+        Pixel(e2e::byte r, e2e::byte g, e2e::byte b) : red(r), green(g), blue(b) {}
     };
 
     struct Exposure
     {
-        gsl::span<char> data;
+        gsl::span<e2e::byte> data;
         int w, h;
         Pixel PixelAt(int ind) const {
-            return Pixel(data[ind], data[ind + 1], data[ind + 2]);
+            return Pixel(data[ind * 3], data[ind * 3 + 1], data[ind * 3 + 2]);
         }
 
         int PixelNum() const {
@@ -58,7 +59,7 @@ class e2e_crf
     cv::Mat Sample(const Exposure& image);
 
 public:
-    void LoadImage(gsl::span<char> buffer, int w, int h);
+    void LoadImage(gsl::span<e2e::byte> buffer, int w, int h);
     void SolveForCRF();
 
     vector<float> GetRedCRF() { return _redCurve; }

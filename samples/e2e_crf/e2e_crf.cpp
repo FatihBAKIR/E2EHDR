@@ -37,7 +37,7 @@ float e2e_crf::weight(int pixelVal)
 	}
 }
 
-void e2e_crf::LoadImage(gsl::span<char> buffer, int w, int h)
+void e2e_crf::LoadImage(gsl::span<e2e::byte> buffer, int w, int h)
 {
 	e2e_crf::Exposure exposure;
     exposure.data = buffer;
@@ -52,7 +52,7 @@ vector<int> e2e_crf::SampleSelection(const Exposure& image)
 	int w = image.w;
 	int h = image.h;
 
-	vector< pair<char, int> > samples; // 0-255, pixelIndex
+	vector< pair<e2e::byte, int> > samples; // 0-255, pixelIndex
 	vector<int> points;
 	cv::Mat edgeSample = Sample(image);
 
@@ -127,9 +127,18 @@ void e2e_crf::SolveForCRF()
 	_greenMatrix = VectorXf::Zero(row);
 	_blueMatrix = VectorXf::Zero(row);
 
+    cv::Mat image(_images[2].h, _images[2].w, CV_8UC3, &_images[2].data[0]);
+    cv::imshow("win", image);
+    cv::waitKey(0);
+
 	int t = 0;
 	for (int i = 0; i < samples.size(); i++){			// Number of pixels
 		for (int j = 0; j < P; j++){		// Number of images.
+            auto val = samples[i];
+            auto r = _images[j].PixelAt(samples[i]).red;
+            auto g = _images[j].PixelAt(samples[i]).green;
+            auto b = _images[j].PixelAt(samples[i]).blue;
+
 			float weightRed = weight(_images[j].PixelAt(samples[i]).red);		// do the same for green and blue channels
 			_redSolution(t, _images[j].PixelAt(samples[i]).red) = weightRed;
 			_redSolution(t, _zMax + 1 + i) = -weightRed;
