@@ -13,6 +13,7 @@ int main(int argc, const char** argv)
     constexpr int NUM = 5;
 
     init_profiler("lel");
+    
     auto base = string(argv[1]);
     std::cout << base << std::endl;
 
