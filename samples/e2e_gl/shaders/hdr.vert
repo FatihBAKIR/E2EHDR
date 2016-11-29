@@ -7,6 +7,7 @@ out vec2 tex_coord;
 
 uniform vec2 scale;
 uniform vec2 translate;
+uniform float crf[256];
 
 void main()
 {

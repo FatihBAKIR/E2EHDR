@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include "e2e_crf.h"
-#include <opencv2/core.hpp>
+#include <opencv2/core/core.hpp>
 #include <jpeg/jpeg_decode.h>
 #include <profiler/profiler.h>
 #include <Frame.h>
@@ -13,9 +13,10 @@ int main(int argc, const char** argv)
     constexpr int NUM = 5;
 
     init_profiler("lel");
+    
     auto base = string(argv[1]);
     std::cout << base << std::endl;
-
+    
     vector<string> images;
     for (auto i = 0; i < NUM; i++){
         images.push_back(base + to_string(i) + ".jpg");

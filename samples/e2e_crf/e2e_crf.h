@@ -4,6 +4,7 @@
 #include <vector>
 #include <Eigen/Dense>
 #include <gsl/span>
+#include <opencv2/core/core.hpp>
 #include <opencv2/core/mat.hpp>
 #include <util.h>
 

@@ -13,10 +13,11 @@ link_directories(../libs/)
 
 add_executable(e2e_crf ${SOURCE_FILES})
 
+target_link_libraries(e2e_crf e2e_utils)
+
 target_link_libraries(e2e_crf ${OpenCV_LIBS})
 target_link_libraries(e2e_crf ${JPEG_LIBRARIES})
 
-target_link_libraries(e2e_crf e2e_utils)
 
 target_include_directories(e2e_crf PUBLIC "../e2e_utils/")
 target_include_directories(e2e_crf PUBLIC "../../3rd_party/eigen/")
