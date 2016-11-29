@@ -66,10 +66,16 @@ int main() {
 
     e2e::Window w(1280, 360);
 
+    std::vector<float> crf(256);
+    std::iota(crf.begin(), crf.end(), 0);
+    //std::transform(crf.begin(), crf.end(), crf.begin(), [](auto f){return f / 2;});
+
     e2e::GLSLProgram hdr;
     hdr.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "/Users/fatih/Bitirme/samples/e2e_gl/shaders/hdr.vert");
     hdr.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "/Users/fatih/Bitirme/samples/e2e_gl/shaders/hdr.frag");
     hdr.link();
+
+    hdr.setUniformArray("crf", crf);
 
     e2e::Quad quad;
     quad.create();
