@@ -8,16 +8,17 @@
 
 using namespace std;
 
-int main()
+int main(int argc, const char** argv)
 {
     constexpr int NUM = 5;
 
     init_profiler("lel");
-    auto base = "/Users/goksu/Documents/E2EHDR/samples/e2e_crf/sample";
+    auto base = string(argv[1]);
+    std::cout << base << std::endl;
 
     vector<string> images;
     for (auto i = 0; i < NUM; i++){
-        images.push_back(base + to_string(i + 1) + ".jpg");
+        images.push_back(base + to_string(i) + ".jpg");
     }
 
     ifstream inFile;
@@ -58,11 +59,12 @@ int main()
     CRF.LoadImage(frame3.buffer(), frame3.width(), frame3.height());
     CRF.LoadImage(frame4.buffer(), frame4.width(), frame4.height());
 
-    CRF.SolveForCRF();
+    CRF.SolveCV();
 
     auto redCRF = CRF.GetRedCRF();
 
-    std::for_each(redCRF.begin(), redCRF.end(), [](float i) {cout << i << endl;});
+    int x = 1;
+    std::for_each(redCRF.begin(), redCRF.end(), [&](float i) {cout << x << " " << i << endl; x++;});
 
     std::cout << frame0.width() << ',' << frame1.height() << '\n';
 

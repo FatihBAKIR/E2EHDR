@@ -57,9 +57,12 @@ class e2e_crf
     vector<int> SampleSelection(const Exposure& image);
     cv::Mat Sample(const Exposure& image);
 
+    vector<int> AllPixels(const Exposure& image);
+
 public:
     void LoadImage(gsl::span<e2e::byte> buffer, int w, int h);
     void SolveForCRF();
+    void SolveCV();
 
     vector<float> GetRedCRF() { return _redCurve; }
     vector<float> GetGreenCRF() { return _greenCurve; }

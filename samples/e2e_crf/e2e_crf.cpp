@@ -4,18 +4,25 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/photo.hpp>
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/xphoto.hpp>
 
 #include <random>
 
 using namespace Eigen;
 using namespace std;
 
-cv::Mat Edges(const cv::Mat image)
+cv::Mat Edges(const cv::Mat& image)
 {
     cv::Mat contours;
     cv::Mat hsv;
     cv::cvtColor(image, hsv, CV_RGB2GRAY);
     cv::Canny(hsv, contours, 10, 350);
+
+//    cv::imshow("edges", contours);
+//    cv::waitKey(0);
+
     return contours;
 }
 
@@ -103,9 +110,55 @@ vector<int> e2e_crf::SampleSelection(const Exposure& image)
 	return points;
 }
 
+vector<int> e2e_crf::AllPixels(const Exposure& image)
+{
+    vector<int> pixels;
+    for (int i = 0; i < image.h; i++){
+        for (int j = 0; j < image.w; j+=5){
+            pixels.push_back(j + i * image.w);
+        }
+    }
+
+    return pixels;
+}
+
+void e2e_crf::SolveCV()
+{
+    vector<cv::Mat> alignedImageSequence;
+
+    for (auto& exp : _images)
+    {
+        alignedImageSequence.push_back(cv::Mat(exp.h, exp.w, CV_8UC3, &exp.data[0]));
+    }
+
+    float exposure = 0.125f / 2;
+    for (int i = 0; i < _images.size(); i++){
+        _exposureTimes.push_back(exposure);
+        exposure *= 2;
+    }
+
+    cv::Mat response;
+    cv::Ptr<cv::CalibrateDebevec> calibrate = cv::createCalibrateDebevec();
+    calibrate->process(alignedImageSequence, response, _exposureTimes);
+
+    for (int i = 0; i < 256; ++i)
+    {
+        _blueCurve.push_back(response.at<cv::Vec3f>(i)[0]);
+        _greenCurve.push_back(response.at<cv::Vec3f>(i)[1]);
+        _redCurve.push_back(response.at<cv::Vec3f>(i)[2]);
+    }
+}
+
 void e2e_crf::SolveForCRF()
 {
 	float exposure = 0.125f / 2;
+
+	// _exposureTimes.push_back(1.0f/15);
+	// _exposureTimes.push_back(1.0f/30);
+	// _exposureTimes.push_back(1.0f/60);
+	// _exposureTimes.push_back(1.0f/100);
+	// _exposureTimes.push_back(1.0f/250);
+
 	for (int i = 0; i < _images.size(); i++){
 		_exposureTimes.push_back(exposure);
 		exposure *= 2;
@@ -114,10 +167,11 @@ void e2e_crf::SolveForCRF()
 	int N = _images[0].PixelNum();
 	int P = _images.size();
 
-	vector<int> samples = SampleSelection(_images[P / 2 + 2]);
+	vector<int> samples = AllPixels(_images[P / 2 + 2]);
+	auto sampleCount = samples.size();
 
-	int column = samples.size() + 256;
-	int row = samples.size() * P + 255;
+	int column = sampleCount + 256;
+	int row = sampleCount * P + 257;
 
 	_redSolution = MatrixXf::Zero(row, column);
 	_greenSolution = MatrixXf::Zero(row, column);
@@ -127,50 +181,51 @@ void e2e_crf::SolveForCRF()
 	_greenMatrix = VectorXf::Zero(row);
 	_blueMatrix = VectorXf::Zero(row);
 
-    cv::Mat image(_images[2].h, _images[2].w, CV_8UC3, &_images[2].data[0]);
-    cv::imshow("win", image);
-    cv::waitKey(0);
+    // cv::Mat image(_images[2].h, _images[2].w, CV_8UC3, &_images[2].data[0]);
+    // cv::imshow("win", image);
+    // cv::waitKey(0);
 
 	int t = 0;
-	for (int i = 0; i < samples.size(); i++){			// Number of pixels
-		for (int j = 0; j < P; j++){		// Number of images.
-            auto val = samples[i];
-            auto r = _images[j].PixelAt(samples[i]).red;
-            auto g = _images[j].PixelAt(samples[i]).green;
-            auto b = _images[j].PixelAt(samples[i]).blue;
+	for (int i = 0; i < P; i++){			// Number of pixels
+		for (int j = 0; j < samples.size(); j++){		// Number of images.
+            auto val = samples[j];
+            auto r = _images[i].PixelAt(samples[j]).red;
+            auto g = _images[i].PixelAt(samples[j]).green;
+            auto b = _images[i].PixelAt(samples[j]).blue;
 
-			float weightRed = weight(_images[j].PixelAt(samples[i]).red);		// do the same for green and blue channels
-			_redSolution(t, _images[j].PixelAt(samples[i]).red) = weightRed;
-			_redSolution(t, _zMax + 1 + i) = -weightRed;
+			float weightRed = weight(_images[i].PixelAt(samples[j]).red);		// do the same for green and blue channels
+			_redSolution(t, _images[i].PixelAt(samples[j]).red) = weightRed;
+			_redSolution(t, _zMax + j) = -weightRed;
 
-			_redMatrix(t) = weightRed * log(_exposureTimes[j]);
+			_redMatrix(t) = weightRed * log(_exposureTimes[i]);
 
-			float weightGreen = weight(_images[j].PixelAt(samples[i]).green);		// do the same for green and blue channels
-			_greenSolution(t, _images[j].PixelAt(samples[i]).green) = weightGreen;
-			_greenSolution(t, _zMax + 1 + i) = -weightGreen;
+			float weightGreen = weight(_images[i].PixelAt(samples[j]).green);		// do the same for green and blue channels
+			_greenSolution(t, _images[i].PixelAt(samples[j]).green) = weightGreen;
+			_greenSolution(t, _zMax + 1 + j) = -weightGreen;
 
-			_greenMatrix(t) = weightGreen * log(_exposureTimes[j]);
+			_greenMatrix(t) = weightGreen * log(_exposureTimes[i]);
 
-			float weightBlue = weight(_images[j].PixelAt(samples[i]).blue);		// do the same for green and blue channels
-			_blueSolution(t, _images[j].PixelAt(samples[i]).blue) = weightBlue;
-			_blueSolution(t, _zMax + 1 + i) = -weightBlue;
+			float weightBlue = weight(_images[i].PixelAt(samples[j]).blue);		// do the same for green and blue channels
+			_blueSolution(t, _images[i].PixelAt(samples[j]).blue) = weightBlue;
+			_blueSolution(t, _zMax + 1 + j) = -weightBlue;
 
-			_blueMatrix(t) = weightBlue * log(_exposureTimes[j]);
+			_blueMatrix(t) = weightBlue * log(_exposureTimes[i]);
 			t++;
 		}
 	}
 
-	_redSolution(t, 128) = 1;	// put the weight of 1 to the middle color value.
+	_redSolution(t, 128)   = 1;	// put the weight of 1 to the middle color value.
 	_greenSolution(t, 128) = 1;	// put the weight of 1 to the middle color value.
-	_blueSolution(t, 128) = 1;	// put the weight of 1 to the middle color value.
+	_blueSolution(t, 128)  = 1;	// put the weight of 1 to the middle color value.
+
 	t++;
 
 	float lamb = 250;
 
 	for (int i = 0; i < 254; i++){	// curve is not differentiable in its edge values, so discard 0 and N - 1
-		_redSolution(t, i)		 = lamb * weight(i);
-		_redSolution(t, i + 1) 	 = - 2 * lamb * weight(i);
-		_redSolution(t, i + 2) 	 = lamb * weight(i);
+		_redSolution(t, i)		     = lamb * weight(i);
+		_redSolution(t, i + 1) 	     = - 2 * lamb * weight(i);
+		_redSolution(t, i + 2) 	     = lamb * weight(i);
 
 		_greenSolution(t, i)		 = lamb * weight(i);
 		_greenSolution(t, i + 1) 	 = - 2 * lamb * weight(i);
@@ -182,9 +237,9 @@ void e2e_crf::SolveForCRF()
 		t++;
 	}
 
-	JacobiSVD<MatrixXf> svdR(_redSolution, ComputeThinU | ComputeThinV);
+	JacobiSVD<MatrixXf> svdR(_redSolution,   ComputeThinU | ComputeThinV);
 	JacobiSVD<MatrixXf> svdG(_greenSolution, ComputeThinU | ComputeThinV);
-	JacobiSVD<MatrixXf> svdB(_blueSolution, ComputeThinU | ComputeThinV);
+	JacobiSVD<MatrixXf> svdB(_blueSolution,  ComputeThinU | ComputeThinV);
 
 	auto r = svdR.solve(_redMatrix);
 	auto g = svdG.solve(_greenMatrix);
