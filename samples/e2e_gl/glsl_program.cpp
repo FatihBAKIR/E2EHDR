@@ -150,4 +150,11 @@ namespace e2e
 			glUniform4f(glGetUniformLocation(m_program, name.c_str()), begin[0], begin[1], begin[2], begin[3]);
 		}
 	}
+
+	void GLSLProgram::setUniformArray(const std::string &name, const std::vector<float> &arr)
+	{
+		use();
+		glUniform1fv(glGetUniformLocation(m_program, name.c_str()), arr.size(), arr.data());
+		std::cout << glewGetErrorString(glGetError()) << '\n';
+	}
 }
