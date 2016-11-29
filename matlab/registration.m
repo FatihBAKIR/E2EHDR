@@ -6,7 +6,7 @@ function [indI, indJ, minDifference] = registration(indX, indY)
                    1 2 3 4 5;
                    1 2 3 4 5;
                    1 2 3 4 5];
-         
+     
      destinationImage = [1 2 3 4 5;
                          1 2 3 4 5;
                          1 2 3 4 5;
