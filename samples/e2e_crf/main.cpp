@@ -1,23 +1,25 @@
 #include <iostream>
 #include <fstream>
 #include "e2e_crf.h"
-#include <opencv2/core/core.hpp>
+#include <opencv2/core.hpp>
 #include <jpeg/jpeg_decode.h>
 #include <profiler/profiler.h>
 #include <Frame.h>
 
 using namespace std;
 
-int main()
+int main(int argc, const char** argv)
 {
     constexpr int NUM = 5;
 
     init_profiler("lel");
-    auto base = "/home/fatih/E2EHDR/samples/e2e_crf/sample";
+    
+    auto base = string(argv[1]);
+    std::cout << base << std::endl;
 
     vector<string> images;
     for (auto i = 0; i < NUM; i++){
-        images.push_back(base + to_string(i + 1) + ".jpg");
+        images.push_back(base + to_string(i) + ".jpg");
     }
 
     ifstream inFile;
@@ -25,7 +27,7 @@ int main()
 
     e2e::byte* oData[NUM];
 
-    vector<size_t> sizes;
+    vector<long> sizes;
     sizes.reserve(5);
 
     for (auto i = 0; i < NUM; i++) {
@@ -52,13 +54,18 @@ int main()
 
     e2e_crf CRF;
     //CRF.LoadImage(reinterpret_cast<char*>(frame.buffer().data()), frame.width(), frame.height());
-    CRF.LoadImage({reinterpret_cast<char*>(frame0.buffer().data()), frame0.buffer().size()}, frame0.width(), frame0.height());
-    CRF.LoadImage({reinterpret_cast<char*>(frame1.buffer().data()), frame1.buffer().size()}, frame1.width(), frame1.height());
-    CRF.LoadImage({reinterpret_cast<char*>(frame2.buffer().data()), frame2.buffer().size()}, frame2.width(), frame2.height());
-    CRF.LoadImage({reinterpret_cast<char*>(frame3.buffer().data()), frame3.buffer().size()}, frame3.width(), frame3.height());
-    CRF.LoadImage({reinterpret_cast<char*>(frame4.buffer().data()), frame4.buffer().size()}, frame4.width(), frame4.height());
+    CRF.LoadImage(frame0.buffer(), frame0.width(), frame0.height());
+    CRF.LoadImage(frame1.buffer(), frame1.width(), frame1.height());
+    CRF.LoadImage(frame2.buffer(), frame2.width(), frame2.height());
+    CRF.LoadImage(frame3.buffer(), frame3.width(), frame3.height());
+    CRF.LoadImage(frame4.buffer(), frame4.width(), frame4.height());
 
-    CRF.SolveForCRF();
+    CRF.SolveCV();
+
+    auto redCRF = CRF.GetRedCRF();
+
+    int x = 1;
+    std::for_each(redCRF.begin(), redCRF.end(), [&](float i) {cout << x << " " << i << endl; x++;});
 
     std::cout << frame0.width() << ',' << frame1.height() << '\n';
 

@@ -4,7 +4,7 @@ project(e2e_crf)
 find_package(OpenCV REQUIRED)
 find_package(JPEG REQUIRED)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -std=c++14")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -O3 -g")
 
 set(SOURCE_FILES main.cpp e2e_crf.cpp e2e_crf.h)
 #add_library(e2e_crf STATIC ${SOURCE_FILES})

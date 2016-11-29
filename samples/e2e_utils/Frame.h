@@ -10,17 +10,17 @@
 
 namespace e2e
 {
-template <typename ChannelType, int ChannelNum>
+template <typename ChannelType, int ChannelNum, typename deleter = std::default_delete<ChannelType[]>>
 class Frame
 {
-    std::unique_ptr<ChannelType[]> buffer_;
+    std::unique_ptr<ChannelType[], deleter> buffer_;
     short w_;
     short h_;
 
     std::chrono::high_resolution_clock::time_point time_;
 public:
 
-    constexpr Frame(std::unique_ptr<ChannelType[]> buffer, short w, short h)
+    constexpr Frame(std::unique_ptr<ChannelType[], deleter> buffer, short w, short h)
             : buffer_(std::move(buffer)), w_(w), h_(h) {}
 
     auto width() const { return w_; }

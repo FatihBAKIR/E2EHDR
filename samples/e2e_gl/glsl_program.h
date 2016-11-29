@@ -30,6 +30,8 @@ namespace e2e
 		void setUniformIVar(const std::string& name, std::initializer_list<GLint> values) const;
 		void setUniformFVar(const std::string& name, std::initializer_list<GLfloat> values) const;
 
+		void setUniformArray(const std::string& name, const std::vector<float>& arr);
+
 	private:
 		GLuint m_program;
 		std::vector<GLuint> m_shaders;
