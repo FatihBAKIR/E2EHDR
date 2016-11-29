@@ -1,23 +1,22 @@
 #include <iostream>
 #include <thread>
-#include <chrono>
 #include <vector>
-#include <gphoto/gphoto.h>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
 #include <queue>
 #include <tinyformat.h>
 #include <boost/thread.hpp>
 #include <boost/predef.h>
 #include <boost/circular_buffer.hpp>
 #include <spdlog/spdlog.h>
-#include <boost/lockfree/spsc_queue.hpp>
-#include <jpeg/jpeg_decode.h>
-#include <boost/optional.hpp>
 #include <spsc/spsc_queue.h>
-#include <pipeline.h>
-#include <quad.h>
 #include <Window.h>
+
+#include <profiler/profiler.h>
+#include <glsl_program.h>
+#include <quad.h>
+#include <texture.h>
+
+#include <Frame.h>
+#include <e2e_ff/ffmpeg_wrapper.h>
 
 #if BOOST_OS_LINUX || BOOST_OS_WINDOWS
 #include <GL/gl.h>
@@ -25,177 +24,186 @@
 #include <OpenGL/gl.h>
 #endif
 
-#include <profiler/profiler.h>
-
-struct thread_wrapper
+template <class T, class Fun>
+auto apply(T&& elem, Fun f)
 {
-    boost::thread t_;
+    return f(std::forward<T>(elem));
+}
 
-    thread_wrapper(boost::thread&& t) : t_(std::move(t)) {}
-    thread_wrapper(thread_wrapper&& rhs) : t_(std::move(rhs.t_)) {}
-    ~thread_wrapper()
-    {
-        t_.interrupt();
-        t_.join();
-    }
+template <class BeginT, class Fun, class... FunTs>
+auto apply(BeginT&& elem, Fun f, FunTs... fs)
+{
+    return apply(f(std::forward<BeginT>(elem)), fs...);
 };
 
-template <class CamType, class CBType>
-auto pull_frames(CamType& cam, CBType callback)
+template <class InputQueueT, class OutputQueueT, class... Rest>
+auto pipeline(InputQueueT& in, OutputQueueT& out, Rest&... funs)
 {
-    boost::thread pull([&cam, callback] {
-        init_profiler("Grabber Thread");
-
-        {
-            named_profile("Initial frame grab");
-            callback(cam.liveview_frame());
-        }
-
+    return boost::thread(
+    [&]
+    {
         while (!boost::this_thread::interruption_requested())
         {
-            named_profile("Grab liveview frame");
-            auto frame = cam.liveview_frame();
-            callback(std::move(frame));
+            if (in.empty()) continue;
+
+            auto elem = std::move(in.front());
+            in.pop();
+
+            auto res = apply(elem, funs...);
+            if (res)
+            {
+                out.emplace(std::move(*res));
+            }
         }
-
-        print_tree();
     });
-
-    return thread_wrapper { std::move(pull) };
-}
+};
 
 int main() {
     spdlog::stdout_color_mt("console");
-
-    e2e::gp::GPhoto gp;
-
-    auto cams = gp.ListCameras();
-
-    if (cams.size() < 2)
-    {
-        tfm::format(std::cerr, "No camera was found!");
-        return -1;
-    }
-
-    for (auto&& c : cams)
-    {
-        std::cout << c.first << ' ' << c.second << '\n';
-    }
-
-    e2e::gp::Camera c (cams[0], gp);
-    e2e::gp::Camera c1 (cams[1], gp);
-
     volatile bool run = true;
-
-    e2e::spsc_queue<e2e::gp::CameraFile, e2e::constant_storage<e2e::gp::CameraFile, 1024>> jpgQueue;
-    e2e::spsc_queue<e2e::gp::CameraFile, e2e::constant_storage<e2e::gp::CameraFile, 1024>> jpgQueue1;
-    e2e::spsc_queue<e2e::LDRFrame, e2e::constant_storage<e2e::LDRFrame, 1024>> frameQueue;
-    e2e::spsc_queue<e2e::LDRFrame, e2e::constant_storage<e2e::LDRFrame, 1024>> frameQueue1;
-
-    auto p = pull_frames(c, [&](auto&& frame)
-    {
-        jpgQueue.push(std::move(frame));
-    });
-
-    auto p2 = pull_frames(c1, [&](auto&& frame)
-    {
-        jpgQueue1.push(std::move(frame));
-    });
-
-    boost::optional<e2e::JpgDecoder> d;
-    boost::optional<e2e::JpgDecoder> d1;
-
-    boost::thread decoder([&]{
-        init_profiler("Decoder Thread");
-        int frames = 0;
-
-        auto cam = [&](auto& queue, auto& decoder, auto& to){
-            if (queue.empty()) return;
-            {
-                named_profile("Jpeg Decoding");
-                auto file = std::move(queue.front());
-                queue.pop();
-
-                auto frame = decoder.decode(file);
-                frame.set_time(file.get_time());
-                to.push(std::move(frame));
-
-                frames++;
-            }
-        };
-
-        while (jpgQueue.empty());
-        auto& f = jpgQueue.front();
-        d = e2e::JpgDecoder {f};
-        auto& decoder = d.get();
-
-        while (jpgQueue1.empty());
-        auto& f1 = jpgQueue1.front();
-        d1 = e2e::JpgDecoder {f1};
-        auto& decoder1 = d1.get();
-
-        while (run)
-        {
-            cam(jpgQueue, decoder, frameQueue);
-            cam(jpgQueue1, decoder1, frameQueue1);
-        }
-
-        print_tree();
-    });
 
     init_profiler("Main Thread");
 
-    e2e::Window w(800, 600);
+    e2e::Window w(1280, 360);
 
-    Material hdr;
-    hdr.attachShader(Material::VERTEX_SHADER, "/Users/fatih/Bitirme/samples/gl/shaders/hdr.vert");
-    hdr.attachShader(Material::FRAGMENT_SHADER, "/Users/fatih/Bitirme/samples/gl/shaders/hdr.frag");
+    e2e::GLSLProgram hdr;
+    hdr.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "/Users/fatih/Bitirme/samples/e2e_gl/shaders/hdr.vert");
+    hdr.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "/Users/fatih/Bitirme/samples/e2e_gl/shaders/hdr.frag");
     hdr.link();
 
     e2e::Quad quad;
     quad.create();
     quad.set_position(-0.5, 0);
-    quad.set_scale_factor(0.5, 0.5);
-    quad.set_material(hdr);
+    quad.set_scale_factor(0.5, 1);
+    quad.set_program(hdr);
 
     e2e::Quad quad1;
     quad1.create();
     quad1.set_position(0.5, 0);
-    quad1.set_scale_factor(0.5, 0.5);
-    quad1.set_material(hdr);
+    quad1.set_scale_factor(0.5, 1);
+    quad1.set_program(hdr);
+
+    auto tex1 = std::make_shared<Texture>();
+    quad.set_texture(tex1);
+    auto tex2 = std::make_shared<Texture>();
+    quad1.set_texture(tex2);
 
     int frames = 0;
 
+    using FrameT = e2e::Frame<uint8_t, 3, decltype(&av_free)>;
+
+    e2e::ff::Camera ip_cam("rtsp://admin:admin@192.168.0.20/media/video1");
+    e2e::ff::Camera ip_cam2("rtsp://admin:admin@192.168.0.21/media/video1");
+
+    //e2e::ff::Camera ip_cam("/Users/fatih/Downloads/herb.mp4");
+    boost::thread puller ([&]{ ip_cam.start_capture(); });
+    boost::thread puller2 ([&]{ ip_cam2.start_capture(); });
+
+    e2e::ff::Decoder d{ip_cam.codec_ctx_};
+    e2e::ff::Decoder d2{ip_cam2.codec_ctx_};
+
+    auto packet_handler_for = [](auto& cam, auto& d)
+    {
+        return [&](auto frame_data) mutable -> boost::optional<FrameT>
+        {
+            if(frame_data.packet->stream_index == cam.video_stream_index_)
+            {
+                auto ret = d.decode_one(frame_data.packet);
+                av_packet_unref(frame_data.packet);
+
+                if (ret)
+                {
+                    // int w, int h, e2e::ff::Decoder::data_ptr data
+                    auto f = (FrameT(std::move(ret), cam.codec_ctx_->width, cam.codec_ctx_->height));
+                    f.set_time(frame_data.timestamp);
+                    return std::move(f);
+                }
+            }
+
+            return boost::optional<FrameT>();
+        };
+    };
+
+    e2e::spsc_queue<FrameT> frame_queue;
+    e2e::spsc_queue<FrameT> frame_queue1;
+
+    auto handler1 = packet_handler_for(ip_cam, d);
+    auto handler2 = packet_handler_for(ip_cam2, d2);
+
+    boost::thread decoder = pipeline(ip_cam.packet_queue, frame_queue, handler1);
+    boost::thread decoder2 = pipeline(ip_cam2.packet_queue, frame_queue1, handler2);
+
+    auto calc_diff = [](const auto& f1, const auto& f2)
+    {
+        return std::chrono::duration_cast<std::chrono::milliseconds> (f1.get_time() - f2.get_time()).count();
+    };
+
     while (!w.ShouldClose())
     {
-        if (frameQueue.empty() || frameQueue1.empty()) continue;
+        if (frame_queue.empty() || frame_queue1.empty()) continue;
 
-        named_profile("Display")
-        auto frame = std::move(frameQueue.front());
-        frameQueue.pop();
+        named_profile("Display");
 
-        auto frame1 = std::move(frameQueue1.front());
-        frameQueue1.pop();
+        auto frame = std::move(frame_queue.front()); frame_queue.pop();
+        auto frame1 = std::move(frame_queue1.front()); frame_queue1.pop();
 
-        quad.addTexture(frame.buffer().data(), frame.width(), frame.height());
-        quad1.addTexture(frame1.buffer().data(), frame1.width(), frame1.height());
+        auto diff = calc_diff(frame1, frame);
+
+        while (true)
+        {
+            if (frame1.get_time() > frame.get_time() && !frame_queue.empty())
+            {
+                auto di = calc_diff(frame1, frame_queue.front());
+                if (std::abs(diff) > std::abs(di))
+                {
+                    d.return_buffer(std::move(frame.u_ptr()));
+                    frame = std::move(frame_queue.front()); frame_queue.pop();
+                    diff = di;
+                }
+                else {
+                    break;
+                }
+            }
+            else if (frame.get_time() > frame1.get_time() && !frame_queue1.empty())
+            {
+                auto di = calc_diff(frame, frame_queue1.front());
+                if (std::abs(diff) > std::abs(di))
+                {
+                    d2.return_buffer(std::move(frame1.u_ptr()));
+                    frame1 = std::move(frame_queue1.front()); frame_queue1.pop();
+                    diff = di;
+                }
+                else {
+                    break;
+                }
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        tex1->load(frame.buffer().data(), frame.width(), frame.height());
+        tex2->load(frame1.buffer().data(), frame1.width(), frame1.height());
+        //quad1.addTexture(frame1.buffer().data(), frame1.width(), frame1.height());
 
         w.Loop({quad, quad1});
 
-        auto diff = std::chrono::duration_cast<std::chrono::milliseconds> (frame1.get_time() - frame.get_time()).count();
-
-        tfm::printfln("%ld", diff);
+        tfm::printfln("%ld ms, %d, %d", diff, frame_queue.size(), frame_queue1.size());
 
         frames++;
 
         // return the frame ...
-        d->return_buffer(std::move(frame));
-        d1->return_buffer(std::move(frame1));
+        d.return_buffer(std::move(frame.u_ptr()));
+        d2.return_buffer(std::move(frame1.u_ptr()));
     }
 
     run = false;
 
+    decoder.interrupt();
     decoder.join();
+    decoder2.interrupt();
+    decoder2.join();
 
     print_tree();
 

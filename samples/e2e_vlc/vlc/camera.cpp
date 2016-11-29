@@ -51,7 +51,7 @@ e2e::vlc::Camera::Camera(const std::string &path) {
         throw std::runtime_error("VLC Init failed");
     }
 
-    media = libvlc_media_new_path(libvlc, "/Users/fatih/Downloads/herb.mp4");
+    media = libvlc_media_new_location(libvlc, "rtsp://admin:admin@192.168.0.20/media/video1");
     mp = libvlc_media_player_new_from_media(media);
 
     auto eman = libvlc_media_player_event_manager(mp);

@@ -2,20 +2,22 @@ cmake_minimum_required(VERSION 3.6)
 project(hdr_camera)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -pthread")
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "/usr/local/cmake_modules/")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "/usr/local/cmake_mod/")
 
 link_directories(../libs/)
 
-set(SOURCE_FILES main.cpp)
+set(SOURCE_FILES main.cpp gphoto_impl.cpp)
 add_executable(e2e_camera ${SOURCE_FILES})
 
 target_link_libraries(e2e_camera e2e_gl)
 target_link_libraries(e2e_camera e2e_utils)
 target_link_libraries(e2e_camera e2e_gphoto)
+target_link_libraries(e2e_camera e2e_ffmpeg)
 
 target_include_directories(e2e_camera PUBLIC ../e2e_gl)
 target_include_directories(e2e_camera PUBLIC ../e2e_utils)
 target_include_directories(e2e_camera PUBLIC ../e2e_gphoto)
+target_include_directories(e2e_camera PUBLIC ../e2e_ffmpeg)
 
 # 3rd PARTY
 
@@ -64,3 +66,11 @@ target_link_libraries(e2e_camera ${Boost_LIBRARIES})
 
 target_include_directories(e2e_camera PUBLIC ${JPEG_INCLUDE_DIR})
 target_include_directories(e2e_camera PUBLIC ${Boost_INCLUDE_DIRS})
+
+# FFMPEG LIBRARIES
+
+find_package(FFmpeg REQUIRED)
+
+target_link_libraries(e2e_camera ${FFMPEG_LIBRARIES})
+
+target_include_directories(e2e_camera PUBLIC ${FFMPEG_INCLUDE_DIRS})
