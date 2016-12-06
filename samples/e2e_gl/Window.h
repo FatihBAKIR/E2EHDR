@@ -23,5 +23,7 @@ namespace e2e
         Window(int width, int height);
         void Loop(const std::vector<std::reference_wrapper<Quad>>& quads);
         bool ShouldClose() const;
+
+		GLFWwindow* get_window() const { return m_window; }
     };
 }
