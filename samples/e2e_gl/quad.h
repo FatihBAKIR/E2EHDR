@@ -27,10 +27,13 @@ namespace e2e
 		void set_texture(std::shared_ptr<Texture> texture);
         void set_position(float x, float y);
         void set_scale_factor(float x, float y);
+		void set_exposure(float x);
 
     private:
         GLuint m_vertex_array;
         GLuint m_vertex_buffer;
+
+		GLfloat m_exposure;
 
 		boost::optional<GLSLProgram> m_program;
 		std::shared_ptr<Texture> m_texture;
