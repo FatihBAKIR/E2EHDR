@@ -32,6 +32,8 @@ namespace e2e
 
 		void setUniformArray(const std::string& name, const std::vector<float>& arr);
 
+		void clear();
+
 	private:
 		GLuint m_program;
 		std::vector<GLuint> m_shaders;
