@@ -88,7 +88,7 @@ namespace e2e
 		//Poll events before handling.
 		glfwPollEvents();
 
-		if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		if (get_key_down(GLFW_KEY_ESCAPE))
 		{
 			glfwSetWindowShouldClose(m_window, GL_TRUE);
 		}
@@ -100,6 +100,16 @@ namespace e2e
 			q.get().draw();
 		}
 		glfwSwapBuffers(m_window);
+	}
+
+	bool Window::get_key_up(int key)
+	{
+		return glfwGetKey(m_window, key) == GLFW_RELEASE;
+	}
+
+	bool Window::get_key_down(int key)
+	{
+		return glfwGetKey(m_window, key) == GLFW_PRESS;
 	}
 
 	bool Window::ShouldClose() const
