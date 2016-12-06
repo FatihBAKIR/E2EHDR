@@ -6,7 +6,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "/usr/local/cmake_mod/")
 
 link_directories(../libs/)
 
-set(SOURCE_FILES main.cpp gphoto_impl.cpp)
+set(SOURCE_FILES main.cpp gphoto_impl.cpp configuration.cpp configuration.h)
 add_executable(e2e_camera ${SOURCE_FILES})
 
 target_link_libraries(e2e_camera e2e_gl)
