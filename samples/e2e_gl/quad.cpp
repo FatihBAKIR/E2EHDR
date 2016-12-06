@@ -79,9 +79,9 @@ namespace e2e
 		m_program = program;
 	}
 
-	void Quad::set_texture(std::shared_ptr<Texture> texture)
+	void Quad::set_texture(const Texture& texture)
 	{
-		m_texture = texture;
+		m_texture = &texture;
 	}
 
 	void Quad::set_position(float x, float y)
