@@ -60,12 +60,15 @@ target_compile_options(e2e_camera PUBLIC ${PC_LibGPhoto_CFLAGS_OTHER})
 
 find_package(JPEG REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system thread)
+find_package(OpenCV REQUIRED)
 
 target_link_libraries(e2e_camera ${JPEG_LIBRARIES})
 target_link_libraries(e2e_camera ${Boost_LIBRARIES})
+target_link_libraries(e2e_camera ${OpenCV_LIBRARIES})
 
 target_include_directories(e2e_camera PUBLIC ${JPEG_INCLUDE_DIR})
 target_include_directories(e2e_camera PUBLIC ${Boost_INCLUDE_DIRS})
+target_include_directories(e2e_camera PUBLIC ${OpenCV_INCLUDE_DIRS})
 
 # FFMPEG LIBRARIES
 

@@ -22,7 +22,12 @@
 #include <GL/gl.h>
 #elif BOOST_OS_MACOS
 #include <OpenGL/gl.h>
+#include <GLFW/glfw3.h>
+
 #endif
+
+#include "configuration.h"
+#include <jpeg/jpeg_encode.h>
 
 template <class T, class Fun>
 auto apply(T&& elem, Fun f)
@@ -58,6 +63,8 @@ auto pipeline(InputQueueT& in, OutputQueueT& out, Rest&... funs)
     });
 };
 
+
+
 int main() {
     spdlog::stdout_color_mt("console");
     volatile bool run = true;
@@ -66,27 +73,32 @@ int main() {
 
     e2e::Window w(1280, 360);
 
-    std::vector<float> crf(256);
-    std::iota(crf.begin(), crf.end(), 0);
-    //std::transform(crf.begin(), crf.end(), crf.begin(), [](auto f){return f / 2;});
+    auto cam1 = load_camera_conf("/Users/fatih/cameras/camera_210.json");
+    std::cout << cam1.get<std::string>("rtsp_url") << '\n';
+
+    auto crf = load_crf(cam1.get<std::string>("crf"));
 
     e2e::GLSLProgram hdr;
     hdr.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "/Users/fatih/Bitirme/samples/e2e_gl/shaders/hdr.vert");
     hdr.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "/Users/fatih/Bitirme/samples/e2e_gl/shaders/hdr.frag");
     hdr.link();
 
-    hdr.setUniformArray("crf", crf);
+    hdr.setUniformArray("crf_r", crf.red);
+    hdr.setUniformArray("crf_g", crf.green);
+    hdr.setUniformArray("crf_b", crf.blue);
 
     e2e::Quad quad;
     quad.create();
     quad.set_position(-0.5, 0);
     quad.set_scale_factor(0.5, 1);
+    quad.set_exposure(1/100);
     quad.set_program(hdr);
 
     e2e::Quad quad1;
     quad1.create();
     quad1.set_position(0.5, 0);
     quad1.set_scale_factor(0.5, 1);
+    quad1.set_exposure(1/30);
     quad1.set_program(hdr);
 
     auto tex1 = std::make_shared<Texture>();
@@ -144,6 +156,10 @@ int main() {
         return std::chrono::duration_cast<std::chrono::milliseconds> (f1.get_time() - f2.get_time()).count();
     };
 
+
+    std::set<int> prev_keys;
+    int snap_counter = 1;
+
     while (!w.ShouldClose())
     {
         if (frame_queue.empty() || frame_queue1.empty()) continue;
@@ -197,7 +213,29 @@ int main() {
 
         tfm::printfln("%ld ms, %d, %d", diff, frame_queue.size(), frame_queue1.size());
 
+        /*prev_keys.erase(std::remove_if(prev_keys.begin(), prev_keys.end(), [&](auto key)
+        {
+            return w.get_key_up(key);
+        }));*/
+
+        for(auto it = prev_keys.begin(); it != prev_keys.end(); )
+            if(w.get_key_up(*it))
+                it = prev_keys.erase(it);
+            else
+                ++it;
+
         frames++;
+        if (w.get_key_down(GLFW_KEY_S) && prev_keys.find(GLFW_KEY_S) == prev_keys.end())
+        {
+            std::cout << "SAVING" << '\n';
+
+            e2e::save_jpeg(frame.buffer().data(), frame.width(), frame.height(), "snap_210_" + std::to_string(snap_counter) + ".jpg");
+            e2e::save_jpeg(frame1.buffer().data(), frame1.width(), frame1.height(), "snap_110_" + std::to_string(snap_counter) + ".jpg");
+
+            snap_counter++;
+            // save
+            prev_keys.emplace(GLFW_KEY_S);
+        }
 
         // return the frame ...
         d.return_buffer(std::move(frame.u_ptr()));
