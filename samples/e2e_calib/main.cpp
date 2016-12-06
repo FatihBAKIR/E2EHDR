@@ -140,6 +140,7 @@ public:
         atImageList = 0;
 
     }
+
     Mat nextImage()
     {
         Mat result;
@@ -209,7 +210,7 @@ static void read(const FileNode& node, Settings& x, const Settings& default_valu
         x.read(node);
 }
 
-enum { DETECTION = 0, CAPTURING = 1, CALIBRATED = 2 };
+enum class MODE { DETECTION = 0, CAPTURING = 1, CALIBRATED = 2 };
 
 bool runCalibrationAndSave(Settings& s, Size imageSize, Mat&  cameraMatrix, Mat& distCoeffs,
                            vector<vector<Point2f> > imagePoints );
@@ -237,7 +238,7 @@ int main(int argc, char* argv[])
     vector<vector<Point2f> > imagePoints;
     Mat cameraMatrix, distCoeffs;
     Size imageSize;
-    int mode = s.inputType == Settings::IMAGE_LIST ? CAPTURING : DETECTION;
+    MODE mode = s.inputType == Settings::IMAGE_LIST ? MODE::CAPTURING : MODE::DETECTION;
     clock_t prevTimestamp = 0;
     const Scalar RED(0,0,255), GREEN(0,255,0);
     const char ESC_KEY = 27;
@@ -250,12 +251,12 @@ int main(int argc, char* argv[])
         view = s.nextImage();
 
         //-----  If no more image, or got enough, then stop calibration and show result -------------
-        if( mode == CAPTURING && imagePoints.size() >= (unsigned)s.nrFrames )
+        if( mode == MODE::CAPTURING && imagePoints.size() >= (unsigned)s.nrFrames )
         {
             if( runCalibrationAndSave(s, imageSize,  cameraMatrix, distCoeffs, imagePoints))
-                mode = CALIBRATED;
+                mode = MODE::CALIBRATED;
             else
-                mode = DETECTION;
+                mode = MODE::DETECTION;
         }
         if(view.empty())          // If no more images then run calibration, save and stop loop.
         {
@@ -299,7 +300,7 @@ int main(int argc, char* argv[])
                               Size(-1,-1), TermCriteria( CV_TERMCRIT_EPS+CV_TERMCRIT_ITER, 30, 0.1 ));
             }
 
-            if( mode == CAPTURING &&  // For camera only take new samples after delay time
+            if( mode == MODE::CAPTURING &&  // For camera only take new samples after delay time
                 (!s.inputCapture.isOpened() || clock() - prevTimestamp > s.delay*1e-3*CLOCKS_PER_SEC) )
             {
                 imagePoints.push_back(pointBuf);
@@ -312,13 +313,13 @@ int main(int argc, char* argv[])
         }
 
         //----------------------------- Output Text ------------------------------------------------
-        string msg = (mode == CAPTURING) ? "100/100" :
-                     mode == CALIBRATED ? "Calibrated" : "Press 'g' to start";
+        string msg = (mode == MODE::CAPTURING) ? "100/100" :
+                     mode == MODE::CALIBRATED ? "Calibrated" : "Press 'g' to start";
         int baseLine = 0;
         Size textSize = getTextSize(msg, 1, 1, 1, &baseLine);
         Point textOrigin(view.cols - 2*textSize.width - 10, view.rows - 2*baseLine - 10);
 
-        if( mode == CAPTURING )
+        if( mode == MODE::CAPTURING )
         {
             if(s.showUndistorsed)
                 msg = format( "%d/%d Undist", (int)imagePoints.size(), s.nrFrames );
@@ -326,13 +327,13 @@ int main(int argc, char* argv[])
                 msg = format( "%d/%d", (int)imagePoints.size(), s.nrFrames );
         }
 
-        putText( view, msg, textOrigin, 1, 1, mode == CALIBRATED ?  GREEN : RED);
+        putText( view, msg, textOrigin, 1, 1, mode == MODE::CALIBRATED ?  GREEN : RED);
 
         if( blinkOutput )
             bitwise_not(view, view);
 
         //------------------------- Video capture  output  undistorted ------------------------------
-        if( mode == CALIBRATED && s.showUndistorsed )
+        if( mode == MODE::CALIBRATED && s.showUndistorsed )
         {
             Mat temp = view.clone();
             undistort(temp, view, cameraMatrix, distCoeffs);
@@ -346,12 +347,12 @@ int main(int argc, char* argv[])
         if( key  == ESC_KEY )
             break;
 
-        if( key == 'u' && mode == CALIBRATED )
+        if( key == 'u' && mode == MODE::CALIBRATED )
             s.showUndistorsed = !s.showUndistorsed;
 
         if( s.inputCapture.isOpened() && key == 'g' )
         {
-            mode = CAPTURING;
+            mode = MODE::CAPTURING;
             imagePoints.clear();
         }
     }
@@ -372,6 +373,7 @@ int main(int argc, char* argv[])
             remap(view, rview, map1, map2, INTER_LINEAR);
             cout << "hello1" << endl;
             imshow("Image View", rview);
+            cout << rview.size().width << " - " << rview.size().height << endl;
             imwrite("/Users/goksu/Documents/E2EHDR/samples/e2e_calib/undistorted_images/" + to_string(i) + "_undistorted.jpg", rview);
             char c = (char)waitKey();
             if( c  == ESC_KEY || c == 'q' || c == 'Q' )
