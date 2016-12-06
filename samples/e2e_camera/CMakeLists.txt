@@ -6,7 +6,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "/usr/local/cmake_mod/")
 
 link_directories(../libs/)
 
-set(SOURCE_FILES main.cpp gphoto_impl.cpp)
+set(SOURCE_FILES main.cpp gphoto_impl.cpp configuration.cpp configuration.h)
 add_executable(e2e_camera ${SOURCE_FILES})
 
 target_link_libraries(e2e_camera e2e_gl)
@@ -60,12 +60,15 @@ target_compile_options(e2e_camera PUBLIC ${PC_LibGPhoto_CFLAGS_OTHER})
 
 find_package(JPEG REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system thread)
+find_package(OpenCV REQUIRED)
 
 target_link_libraries(e2e_camera ${JPEG_LIBRARIES})
 target_link_libraries(e2e_camera ${Boost_LIBRARIES})
+target_link_libraries(e2e_camera ${OpenCV_LIBRARIES})
 
 target_include_directories(e2e_camera PUBLIC ${JPEG_INCLUDE_DIR})
 target_include_directories(e2e_camera PUBLIC ${Boost_INCLUDE_DIRS})
+target_include_directories(e2e_camera PUBLIC ${OpenCV_INCLUDE_DIRS})
 
 # FFMPEG LIBRARIES
 
