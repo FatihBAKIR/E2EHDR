@@ -61,6 +61,7 @@ namespace e2e
 		m_program->setUniformIVar("texture0", { 0 });
 		m_program->setUniformFVar("scale", { m_scale_factor_x, m_scale_factor_y });
 		m_program->setUniformFVar("translate", { m_position_x, m_position_y });
+		m_program->setUniformFVar("exposure", { m_exposure });
 
 		glBindVertexArray(m_vertex_array);
 		glActiveTexture(GL_TEXTURE0);
@@ -93,5 +94,9 @@ namespace e2e
 	{
 		m_scale_factor_x = x;
 		m_scale_factor_y = y;
+	}
+
+	void Quad::set_exposure(float x) {
+		m_exposure = x;
 	}
 }
