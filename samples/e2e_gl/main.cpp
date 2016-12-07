@@ -16,6 +16,8 @@
 #include <chrono>
 #include <iostream>
 
+#include "Drawable.h"
+
 using namespace e2e;
 
 #define DISPARITY_LIMIT 64
