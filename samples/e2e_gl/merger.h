@@ -28,13 +28,16 @@ namespace e2e
 
 		GLuint m_vertex_array;
 		GLuint m_vertex_buffer;
-		GLuint m_framebuffer;
+		GLuint m_framebuffer; 
 		GLuint m_array_texture;
+		GLuint m_median_framebuffer;
+		GLuint m_median_rtt;
 		const Texture* m_texture1;
 		const Texture* m_texture2;
 
 		GLSLProgram m_cost;
 		GLSLProgram m_aggregate;
+		GLSLProgram m_median;
 
 		GLfloat m_position_x;
 		GLfloat m_position_y;
