@@ -6,7 +6,7 @@
 //FRAMEWORK
 #include "glsl_program.h"
 #include "quad.h"
-#include "registration.h"
+#include "merger.h"
 #include "Window.h"
 
 //OTHER
@@ -15,6 +15,8 @@
 //CPP
 #include <chrono>
 #include <iostream>
+
+#include "Drawable.h"
 
 using namespace e2e;
 
@@ -25,16 +27,6 @@ using namespace e2e;
 int main()
 {
 	e2e::Window w(IMAGE_WIDTH, IMAGE_HEIGHT);
-
-	e2e::GLSLProgram cost;
-	cost.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
-	cost.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/cost_adcensus.frag");
-	cost.link();
-
-	e2e::GLSLProgram aggregate;
-	aggregate.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
-	aggregate.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/aggregate3x3.frag");
-	aggregate.link();
 
 	e2e::Quad quad;
 	quad.create();
@@ -51,28 +43,8 @@ int main()
 	quad.set_textures(tex1, tex2);
 	quad.set_position(0.0f, 0.0f);
 	quad.set_scale_factor(1.0f, 1.0f);
-
-	//FRAMEBUFFER
-	GLuint framebuffer;
-	glGenFramebuffers(1, &framebuffer);
-
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-	{
-		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
-	}
-
-	//ARRAY TEXTURE
-	GLuint array_texture;
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glGenTextures(1, &array_texture);
-	glBindTexture(GL_TEXTURE_2D_ARRAY, array_texture);
-	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGB, IMAGE_WIDTH, IMAGE_HEIGHT, DISPARITY_LIMIT, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
-
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+	e2e::Merger merger(IMAGE_WIDTH, IMAGE_HEIGHT, DISPARITY_LIMIT);
+	merger.set_textures(tex1, tex2);
 
 	while (!w.ShouldClose())
 	{
@@ -86,37 +58,7 @@ int main()
 			glfwSetWindowShouldClose(w.get_window(), GL_TRUE);
 		}
 
-		//RENDER//
-		//MULTIPASS TO ARRAY TEXTURE
-		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		quad.set_program(cost);
-		cost.setUniformFVar("dx", { 1.0f / IMAGE_WIDTH });
-		cost.setUniformFVar("dy", { 1.0f / IMAGE_HEIGHT });
-		for (GLint i = 0; i < DISPARITY_LIMIT; ++i)
-		{
-			glBindTexture(GL_TEXTURE_2D_ARRAY, array_texture);
-			cost.setUniformIVar("disparity_level", { i });
-			glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, array_texture, 0, i);
-
-			//Draw quad
-			quad.draw();
-		}
-
-		//SECOND PASS
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		quad.set_program(aggregate);
-		aggregate.setUniformFVar("dx", { 1.0f / IMAGE_WIDTH });
-		aggregate.setUniformFVar("dy", { 1.0f / IMAGE_HEIGHT });
-		glActiveTexture(GL_TEXTURE2);
-		aggregate.setUniformIVar("dsi", { 2 });
-		glBindTexture(GL_TEXTURE_2D_ARRAY, array_texture);
-
-		//Draw quad
-		quad.draw();
+		merger.draw();
 
 		glfwSwapBuffers(w.get_window());
 

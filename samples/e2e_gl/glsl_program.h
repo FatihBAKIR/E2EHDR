@@ -21,6 +21,8 @@ namespace e2e
 
 	public:
 		GLSLProgram();
+		GLSLProgram(GLSLProgram&) = delete;
+		GLSLProgram(GLSLProgram&& rhs);
 		~GLSLProgram();
 
 		void attachShader(ShaderType type, const std::string& shader_path);

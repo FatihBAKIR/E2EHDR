@@ -138,6 +138,7 @@ namespace e2e
 		auto size = values.size();
 		assert(size > 0 && size < 5);
 
+		use();
 		switch (size)
 		{
 		case 1:
@@ -153,14 +154,22 @@ namespace e2e
 
 	void GLSLProgram::setUniformArray(const std::string &name, const std::vector<float> &arr)
 	{
+
 		use();
+		std::cout << "loading to (" <<  glGetUniformLocation(m_program, name.c_str()) << ") " << name << '\n';
 		glUniform1fv(glGetUniformLocation(m_program, name.c_str()), arr.size(), arr.data());
-		//std::cout << glewGetErrorString(glGetError()) << '\n';
+		std::cout << "(" << glGetError() << ") " << glewGetErrorString(glGetError()) << '\n';
 	}
 
 	void GLSLProgram::clear() {
 		glDeleteProgram(m_program);
 		m_program = 0;
 		m_shaders.clear();
+	}
+
+	GLSLProgram::GLSLProgram(GLSLProgram &&rhs) {
+		m_program = rhs.m_program;
+		m_shaders = std::move(rhs.m_shaders);
+		rhs.m_program = 0;
 	}
 }
