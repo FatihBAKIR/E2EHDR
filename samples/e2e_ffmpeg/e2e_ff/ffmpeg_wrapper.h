@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <deque>
 #include <spsc/spsc_queue.h>
+#include <chrono>
 
 extern "C"
 {
@@ -41,6 +42,7 @@ namespace ff
 
     class Camera
     {
+
     public:
         AVCodec* codec_;
         AVFormatContext* format_ctx_;

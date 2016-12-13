@@ -23,19 +23,16 @@ namespace e2e
 
         void create();
         void draw() const;
-        void set_program(const GLSLProgram& program);
+        void set_program(GLSLProgram& program);
 		void set_texture(const Texture& texture);
         void set_position(float x, float y);
         void set_scale_factor(float x, float y);
-		void set_exposure(float x);
 
     private:
         GLuint m_vertex_array;
         GLuint m_vertex_buffer;
 
-		GLfloat m_exposure;
-
-		boost::optional<GLSLProgram> m_program;
+		boost::optional<GLSLProgram&> m_program;
 		const Texture* m_texture;
         GLfloat m_position_x;
         GLfloat m_position_y;

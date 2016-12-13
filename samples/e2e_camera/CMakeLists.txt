@@ -6,7 +6,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "/usr/local/cmake_mod/")
 
 link_directories(../libs/)
 
-set(SOURCE_FILES main.cpp configuration.cpp configuration.h)
+set(SOURCE_FILES main.cpp configuration.cpp configuration.h Application.cpp Application.h)
 add_executable(e2e_camera ${SOURCE_FILES})
 
 target_link_libraries(e2e_camera e2e_gl)
@@ -23,6 +23,7 @@ target_include_directories(e2e_camera PUBLIC ../e2e_ffmpeg)
 
 target_include_directories(e2e_camera PUBLIC ../../3rd_party/GSL)
 target_include_directories(e2e_camera PUBLIC ../../3rd_party/tfm)
+target_include_directories(e2e_camera PUBLIC ../../3rd_party/json/src)
 target_include_directories(e2e_camera PUBLIC ../../3rd_party/spdlog/include)
 
 #GL LIBRARIES

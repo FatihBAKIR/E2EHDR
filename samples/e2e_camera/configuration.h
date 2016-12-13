@@ -6,8 +6,8 @@
 #define HDR_CAMERA_CONFIGURATION_H
 
 #include <string>
-#include <boost/property_tree/ptree.hpp>
 #include <vector>
+#include <json.hpp>
 
 struct crf
 {
@@ -16,7 +16,16 @@ struct crf
     std::vector<float> blue;
 };
 
-boost::property_tree::ptree load_camera_conf(const std::string&);
+struct undistort
+{
+    std::vector<float> focal;
+    std::vector<float> optical;
+
+    std::vector<float> coeffs;
+};
+
+nlohmann::json load_camera_conf(const std::string&);
 crf load_crf(const std::string& file);
+undistort get_undistort(const nlohmann::json& config);
 
 #endif //HDR_CAMERA_CONFIGURATION_H
