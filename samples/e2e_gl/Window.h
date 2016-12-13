@@ -27,5 +27,7 @@ namespace e2e
         bool get_key_up(int btn);
 
         bool ShouldClose() const;
+
+		GLFWwindow* get_window() const { return m_window; }
     };
 }

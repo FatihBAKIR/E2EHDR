@@ -5,11 +5,30 @@ out vec4 color;
 
 uniform sampler2D texture0;
 
-uniform float crf_r[256];
-uniform float crf_g[256];
-uniform float crf_b[256];
+struct crf
+{
+    float red[256];
+    float green[256];
+    float blue[256];
+};
+
+uniform crf response;
 
 uniform float exposure;
+
+int get_byte(float channel)
+{
+    return min(int(channel * 255), 255);
+}
+
+vec3 apply_crf(vec3 col)
+{
+	float r = response.red[get_byte(col.r)];
+	float g = response.green[get_byte(col.g)];
+	float b = response.blue[get_byte(col.b)];
+
+    return vec3(r, g, b);
+}
 
 void main()
 {
@@ -44,16 +63,12 @@ void main()
 
     vec4 col = texture(texture0, vec2(resultUV.x, 1-resultUV.y));
 
-    float r = crf_r[min(int(col.r * 255), 255)];
-    float g = crf_g[min(int(col.g * 255), 255)];
-    float b = crf_b[min(int(col.b * 255), 255)];
-
-    vec3 cols = vec3(r, g, b);
-
-    //cols /= exposure;
+    vec3 cols = apply_crf(vec3(col));
+    cols /= exposure;
 
     //cols = cols * pow(2.0, exposure);
-    //cols = pow(cols, vec3(pow(2.0, gamma)));
+	//cols = pow(cols, vec3(pow(2.0, gamma)));
+
     cols *= 8;
     cols = pow(cols, vec3(1.0 / 2.2)); // gamma correction
     color = vec4(cols, 1.0);

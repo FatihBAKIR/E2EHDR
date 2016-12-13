@@ -155,6 +155,12 @@ namespace e2e
 	{
 		use();
 		glUniform1fv(glGetUniformLocation(m_program, name.c_str()), arr.size(), arr.data());
-		std::cout << glewGetErrorString(glGetError()) << '\n';
+		//std::cout << glewGetErrorString(glGetError()) << '\n';
+	}
+
+	void GLSLProgram::clear() {
+		glDeleteProgram(m_program);
+		m_program = 0;
+		m_shaders.clear();
 	}
 }
