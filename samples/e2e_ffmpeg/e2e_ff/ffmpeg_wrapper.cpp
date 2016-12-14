@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include "ffmpeg_wrapper.h"
+#include <boost/thread.hpp>
 
 using namespace e2e::ff;
 
@@ -116,7 +117,7 @@ e2e::ff::data_ptr e2e::ff::Decoder::decode_one(AVPacket *p) {
 void Camera::start_capture()
 {
     AVPacket* packet = av_packet_alloc();
-    while(av_read_frame(format_ctx_, packet) >= 0)
+    while(av_read_frame(format_ctx_, packet) >= 0 && !boost::this_thread::interruption_requested())
     {
         auto timestamp = std::chrono::high_resolution_clock::now();
         packet_queue.push({packet, timestamp});

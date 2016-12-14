@@ -16,7 +16,7 @@ set(SOURCE_FILES
     quad.h Window.cpp Window.h glsl_program.h glsl_program.cpp gui.cpp gui.h
         imgui_wrapper.cpp imgui_wrapper.h texture.cpp texture.h
     #    main.cpp
-        )
+        Drawable.h)
 
 add_library(e2e_gl STATIC ${SOURCE_FILES})
 #add_executable(e2e_gl ${SOURCE_FILES})
