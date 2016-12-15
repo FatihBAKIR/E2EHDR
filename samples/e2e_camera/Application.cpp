@@ -393,7 +393,7 @@ void ApplicationImpl::Run()
         auto dr2 = e2e::make_drawable(gui.right_quad);
         auto dr3 = e2e::make_drawable(merger);
 
-        gui.w.Loop({dr1, dr2, dr3});
+        gui.w.Loop({dr1, dr2});
 
         spdlog::get("console")->debug("%d, %d\n", left_cam.frame_queue.size(), right_cam.frame_queue.size());
 
