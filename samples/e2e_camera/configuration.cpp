@@ -32,5 +32,6 @@ undistort get_undistort(const nlohmann::json &config) {
   auto f = config["undistort"]["focal_length"];
   auto o = config["undistort"]["optical_center"];
   auto c = config["undistort"]["distort_coeffs"];
-  return undistort{{f["x"], f["y"]}, {o["x"], o["y"]}, c};
+  auto s = config["undistort"]["image_size"];
+  return undistort{{f["x"], f["y"]}, {o["x"], o["y"]}, c, s};
 }

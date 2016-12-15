@@ -108,6 +108,7 @@ namespace e2e
 	void GLSLProgram::use() const
 	{
 		assert(m_program);
+		assert(glIsProgram(m_program));
 		glUseProgram(m_program);
 	}
 
@@ -122,12 +123,19 @@ namespace e2e
 		{
 		case 1:
 			glUniform1i(glGetUniformLocation(m_program, name.c_str()), begin[0]);
-		case 2:
+				break;
+			case 2:
 			glUniform2i(glGetUniformLocation(m_program, name.c_str()), begin[0], begin[1]);
-		case 3:
+				break;
+
+			case 3:
 			glUniform3i(glGetUniformLocation(m_program, name.c_str()), begin[0], begin[1], begin[2]);
-		case 4:
+				break;
+
+			case 4:
 			glUniform4i(glGetUniformLocation(m_program, name.c_str()), begin[0], begin[1], begin[2], begin[3]);
+				break;
+
 		}
 	}
 
@@ -139,26 +147,36 @@ namespace e2e
 		assert(size > 0 && size < 5);
 
 		use();
+		//std::cout << "loading to (" <<  glGetUniformLocation(m_program, name.c_str()) << ") " << name << '\n';
 		switch (size)
 		{
 		case 1:
 			glUniform1f(glGetUniformLocation(m_program, name.c_str()), begin[0]);
+				break;
 		case 2:
 			glUniform2f(glGetUniformLocation(m_program, name.c_str()), begin[0], begin[1]);
-		case 3:
+				break;
+
+			case 3:
 			glUniform3f(glGetUniformLocation(m_program, name.c_str()), begin[0], begin[1], begin[2]);
-		case 4:
+				break;
+
+			case 4:
 			glUniform4f(glGetUniformLocation(m_program, name.c_str()), begin[0], begin[1], begin[2], begin[3]);
+				break;
+
 		}
+		//auto er = glGetError();
+		//std::cout << "(" << er << ") " << glewGetErrorString(er) << '\n';
 	}
 
 	void GLSLProgram::setUniformArray(const std::string &name, const std::vector<float> &arr)
 	{
-
 		use();
-		std::cout << "loading to (" <<  glGetUniformLocation(m_program, name.c_str()) << ") " << name << '\n';
+		//std::cout << "loading to (" <<  glGetUniformLocation(m_program, name.c_str()) << ") " << name << '\n';
 		glUniform1fv(glGetUniformLocation(m_program, name.c_str()), arr.size(), arr.data());
-		std::cout << "(" << glGetError() << ") " << glewGetErrorString(glGetError()) << '\n';
+		//auto er = glGetError();
+		//std::cout << "(" << er << ") " << glewGetErrorString(er) << '\n';
 	}
 
 	void GLSLProgram::clear() {
@@ -171,5 +189,12 @@ namespace e2e
 		m_program = rhs.m_program;
 		m_shaders = std::move(rhs.m_shaders);
 		rhs.m_program = 0;
+	}
+
+	GLSLProgram &GLSLProgram::operator=(GLSLProgram && rhs) {
+		m_program = rhs.m_program;
+		m_shaders = std::move(rhs.m_shaders);
+		rhs.m_program = 0;
+		return *this;
 	}
 }

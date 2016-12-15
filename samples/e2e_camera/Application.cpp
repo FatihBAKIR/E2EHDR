@@ -118,7 +118,7 @@ public:
 
     float get_exposure() const
     {
-        return 1/30;
+        return config["exposure"];
     }
 
     crf get_response() const
@@ -140,10 +140,18 @@ public:
     }
 };
 
+e2e::GLSLProgram make_preview_shader(const camera_struct& cam);
+
 class ApplicationImpl
 {
     camera_struct left_cam;
     camera_struct right_cam;
+
+    e2e::GLSLProgram left_prev_shader;
+    e2e::GLSLProgram right_prev_shader;
+
+    FrameT* left_cur_frame;
+    FrameT* right_cur_frame;
 
     struct GUI
     {
@@ -245,8 +253,12 @@ class ApplicationImpl
     {
         std::cout << "SAVING" << '\n';
 
-        //e2e::save_jpeg(frame.buffer().data(), frame.width(), frame.height(), "snap_210_" + std::to_string(snap_counter) + ".jpg");
-        //e2e::save_jpeg(frame1.buffer().data(), frame1.width(), frame1.height(), "snap_110_" + std::to_string(snap_counter) + ".jpg");
+        e2e::save_jpeg(left_cur_frame->buffer().data(), left_cur_frame->width(), left_cur_frame->height(),
+                       "snap_210_" + std::to_string(snap_counter) + ".jpg");
+
+
+        e2e::save_jpeg(right_cur_frame->buffer().data(), right_cur_frame->width(), right_cur_frame->height(),
+                       "snap_110_" + std::to_string(snap_counter) + ".jpg");
 
         snap_counter++;
     }
@@ -255,18 +267,11 @@ class ApplicationImpl
     {
         std::cout << "reloading shaders...\n";
 
-        /*hdr = e2e::GLSLProgram();
+        left_prev_shader = make_preview_shader(left_cam);
+        right_prev_shader = make_preview_shader(right_cam);
 
-        hdr.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "/Users/fatih/Bitirme/samples/e2e_gl/shaders/hdr.vert");
-        hdr.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "/Users/fatih/Bitirme/samples/e2e_gl/shaders/hdr.frag");
-        hdr.link();
-
-        hdr.setUniformArray("response.red", crf1.red);
-        hdr.setUniformArray("response.green", crf1.green);
-        hdr.setUniformArray("response.blue", crf1.blue);
-
-        quad.set_program(hdr);
-        quad1.set_program(hdr);*/
+        gui.left_quad.set_program(left_prev_shader);
+        gui.right_quad.set_program(right_prev_shader);
     }
 
     void add_keybinding(int key, std::function<void()>&& fun)
@@ -289,12 +294,12 @@ class ApplicationImpl
             hdr.setUniformArray(pref + ".response.red", crf_left.red);
             hdr.setUniformArray(pref + ".response.green", crf_left.green);
             hdr.setUniformArray(pref + ".response.blue", crf_left.blue);
+            hdr.setUniformArray(pref + ".undis.dist_coeffs", undis_left.coeffs);
 
             hdr.setUniformFVar(pref + ".exposure", { cam.get_exposure() });
 
             hdr.setUniformArray(pref + ".undis.focal_length", undis_left.focal);
             hdr.setUniformArray(pref + ".undis.optical_center", undis_left.optical);
-            hdr.setUniformArray(pref + ".undis.dist_coeffs", undis_left.coeffs);
 
             hdr.setUniformArray(pref + ".undis.image_size", {1280, 720});
         };
@@ -321,7 +326,7 @@ public:
     void Run();
 };
 
-auto make_preview_shader(const camera_struct& cam)
+e2e::GLSLProgram make_preview_shader(const camera_struct& cam)
 {
     e2e::GLSLProgram hdr;
     hdr.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "/Users/fatih/Bitirme/samples/e2e_gl/shaders/hdr.vert");
@@ -334,7 +339,7 @@ auto make_preview_shader(const camera_struct& cam)
         auto undis = cam.get_undistort();
 
         std::cout << "copying response\n";
-        hdr.setUniformArray(pref + ".response.red", crf.red);
+        hdr.setUniformArray(pref + ".response.red",  crf.red);
         hdr.setUniformArray(pref + ".response.green", crf.green);
         hdr.setUniformArray(pref + ".response.blue", crf.blue);
 
@@ -343,7 +348,7 @@ auto make_preview_shader(const camera_struct& cam)
         hdr.setUniformFVar(pref + ".undis.focal_length", {undis.focal[0], undis.focal[1]});
         hdr.setUniformFVar(pref + ".undis.optical_center", {undis.optical[0], undis.optical[1]});
         hdr.setUniformArray(pref + ".undis.dist_coeffs", undis.coeffs);
-        hdr.setUniformFVar(pref + ".undis.image_size", {1280, 738});
+        hdr.setUniformFVar(pref + ".undis.image_size",  {undis.im_size[0], undis.im_size[1]});
     };
 
     copy_camera(cam, "camera");
@@ -352,14 +357,10 @@ auto make_preview_shader(const camera_struct& cam)
 
 void ApplicationImpl::Run()
 {
-    auto left_prev_shader = make_preview_shader(left_cam);
-    auto right_prev_shader = make_preview_shader(right_cam);
+    reload_shaders();
 
     left_cam.start();
     right_cam.start();
-
-    gui.left_quad.set_program(left_prev_shader);
-    gui.right_quad.set_program(right_prev_shader);
 
     std::set<int> prev_keys;
 
@@ -382,6 +383,9 @@ void ApplicationImpl::Run()
         FrameT& l_frame = std::get<0>(frames);
         FrameT& r_frame = std::get<1>(frames);
 
+        left_cur_frame = &l_frame;
+        right_cur_frame = &r_frame;
+
         gui.left_tex.load(l_frame.buffer().data(), l_frame.width(), l_frame.height());
         gui.right_tex.load(r_frame.buffer().data(), r_frame.width(), r_frame.height());
 
@@ -389,7 +393,7 @@ void ApplicationImpl::Run()
         auto dr2 = e2e::make_drawable(gui.right_quad);
         auto dr3 = e2e::make_drawable(merger);
 
-        gui.w.Loop({dr1, dr2});
+        gui.w.Loop({dr1, dr2, dr3});
 
         spdlog::get("console")->debug("%d, %d\n", left_cam.frame_queue.size(), right_cam.frame_queue.size());
 
@@ -413,6 +417,9 @@ void ApplicationImpl::Run()
                 prev_keys.emplace(keybind.first);
             }
         }
+
+        left_cur_frame = nullptr;
+        right_cur_frame = nullptr;
 
         // return the frames
         left_cam.recycle(std::move(l_frame));
