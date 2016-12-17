@@ -12,9 +12,17 @@ public:
 	Texture();
 	~Texture();
 
-	void load(unsigned char* image, int width, int height);
+	void create(int width, int height, unsigned char* image);
+	void createArray(int width, int height, int layer, unsigned char* image);
 	void use() const;
+	void useArray() const;
+
+	GLuint get_texture_id() const { return m_texture_id; }
+	GLuint get_width() const { return m_width; }
+	GLuint get_height() const { return m_height; }
 
 private:
-	GLuint m_id;
+	GLuint m_texture_id;
+	int m_width;
+	int m_height;
 };
