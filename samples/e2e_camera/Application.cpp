@@ -18,6 +18,9 @@
 #include <GLFW/glfw3.h>
 #include <jpeg/jpeg_encode.h>
 #include <spdlog/spdlog.h>
+#include <imgui_wrapper.h>
+#include <gui.h>
+#include <imgui.h>
 
 using FrameT = e2e::Frame<uint8_t, 3, decltype(&av_free)>;
 using json = nlohmann::json;
@@ -309,19 +312,7 @@ class ApplicationImpl
     }
 
 public:
-    ApplicationImpl(const std::vector <std::string> &args) :
-            left_cam(load_camera_conf(args[0])),
-            right_cam(load_camera_conf(args[1]))
-
-    {
-        add_keybinding(GLFW_KEY_R, [this]{
-           reload_shaders();
-        });
-
-        add_keybinding(GLFW_KEY_S, [this]{
-           snapshot();
-        });
-    }
+    ApplicationImpl(const std::vector <std::string> &args);
 
     void Run();
 };
@@ -355,6 +346,26 @@ e2e::GLSLProgram make_preview_shader(const camera_struct& cam)
     return hdr;
 }
 
+ApplicationImpl::ApplicationImpl(const std::vector<std::string> &args) :
+        left_cam(load_camera_conf(args[0])),
+        right_cam(load_camera_conf(args[1]))
+
+{
+    add_keybinding(GLFW_KEY_R, [this]{
+        reload_shaders();
+    });
+
+    add_keybinding(GLFW_KEY_S, [this]{
+        snapshot();
+    });
+
+    add_keybinding(GLFW_KEY_ESCAPE, [this]{
+        gui.w.ShouldClose(true);
+    });
+
+    e2e::GUI::getGUI().initialize(gui.w, true);
+}
+
 void ApplicationImpl::Run()
 {
     reload_shaders();
@@ -386,14 +397,26 @@ void ApplicationImpl::Run()
         left_cur_frame = &l_frame;
         right_cur_frame = &r_frame;
 
-        gui.left_tex.load(l_frame.buffer().data(), l_frame.width(), l_frame.height());
-        gui.right_tex.load(r_frame.buffer().data(), r_frame.width(), r_frame.height());
+        gui.left_tex.create(l_frame.width(), l_frame.height(), l_frame.buffer().data());
+        gui.right_tex.create(r_frame.width(), r_frame.height(), r_frame.buffer().data());
 
         auto dr1 = e2e::make_drawable(gui.left_quad);
         auto dr2 = e2e::make_drawable(gui.right_quad);
         auto dr3 = e2e::make_drawable(merger);
 
-        gui.w.Loop({dr1, dr2});
+        gui.w.StartDraw();
+        dr1.draw();
+        dr2.draw();
+
+
+
+        e2e::GUI::getGUI().newFrame();
+        float a, b;
+        e2e::gui::displayCameraControl(a, b);
+        ImGui::Render();
+
+        gui.w.EndDraw();
+        //gui.w.Loop({dr1, dr2});
 
         spdlog::get("console")->debug("%d, %d\n", left_cam.frame_queue.size(), right_cam.frame_queue.size());
 
