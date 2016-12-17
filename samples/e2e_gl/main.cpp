@@ -1,12 +1,13 @@
 ﻿//GL
 #define GLEW_STATIC /*Define GLEW_STATIC for static linking*/
-#include <GL/glew.h>g
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 //FRAMEWORK
 #include "glsl_program.h"
 #include "quad.h"
 #include "merger.h"
+#include "texture.h"
 #include "Window.h"
 
 //OTHER
@@ -31,11 +32,11 @@ int main()
 	int width, height;
 	unsigned char* image1 = SOIL_load_image("cones_left.png", &width, &height, 0, SOIL_LOAD_RGB);
 	Texture tex1;
-	tex1.load(image1, width, height);
+	tex1.create(width, height, image1);
 
 	unsigned char* image2 = SOIL_load_image("cones_right.png", &width, &height, 0, SOIL_LOAD_RGB);
 	Texture tex2;
-	tex2.load(image2, width, height);
+	tex2.create(width, height, image2);
 
 	e2e::Merger merger(gImageWidth, gImageHeight, gDisparityLimit);
 	merger.set_textures(tex1, tex2);

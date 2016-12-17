@@ -16,10 +16,6 @@ namespace e2e
 		, m_disparity_limit(disparity_limit)
 		, m_vertex_array(0)
 		, m_vertex_buffer(0)
-		, m_framebuffer(0)
-		, m_array_texture(0)
-		, m_median_framebuffer(0)
-	    , m_median_rtt(0)
 		, m_texture1(nullptr)
 		, m_texture2(nullptr)
 		, m_position_x(0.0f)
@@ -51,54 +47,22 @@ namespace e2e
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
 		glBindVertexArray(0);
 
-		//FRAMEBUFFERS
-		glGenFramebuffers(1, &m_framebuffer);
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		{
-			throw std::runtime_error("ERROR::MERGER::Framebuffer is not complete!");
-		}
-		glGenFramebuffers(1, &m_median_framebuffer);
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		{
-			throw std::runtime_error("ERROR::MERGER::MedianFramebuffer is not complete!");
-		}
-
-		//ARRAY TEXTURE
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		glGenTextures(1, &m_array_texture);
-		glBindTexture(GL_TEXTURE_2D_ARRAY, m_array_texture);
-		glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGB, image_width, image_height, disparity_limit, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
-
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
-
-		//MEDIAN RTT TEXTURE
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		glGenTextures(1, &m_median_rtt);
-		glBindTexture(GL_TEXTURE_2D, m_median_rtt);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image_width, image_height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glBindTexture(GL_TEXTURE_2D, 0);
+		//TEXTURES
+		m_cost_texture.createArray(image_width, image_height, disparity_limit, nullptr);
+		m_median_texture.create(image_width, image_height, nullptr);
 
 		//SHADERS
-		m_cost.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
-		m_cost.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/cost_adcensus.frag");
-		m_cost.link();
+		m_cost_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
+		m_cost_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/cost_adcensus.frag");
+		m_cost_shader.link();
 
-		m_aggregate.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
-		m_aggregate.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/aggregate3x3.frag");
-		m_aggregate.link();
+		m_aggregate_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
+		m_aggregate_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/aggregate_cross.frag");
+		m_aggregate_shader.link();
 
-		m_median.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
-		m_median.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/median_filter.frag");
-		m_median.link();
+		m_median_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
+		m_median_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/median_filter.frag");
+		m_median_shader.link();
 	}
 
 	Merger::~Merger()
@@ -114,16 +78,6 @@ namespace e2e
 			glDeleteVertexArrays(1, &m_vertex_array);
 			m_vertex_array = 0;
 		}
-
-		if (m_framebuffer)
-		{
-			glDeleteFramebuffers(1, &m_framebuffer);
-		}
-
-		if (m_array_texture)
-		{
-			glDeleteTextures(1, &m_array_texture);
-		}
 	}
 
 	void Merger::draw()
@@ -134,54 +88,52 @@ namespace e2e
 
 		//COST COMPUTATION//
 		//MULTIPASS TO ARRAY TEXTURE
-		glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
-
-		m_cost.use();
+		m_cost_shader.use();
 		static float dx = 1.0f / m_image_width;
 		static float dy = 1.0f / m_image_height;
-		m_cost.setUniformFVar("dx", { dx });
-		m_cost.setUniformFVar("dy", { dy });
+		m_cost_shader.setUniformFVar("dx", { dx });
+		m_cost_shader.setUniformFVar("dy", { dy });
 		for (GLint i = 0; i < m_disparity_limit; ++i)
 		{
-			glBindTexture(GL_TEXTURE_2D_ARRAY, m_array_texture);
-			m_cost.setUniformIVar("disparity_level", { i });
-			glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_array_texture, 0, i);
+			m_cost_shader.setUniformIVar("disparity_level", { i });
+			m_framebuffer.renderToTextureLayer(m_cost_texture, i);
+			m_cost_texture.useArray();
+			//glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_array_texture, 0, i);
 
 			//Draw quad
-			render(m_cost);
+			render(m_cost_shader);
 		}
 
 		//COST AGGREGATION//
 #ifdef __USE__MEDIAN__FILTER__
-		glBindFramebuffer(GL_FRAMEBUFFER, m_median_framebuffer);
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_median_rtt, 0);
+		m_framebuffer.renderToTexture(m_median_texture);;
 #else
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 #endif
-		m_aggregate.use();
-		m_aggregate.setUniformIVar("disparity_limit", { m_disparity_limit });
-		m_aggregate.setUniformFVar("dx", { dx });
-		m_aggregate.setUniformFVar("dy", { dy });
+		m_aggregate_shader.use();
+		m_aggregate_shader.setUniformIVar("disparity_limit", { m_disparity_limit });
+		m_aggregate_shader.setUniformFVar("dx", { dx });
+		m_aggregate_shader.setUniformFVar("dy", { dy });
 		glActiveTexture(GL_TEXTURE2);
-		m_aggregate.setUniformIVar("dsi", { 2 });
-		glBindTexture(GL_TEXTURE_2D_ARRAY, m_array_texture);
+		m_aggregate_shader.setUniformIVar("dsi", { 2 });
+		m_cost_texture.useArray();
 
 		//Draw quad
-		render(m_aggregate);
+		render(m_aggregate_shader);
 
 #ifdef __USE__MEDIAN__FILTER__
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		m_median.use();
-		m_median.setUniformFVar("scale", { m_scale_factor_x, m_scale_factor_y });
-		m_median.setUniformFVar("translate", { m_position_x, m_position_y });
-		m_median.setUniformFVar("dx", { dx });
-		m_median.setUniformFVar("dy", { dy });
+		m_median_shader.use();
+		m_median_shader.setUniformFVar("scale", { m_scale_factor_x, m_scale_factor_y });
+		m_median_shader.setUniformFVar("translate", { m_position_x, m_position_y });
+		m_median_shader.setUniformFVar("dx", { dx });
+		m_median_shader.setUniformFVar("dy", { dy });
 
 		glBindVertexArray(m_vertex_array);
-		m_median.setUniformIVar("prefiltered", { 0 });
+		m_median_shader.setUniformIVar("prefiltered", { 0 });
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, m_median_rtt);
+		glBindTexture(GL_TEXTURE_2D, m_median_texture.get_texture_id());
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
