@@ -2,12 +2,15 @@
 
 //GL
 #include <GL/glew.h>
+#include "Window.h"
 
 struct GLFWwindow;
 struct ImDrawData;
 
 namespace e2e
 {
+	class Window;
+
 	void renderDrawList(ImDrawData* draw_data);
 	const char* getClipboardText(void* user_data);
 	void setClipboardText(void* user_data, const char* text);
@@ -26,7 +29,7 @@ namespace e2e
 
 		static GUI& getGUI();
 
-		bool initialize(GLFWwindow* window, bool install_callbacks);
+		bool initialize(e2e::Window& window, bool install_callbacks);
 		void newFrame();
 
 		friend void renderDrawList(ImDrawData* draw_data);

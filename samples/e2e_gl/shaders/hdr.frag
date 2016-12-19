@@ -10,7 +10,6 @@ struct undistort_params
     vec2 focal_length;
     vec2 optical_center;
     vec2 image_size;
-
     float dist_coeffs[5];
 };
 
@@ -46,10 +45,10 @@ vec3 apply_crf(vec3 col)
 
 vec2 undistort(vec2 inp)
 {
-    const vec2 focalLength = vec2(1083.7449050061734, 1083.7449050061734);
-        const vec2 opticalCenter = vec2(639.5, 368.5);
-        const float distortionCoeffs[5] = float[](-0.58179279888273083, 0.76873518296930821, 0., 0., 0.59197125404147499);
-        const vec2 imageSize = vec2(1280.f, 738.f);
+    vec2 focalLength = camera.undis.focal_length;
+    vec2 opticalCenter = camera.undis.optical_center;
+    float distortionCoeffs[5] = camera.undis.dist_coeffs;
+    vec2 imageSize = camera.undis.image_size;
 
     vec2 opticalCenterUV = opticalCenter / imageSize;
     vec2 shiftedUVCoordinates = inp - opticalCenterUV;
@@ -79,10 +78,6 @@ void main()
     vec2 resultUV = undistort(tex_coord);
     //resultUV = tex_coord;
 
-    //-15,5
-    float exposure = -2;
-    float gamma = 0.1;
-
     vec4 col = texture(texture0, vec2(resultUV.x, 1-resultUV.y));
 
     vec3 cols = apply_crf(vec3(col));
@@ -91,7 +86,7 @@ void main()
     //cols = cols * pow(2.0, exposure);
 	//cols = pow(cols, vec3(pow(2.0, gamma)));
 
-    cols *= 2;
+    cols /= 50;
     cols = pow(cols, vec3(1.0 / 2.2)); // gamma correction
     color = vec4(cols, 1.0);
 

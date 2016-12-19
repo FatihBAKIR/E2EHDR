@@ -47,9 +47,9 @@ namespace e2e
 		ImGui::Shutdown();
 	}
 
-	bool GUI::initialize(GLFWwindow* window, bool install_callbacks)
+	bool GUI::initialize(e2e::Window& window, bool install_callbacks)
 	{
-		m_window = window;
+		m_window = window.m_window;
 
 		//Keyboard mapping. ImGui will use those indices to peek into the io.KeyDown[] array.
 		ImGuiIO& io = ImGui::GetIO();
@@ -83,10 +83,10 @@ namespace e2e
 
 		if (install_callbacks)
 		{
-			glfwSetMouseButtonCallback(window, mouseButtonCallback);
-			glfwSetScrollCallback(window, scrollCallback);
-			glfwSetKeyCallback(window, keyCallback);
-			glfwSetCharCallback(window, charCallback);
+			glfwSetMouseButtonCallback(m_window, mouseButtonCallback);
+			glfwSetScrollCallback(m_window, scrollCallback);
+			glfwSetKeyCallback(m_window, keyCallback);
+			glfwSetCharCallback(m_window, charCallback);
 		}
 
 		return true;

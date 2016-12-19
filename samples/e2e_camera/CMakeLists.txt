@@ -37,10 +37,12 @@ target_link_libraries(e2e_camera ${OPENGL_LIBRARIES})
 target_link_libraries(e2e_camera ${GLEW_LIBRARIES})
 target_link_libraries(e2e_camera glfw)
 target_link_libraries(e2e_camera ${Boost_LIBRARIES})
+target_link_libraries(e2e_camera imgui)
 
 target_include_directories(e2e_camera PUBLIC ${OPENGL_INCLUDE_DIR})
 target_include_directories(e2e_camera PUBLIC ${GLEW_INCLUDE_DIR})
 target_include_directories(e2e_camera PUBLIC ${Boost_INCLUDE_DIRS})
+target_include_directories(e2e_camera PUBLIC "../../3rd_party/imgui")
 
 # GPHOTO LIBRARIES
 

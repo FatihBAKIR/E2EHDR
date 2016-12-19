@@ -112,10 +112,22 @@ namespace e2e
 		return glfwGetKey(m_window, key) == GLFW_PRESS;
 	}
 
+
 	bool Window::ShouldClose() const
 	{
 		return static_cast<bool>(glfwWindowShouldClose(m_window));
 	}
+
+    void Window::StartDraw()
+    {
+        glfwPollEvents();
+        glClear(GL_COLOR_BUFFER_BIT);
+    }
+
+    void Window::EndDraw()
+    {
+        glfwSwapBuffers(m_window);
+    }
 
     void Window::Loop(const std::vector<std::reference_wrapper<drawable_base>> &drawables)
     {
@@ -135,5 +147,9 @@ namespace e2e
             drawable.get().draw();
         }
         glfwSwapBuffers(m_window);
+    }
+
+    void Window::ShouldClose(bool set) {
+        glfwSetWindowShouldClose(m_window, set);
     }
 }

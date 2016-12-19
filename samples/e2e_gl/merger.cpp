@@ -82,6 +82,8 @@ namespace e2e
 
 	void Merger::draw()
 	{
+        float tmp[4] = { m_position_x, m_position_y, m_scale_factor_x, m_scale_factor_y };
+
 		//RESET
 		set_position(0.0f, 0.0f);
 		set_scale_factor(1.0f, 1.0f);
@@ -117,6 +119,9 @@ namespace e2e
 		glActiveTexture(GL_TEXTURE2);
 		m_aggregate_shader.setUniformIVar("dsi", { 2 });
 		m_cost_texture.useArray();
+
+        set_position(tmp[0], tmp[1]);
+        set_scale_factor(tmp[2], tmp[3]);
 
 		//Draw quad
 		render(m_aggregate_shader);

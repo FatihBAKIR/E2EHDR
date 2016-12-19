@@ -22,6 +22,8 @@ struct undistort
     std::vector<float> optical;
 
     std::vector<float> coeffs;
+
+    std::vector<float> im_size;
 };
 
 nlohmann::json load_camera_conf(const std::string&);

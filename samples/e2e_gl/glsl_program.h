@@ -25,6 +25,9 @@ namespace e2e
 		GLSLProgram(GLSLProgram&& rhs);
 		~GLSLProgram();
 
+		GLSLProgram& operator=(GLSLProgram&) = delete;
+		GLSLProgram& operator=(GLSLProgram&&);
+
 		void attachShader(ShaderType type, const std::string& shader_path);
 		void link();
 		void use() const;
