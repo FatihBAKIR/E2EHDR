@@ -4,6 +4,8 @@ project(hdr_camera)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -pthread")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "/usr/local/cmake_mod/")
 
+set(CMAKE_CXX_STANDARD 14)
+
 link_directories(../libs/)
 
 set(SOURCE_FILES main.cpp configuration.cpp configuration.h Application.cpp Application.h)
@@ -11,12 +13,12 @@ add_executable(e2e_camera ${SOURCE_FILES})
 
 target_link_libraries(e2e_camera e2e_gl)
 target_link_libraries(e2e_camera e2e_utils)
-target_link_libraries(e2e_camera e2e_gphoto)
+#target_link_libraries(e2e_camera e2e_gphoto)
 target_link_libraries(e2e_camera e2e_ffmpeg)
 
 target_include_directories(e2e_camera PUBLIC ../e2e_gl)
 target_include_directories(e2e_camera PUBLIC ../e2e_utils)
-target_include_directories(e2e_camera PUBLIC ../e2e_gphoto)
+#target_include_directories(e2e_camera PUBLIC ../e2e_gphoto)
 target_include_directories(e2e_camera PUBLIC ../e2e_ffmpeg)
 
 # 3rd PARTY
@@ -29,13 +31,13 @@ target_include_directories(e2e_camera PUBLIC ../../3rd_party/spdlog/include)
 #GL LIBRARIES
 
 find_package(OpenGL REQUIRED)
-find_package(glfw3 REQUIRED)
+find_package(GLFW REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system thread)
 
 target_link_libraries(e2e_camera ${OPENGL_LIBRARIES})
 target_link_libraries(e2e_camera ${GLEW_LIBRARIES})
-target_link_libraries(e2e_camera glfw)
+target_link_libraries(e2e_camera ${GLFW_LIBRARIES})
 target_link_libraries(e2e_camera ${Boost_LIBRARIES})
 target_link_libraries(e2e_camera imgui)
 
@@ -46,6 +48,7 @@ target_include_directories(e2e_camera PUBLIC "../../3rd_party/imgui")
 
 # GPHOTO LIBRARIES
 
+if (E2E_GPHOTO)
 find_package(PkgConfig REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system thread)
 
@@ -58,7 +61,7 @@ target_include_directories(e2e_camera PUBLIC ${PC_LibGPhoto_INCLUDE_DIRS})
 target_include_directories(e2e_camera PUBLIC ${Boost_INCLUDE_DIRS})
 
 target_compile_options(e2e_camera PUBLIC ${PC_LibGPhoto_CFLAGS_OTHER})
-
+endif()
 # UTIL LIBRARIES
 
 find_package(JPEG REQUIRED)

@@ -75,7 +75,7 @@ public:
 };
 
 template <int file_hash, int line>
-thread_local profiler_data profiler<file_hash, line>::data {line};
+thread_local profiler_data profiler<file_hash, line>::data(line);
 
 #if !defined(NDEBUG) || (defined(DO_PROFILE) && DO_PROFILE)
 #define scope_profile() profiler<WSID(__FILE__), __LINE__> __p__ {__FILE__, BOOST_CURRENT_FUNCTION};

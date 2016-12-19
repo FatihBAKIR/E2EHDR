@@ -21,6 +21,7 @@
 #include <imgui_wrapper.h>
 #include <gui.h>
 #include <imgui.h>
+#include <set>
 
 using FrameT = e2e::Frame<uint8_t, 3, decltype(&av_free)>;
 using json = nlohmann::json;
