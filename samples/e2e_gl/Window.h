@@ -26,6 +26,7 @@ namespace e2e
         Window(int width, int height);
         void Loop(const std::vector<std::reference_wrapper<Quad>>& quads);
         void Loop(const std::vector<std::reference_wrapper<drawable_base>>& drawables);
+        void reset_viewport();
 
         /*template <class... Ts>
         void Loop(Ts&&... drawables)

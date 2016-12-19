@@ -409,6 +409,8 @@ void ApplicationImpl::Run()
         dr2.draw();
 
 
+        merger.draw();
+        gui.w.reset_viewport();
 
         e2e::GUI::getGUI().newFrame();
         float a, b;

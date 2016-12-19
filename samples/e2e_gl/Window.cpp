@@ -102,6 +102,15 @@ namespace e2e
 		glfwSwapBuffers(m_window);
 	}
 
+	void Window::reset_viewport()
+	{
+#ifdef __APPLE__
+		glViewport(0, 0, m_width * 2, m_height * 2);
+#else
+		glViewport(0, 0, m_width, m_height);
+#endif
+	}
+
 	bool Window::get_key_up(int key)
 	{
 		return glfwGetKey(m_window, key) == GLFW_RELEASE;
