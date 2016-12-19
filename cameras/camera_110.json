@@ -1,0 +1,28 @@
+{
+	"name" : "Beyaz",
+	"crf" : "/Users/fatih/cameras/response_210.json",
+	"exposure" : 0.0333,
+	"rtsp_url" : "rtsp://admin:admin@192.168.200.21/media/video1",
+	"undistort" : 
+	{
+		"image_size": [1280, 720],
+		"distort_coeffs" : 
+		[
+			-1.3671338703219091e-01,
+			1.8650745119928613e-01,
+			0,
+			0,
+    		-2.0392020864540977e-01
+		],
+		"focal_length" : 
+		{
+			"x" : 8.0112928344631712e+02,
+			"y" : 8.0112928344631712e+02
+		},
+		"optical_center" : 
+		{
+			"x" : 6.3950000000000000e+02,
+			"y" : 3.5950000000000000e+02
+		}
+	}
+}
