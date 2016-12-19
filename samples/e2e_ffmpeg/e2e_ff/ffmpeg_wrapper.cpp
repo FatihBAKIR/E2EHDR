@@ -111,7 +111,7 @@ e2e::ff::data_ptr e2e::ff::Decoder::decode_one(AVPacket *p) {
         return std::move(buffer);
     }
 
-    return {nullptr, &av_free};
+	return{ (uint8_t*)nullptr, &::av_free };
 }
 
 void Camera::start_capture()
