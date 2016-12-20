@@ -6,8 +6,6 @@
 #include <assert.h>
 #include <iostream>
 
-#define __USE__MEDIAN__FILTER__
-
 namespace e2e
 {
 	Merger::Merger(int image_width, int image_height, int disparity_limit)
@@ -49,7 +47,7 @@ namespace e2e
 
 		//TEXTURES
 		m_cost_texture.createArray(image_width, image_height, disparity_limit, nullptr);
-		m_median_texture.create(image_width, image_height, nullptr);
+		m_refinement_texture.create(image_width, image_height, nullptr);
 
 		//SHADERS
 		m_cost_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
@@ -57,12 +55,20 @@ namespace e2e
 		m_cost_shader.link();
 
 		m_aggregate_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
-		m_aggregate_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/aggregate_cross.frag");
+		m_aggregate_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/aggregate_crosswithAPKR.frag");
 		m_aggregate_shader.link();
 
 		m_median_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
 		m_median_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/median_filter.frag");
 		m_median_shader.link();
+
+		m_outlier_detection_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
+		m_outlier_detection_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/outlier_detection.frag");
+		m_outlier_detection_shader.link();
+
+		m_outlier_correction_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
+		m_outlier_correction_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/outlier_correction.frag");
+		m_outlier_correction_shader.link();
 	}
 
 	Merger::~Merger()
@@ -107,11 +113,7 @@ namespace e2e
 		}
 
 		//COST AGGREGATION//
-#ifdef __USE__MEDIAN__FILTER__
-		m_framebuffer.renderToTexture(m_median_texture);;
-#else
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-#endif
+		m_framebuffer.renderToTexture(m_refinement_texture);
 		m_aggregate_shader.use();
 		m_aggregate_shader.setUniformIVar("disparity_limit", { m_disparity_limit });
 		m_aggregate_shader.setUniformFVar("dx", { dx });
@@ -126,9 +128,53 @@ namespace e2e
 		//Draw quad
 		render(m_aggregate_shader);
 
-#ifdef __USE__MEDIAN__FILTER__
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		//OUTLIER DETECTION//
+		//
+		m_framebuffer.renderToTexture(m_refinement_texture);
+		m_outlier_detection_shader.use();
+		m_outlier_detection_shader.setUniformFVar("scale", { m_scale_factor_x, m_scale_factor_y });
+		m_outlier_detection_shader.setUniformFVar("translate", { m_position_x, m_position_y });
+		m_outlier_detection_shader.setUniformFVar("dx", { dx });
+		m_outlier_detection_shader.setUniformFVar("dy", { dy });
+		glActiveTexture(GL_TEXTURE1);
+		m_aggregate_shader.setUniformIVar("dsi", { 1 });
+		m_cost_texture.useArray();
 
+		glBindVertexArray(m_vertex_array);
+		m_outlier_detection_shader.setUniformIVar("disparity_map", { 0 });
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, m_refinement_texture.get_texture_id());
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glBindVertexArray(0);
+
+		//OUTLIER CORRECTION//
+		//
+		m_framebuffer.renderToTexture(m_refinement_texture);
+		m_outlier_correction_shader.use();
+		m_outlier_correction_shader.setUniformFVar("scale", { m_scale_factor_x, m_scale_factor_y });
+		m_outlier_correction_shader.setUniformFVar("translate", { m_position_x, m_position_y });
+		m_outlier_correction_shader.setUniformFVar("dx", { dx });
+		m_outlier_correction_shader.setUniformFVar("dy", { dy });
+
+		glBindVertexArray(m_vertex_array);
+		m_outlier_correction_shader.setUniformIVar("disparity_map", { 0 });
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, m_refinement_texture.get_texture_id());
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glBindVertexArray(0);
+
+
+		//MEDIAN FILTER//
+		//
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		m_median_shader.use();
 		m_median_shader.setUniformFVar("scale", { m_scale_factor_x, m_scale_factor_y });
 		m_median_shader.setUniformFVar("translate", { m_position_x, m_position_y });
@@ -138,14 +184,13 @@ namespace e2e
 		glBindVertexArray(m_vertex_array);
 		m_median_shader.setUniformIVar("prefiltered", { 0 });
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, m_median_texture.get_texture_id());
+		glBindTexture(GL_TEXTURE_2D, m_refinement_texture.get_texture_id());
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glBindVertexArray(0);
-#endif
 	}
 
 	void Merger::set_textures(const Texture & left, const Texture & right)

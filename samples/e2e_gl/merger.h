@@ -32,12 +32,14 @@ namespace e2e
 
 		Framebuffer m_framebuffer;
 		Texture m_cost_texture;
-		Texture m_median_texture;
+		Texture m_refinement_texture;
 		const Texture* m_texture1;
 		const Texture* m_texture2;
 
 		GLSLProgram m_cost_shader;
 		GLSLProgram m_aggregate_shader;
+		GLSLProgram m_outlier_detection_shader;
+		GLSLProgram m_outlier_correction_shader;
 		GLSLProgram m_median_shader;
 
 		GLfloat m_position_x;
