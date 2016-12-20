@@ -1,6 +1,6 @@
 {
 	"name" : "Siyah",
-	"crf" : "/Users/fatih/cameras/response_210.json",
+	"crf" : "C:\\Users\\Mustafa\\Documents\\E2EHDR.isikmustafa\\cameras\\response_210.json",
 	"exposure" : 0.01,
 	"rtsp_url" : "rtsp://admin:admin@192.168.200.20/media/video1",
 	"undistort" : 
