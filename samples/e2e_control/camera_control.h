@@ -6,11 +6,13 @@
 #define E2E_CONTROL_CAMERA_CONTROL_H
 
 #include <vector>
+#include <string>
 
 class camera_control
 {
     float _exposure;
     int _code;
+    std::string _ip;
 
     struct expToCode
     {
@@ -22,7 +24,7 @@ class camera_control
     void post();
 
 public:
-    camera_control();
+    camera_control(std::string ip);
     void set_exposure(float exp);
     float exp_value() { return _exposure; };
     int exp_code() { return _code; };
