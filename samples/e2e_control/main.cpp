@@ -10,8 +10,6 @@ using curl::curlcpp_traceback;
 
 int main(int argc, const char **argv)
 {
-    char test[] = "Cookie: snc_cview_auto_play=";
-
     std::vector<std::string> headers;
     headers.push_back("Cookie: snc_cview_auto_play=");
     headers.push_back("Origin: http://192.168.200.20");
@@ -27,9 +25,17 @@ int main(int argc, const char **argv)
     headers.push_back("Connection: keep-alive");
     headers.push_back("DNT: 1");
 
-    curl_slist s;
-    s.data = test;
-    s.next = nullptr;
+    curl_slist list[13];
+    for (auto i = 0; i < 12; i++){
+        std::vector<char> cstr(headers[i].c_str(), headers[i].c_str() + headers[i].size() + 1);
+        list[i].data = cstr.data();
+        list[i].next = &list[i+1];
+    }
+
+    std::vector<char> cstr(headers[13].c_str(), headers[13].c_str() + headers[13].size() + 1);
+    list[13].data = cstr.data();
+    list[13].next = nullptr;
+
 
     curl_form form;
     // Forms creation
@@ -89,7 +95,7 @@ int main(int argc, const char **argv)
         easy.add<CURLOPT_FOLLOWLOCATION>(1L);
         easy.add<CURLOPT_HTTPPOST>(form.get());
 
-        easy.add<CURLOPT_HTTPHEADER>(&s);
+        easy.add<CURLOPT_HTTPHEADER>(list);
 
         // Execute the request.
         easy.perform();
