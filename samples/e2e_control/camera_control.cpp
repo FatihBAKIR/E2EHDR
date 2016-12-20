@@ -7,8 +7,10 @@
 #include <cpr/cpr.h>
 #include <iostream>
 
-camera_control::camera_control()
+camera_control::camera_control(std::string ip)
 {
+    _ip = ip;
+
     expValues.push_back({1.0f, 0});
     expValues.push_back({1/2.0f, 1});
     expValues.push_back({1/4.0f, 2});
@@ -46,7 +48,7 @@ void camera_control::set_exposure(float exp)
 
 void camera_control::post()
 {
-    auto r = cpr::Post(cpr::Url{"http://192.168.200.20/command/camera.cgi"},
+    auto r = cpr::Post(cpr::Url{"http://" + _ip + "/command/camera.cgi"},
                        cpr::Payload{{"BLComp", "off"},
                                     {"ExpComp", "6"},
                                     {"Agc","off"},
@@ -63,7 +65,7 @@ void camera_control::post()
                                     {"Contrast", "3"},
                                     {"reload", "referer"}},
                        cpr::Header{{"Cookie", "snc_cview_auto_play="},
-                                   {"Origin", "http://192.168.200.20"},
+                                   {"Origin", "http://" + _ip},
                                    {"Accept-Encoding", "gzip, deflate"},
                                    {"Accept-Language", "en-US,en;q=0.8,tr;q=0.6"},
                                    {"Upgrade-Insecure-Requests", "1"},
@@ -72,7 +74,7 @@ void camera_control::post()
                                    {"Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"},
                                    {"User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36"},
                                    {"Cache-Control", "max-age=0"},
-                                   {"Referer", "http://192.168.200.20/en/l4/camera/picture.html"},
+                                   {"Referer", "http://" + _ip + "/en/l4/camera/picture.html"},
                                    {"Connection", "keep-alive"},
                                    {"DNT", "1"}
                        });
