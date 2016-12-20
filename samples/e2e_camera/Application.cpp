@@ -286,8 +286,8 @@ class ApplicationImpl
     auto make_merge_shader()
     {
         e2e::GLSLProgram hdr;
-        hdr.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "/Users/fatih/Bitirme/samples/e2e_gl/shaders/hdr.vert");
-        hdr.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "/Users/fatih/Bitirme/samples/e2e_gl/shaders/merge.frag");
+        hdr.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
+        hdr.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/merge.frag");
         hdr.link();
 
         auto copy_camera = [&hdr](auto& cam, const std::string& pref)
@@ -321,8 +321,8 @@ public:
 e2e::GLSLProgram make_preview_shader(const camera_struct& cam)
 {
     e2e::GLSLProgram hdr;
-    hdr.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "/Users/fatih/Bitirme/samples/e2e_gl/shaders/hdr.vert");
-    hdr.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "/Users/fatih/Bitirme/samples/e2e_gl/shaders/hdr.frag");
+    hdr.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
+    hdr.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/hdr.frag");
     hdr.link();
 
     auto copy_camera = [&hdr](const auto& cam, const std::string& pref)
@@ -408,7 +408,7 @@ void ApplicationImpl::Run()
         gui.w.StartDraw();
         dr1.draw();
         dr2.draw();
-
+		dr3.draw();
 
 
         e2e::GUI::getGUI().newFrame();
