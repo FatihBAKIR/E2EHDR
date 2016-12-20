@@ -27,8 +27,7 @@ int main(int argc, const char **argv)
 
     curl_slist list[13];
     for (auto i = 0; i < 12; i++){
-        std::vector<char> cstr(headers[i].c_str(), headers[i].c_str() + headers[i].size() + 1);
-        list[i].data = cstr.data();
+        list[i].data = &headers[i][0];
         list[i].next = &list[i+1];
     }
 
