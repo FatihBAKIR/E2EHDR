@@ -8,12 +8,14 @@ find_package(CURL REQUIRED)
 
 set(CMAKE_CXX_STANDARD 14)
 
+link_directories(../libs)
 link_directories(/usr/local/lib)
 
 set(SOURCE_FILES main.cpp)
 add_executable(e2e_control ${SOURCE_FILES})
 
 target_include_directories(e2e_control PUBLIC "/usr/local/include")
+target_include_directories(e2e_control PUBLIC "../../3rd_party/cpr/include")
 
-target_link_libraries(e2e_control curlcpp)
+target_link_libraries(e2e_control cpr)
 target_link_libraries(e2e_control ${CURL_LIBRARIES})
