@@ -1,8 +1,10 @@
 cmake_minimum_required(VERSION 3.5)
 project(gl)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -O3 -pthread")
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "/usr/local/cmake_modules/")
+LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/../../cmake_modules/")
+LIST(APPEND CMAKE_MODULE_PATH "/usr/local/cmake_mod/")
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3 -pthread")
 
 set(CMAKE_CXX_STANDARD 14)
 
@@ -12,7 +14,7 @@ find_package(GLEW REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system)
 
 set(SOURCE_FILES
-    shaders/hdr.frag
+        shaders/preview.frag
     shaders/hdr.vert
         quad.cpp
     quad.h Window.cpp Window.h glsl_program.h glsl_program.cpp gui.cpp gui.h

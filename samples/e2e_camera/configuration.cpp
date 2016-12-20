@@ -35,3 +35,13 @@ undistort get_undistort(const nlohmann::json &config) {
   auto s = config["undistort"]["image_size"];
   return undistort{{f["x"], f["y"]}, {o["x"], o["y"]}, c, s};
 }
+
+void save_crf(const crf &res, const std::string &out) {
+  nlohmann::json j;
+  j["red"] = res.red;
+  j["green"] = res.green;
+  j["blue"] = res.blue;
+
+  std::ofstream f{out};
+  f << j;
+}

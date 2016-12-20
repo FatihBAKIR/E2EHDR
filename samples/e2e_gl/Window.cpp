@@ -64,6 +64,7 @@ namespace e2e
 #endif
 
 		m_window = glfwCreateWindow(m_width, m_height, "E2EHDR", nullptr, nullptr);
+
 		assert(m_window);
 		glfwMakeContextCurrent(m_window);
 
@@ -72,11 +73,7 @@ namespace e2e
 
 		//OpenGL//
 		//Lower left point is (0,0). Top right point is (width, height).
-#ifdef __APPLE__
-		glViewport(0, 0, m_width * 2, m_height * 2);
-#else
-		glViewport(0, 0, m_width, m_height);
-#endif
+		reset_viewport();
 
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -104,11 +101,9 @@ namespace e2e
 
 	void Window::reset_viewport()
 	{
-#ifdef __APPLE__
-		glViewport(0, 0, m_width * 2, m_height * 2);
-#else
-		glViewport(0, 0, m_width, m_height);
-#endif
+	    int vp_w, vp_h;
+	    glfwGetFramebufferSize(m_window, &vp_w, &vp_h);
+		glViewport(0, 0, vp_w, vp_h);
 	}
 
 	bool Window::get_key_up(int key)

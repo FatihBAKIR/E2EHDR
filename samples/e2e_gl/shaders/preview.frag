@@ -27,7 +27,15 @@ struct camera_params
     float       exposure;
 };
 
+struct preview_params
+{
+    bool    apply_crf;
+    bool    undistort;
+    float   exposure;
+};
+
 uniform camera_params camera;
+uniform preview_params prev;
 
 int get_byte(float channel)
 {
@@ -83,10 +91,9 @@ void main()
     vec3 cols = apply_crf(vec3(col));
     cols /= camera.exposure;
 
-    //cols = cols * pow(2.0, exposure);
+    cols = cols * pow(2.0, exposure);
 	//cols = pow(cols, vec3(pow(2.0, gamma)));
 
-    cols /= 50;
     cols = pow(cols, vec3(1.0 / 2.2)); // gamma correction
     color = vec4(cols, 1.0);
 
