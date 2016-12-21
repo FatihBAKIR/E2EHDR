@@ -88,12 +88,7 @@ namespace e2e
         ~spsc_queue()
         {
             // pop any left over objects
-            
-            auto sz = size();
-            while (sz --> 0)
-            {
-                pop();
-            }
+            clear();
         }
 
         /*
@@ -149,6 +144,15 @@ namespace e2e
             }
             head = (head + 1) % Storage::capacity();
             --size_;
+        }
+
+        void clear()
+        {
+            auto sz = size();
+            while (sz --> 0)
+            {
+                pop();
+            }
         }
 
         auto capacity() const

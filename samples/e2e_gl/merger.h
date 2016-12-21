@@ -4,6 +4,7 @@
 #include <GL/glew.h>
 
 //FRAMEWORK
+#include "framebuffer.h"
 #include "glsl_program.h"
 #include "texture.h"
 #include "quad.h"
@@ -28,13 +29,18 @@ namespace e2e
 
 		GLuint m_vertex_array;
 		GLuint m_vertex_buffer;
-		GLuint m_framebuffer;
-		GLuint m_array_texture;
+
+		Framebuffer m_framebuffer;
+		Texture m_cost_texture;
+		Texture m_refinement_texture;
 		const Texture* m_texture1;
 		const Texture* m_texture2;
 
-		GLSLProgram m_cost;
-		GLSLProgram m_aggregate;
+		GLSLProgram m_cost_shader;
+		GLSLProgram m_aggregate_shader;
+		GLSLProgram m_outlier_detection_shader;
+		GLSLProgram m_outlier_correction_shader;
+		GLSLProgram m_median_shader;
 
 		GLfloat m_position_x;
 		GLfloat m_position_y;

@@ -7,6 +7,7 @@
 #include "glsl_program.h"
 #include "quad.h"
 #include "merger.h"
+#include "texture.h"
 #include "Window.h"
 
 //OTHER
@@ -20,30 +21,24 @@
 
 using namespace e2e;
 
-#define DISPARITY_LIMIT 64
-#define IMAGE_WIDTH 450
-#define IMAGE_HEIGHT 375
+constexpr int gDisparityLimit = 64;
+constexpr int gImageWidth = 450;
+constexpr int gImageHeight = 375;
 
 int main()
 {
-	e2e::Window w(IMAGE_WIDTH, IMAGE_HEIGHT);
-
-	e2e::Quad quad;
-	quad.create();
+	e2e::Window w(gImageWidth, gImageHeight);
 
 	int width, height;
-	unsigned char* image1 = SOIL_load_image("teddy_left.png", &width, &height, 0, SOIL_LOAD_RGB);
+	unsigned char* image1 = SOIL_load_image("cones_left.png", &width, &height, 0, SOIL_LOAD_RGB);
 	Texture tex1;
-	tex1.load(image1, width, height);
+	tex1.create(width, height, image1);
 
-	unsigned char* image2 = SOIL_load_image("teddy_right.png", &width, &height, 0, SOIL_LOAD_RGB);
+	unsigned char* image2 = SOIL_load_image("cones_right.png", &width, &height, 0, SOIL_LOAD_RGB);
 	Texture tex2;
-	tex2.load(image2, width, height);
+	tex2.create(width, height, image2);
 
-	quad.set_textures(tex1, tex2);
-	quad.set_position(0.0f, 0.0f);
-	quad.set_scale_factor(1.0f, 1.0f);
-	e2e::Merger merger(IMAGE_WIDTH, IMAGE_HEIGHT, DISPARITY_LIMIT);
+	e2e::Merger merger(gImageWidth, gImageHeight, gDisparityLimit);
 	merger.set_textures(tex1, tex2);
 
 	while (!w.ShouldClose())
@@ -64,7 +59,7 @@ int main()
 
 		using second = std::chrono::duration<double, std::ratio <1>>;
 		auto elapsed = std::chrono::duration_cast<second>(std::chrono::system_clock::now() - m_start_time).count();
-		std::cout << elapsed*1000 <<" ms"<< std::endl;
+		std::cout << elapsed * 1000 << " ms" << std::endl;
 	}
 
 	return 0;

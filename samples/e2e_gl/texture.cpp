@@ -5,29 +5,32 @@
 #include <assert.h>
 
 Texture::Texture()
-	: m_id(0)
+	: m_texture_id(0)
 {}
 
 Texture::~Texture()
 {
-	if (m_id)
+	if (m_texture_id)
 	{
-		glDeleteTextures(1, &m_id);
+		glDeleteTextures(1, &m_texture_id);
 	}
 }
 
-void Texture::load(unsigned char* image, int width, int height)
+void Texture::create(int width, int height, unsigned char* image)
 {
-	if (m_id)
+	if (m_texture_id)
 	{
-		glDeleteTextures(1, &m_id);
-		m_id = 0;
+		glDeleteTextures(1, &m_texture_id);
+		m_texture_id = 0;
 	}
 
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glGenTextures(1, &m_id);
+	m_width = width;
+	m_height = height;
 
-	glBindTexture(GL_TEXTURE_2D, m_id);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glGenTextures(1, &m_texture_id);
+
+	glBindTexture(GL_TEXTURE_2D, m_texture_id);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 
 	//Settings
@@ -35,14 +38,44 @@ void Texture::load(unsigned char* image, int width, int height)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+void Texture::createArray(int width, int height, int layer, unsigned char* image)
+{
+	if (m_texture_id)
+	{
+		glDeleteTextures(1, &m_texture_id);
+		m_texture_id = 0;
+	}
+
+	m_width = width;
+	m_height = height;
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glGenTextures(1, &m_texture_id);
+
+	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture_id);
+	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGB, width, height, layer, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+
+	//Settings
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+}
+
 void Texture::use() const
 {
-	assert(m_id);
-	glBindTexture(GL_TEXTURE_2D, m_id);
+	assert(m_texture_id);
+	glBindTexture(GL_TEXTURE_2D, m_texture_id);
+}
+
+void Texture::useArray() const
+{
+	assert(m_texture_id);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture_id);
 }

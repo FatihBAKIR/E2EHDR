@@ -64,6 +64,7 @@ namespace e2e
 #endif
 
 		m_window = glfwCreateWindow(m_width, m_height, "E2EHDR", nullptr, nullptr);
+
 		assert(m_window);
 		glfwMakeContextCurrent(m_window);
 
@@ -72,11 +73,7 @@ namespace e2e
 
 		//OpenGL//
 		//Lower left point is (0,0). Top right point is (width, height).
-#ifdef __APPLE__
-		glViewport(0, 0, m_width * 2, m_height * 2);
-#else
-		glViewport(0, 0, m_width, m_height);
-#endif
+		reset_viewport();
 
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -102,6 +99,13 @@ namespace e2e
 		glfwSwapBuffers(m_window);
 	}
 
+	void Window::reset_viewport()
+	{
+	    int vp_w, vp_h;
+	    glfwGetFramebufferSize(m_window, &vp_w, &vp_h);
+		glViewport(0, 0, vp_w, vp_h);
+	}
+
 	bool Window::get_key_up(int key)
 	{
 		return glfwGetKey(m_window, key) == GLFW_RELEASE;
@@ -112,10 +116,22 @@ namespace e2e
 		return glfwGetKey(m_window, key) == GLFW_PRESS;
 	}
 
+
 	bool Window::ShouldClose() const
 	{
 		return static_cast<bool>(glfwWindowShouldClose(m_window));
 	}
+
+    void Window::StartDraw()
+    {
+        glfwPollEvents();
+        glClear(GL_COLOR_BUFFER_BIT);
+    }
+
+    void Window::EndDraw()
+    {
+        glfwSwapBuffers(m_window);
+    }
 
     void Window::Loop(const std::vector<std::reference_wrapper<drawable_base>> &drawables)
     {
@@ -135,5 +151,9 @@ namespace e2e
             drawable.get().draw();
         }
         glfwSwapBuffers(m_window);
+    }
+
+    void Window::ShouldClose(bool set) {
+        glfwSetWindowShouldClose(m_window, set);
     }
 }

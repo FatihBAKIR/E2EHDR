@@ -13,10 +13,12 @@ struct GLFWwindow;
 
 namespace e2e
 {
+    class GUI;
     class Quad;
 
     class Window
     {
+        friend class e2e::GUI;
         int m_width, m_height;
         GLFWwindow* m_window;
 
@@ -24,6 +26,7 @@ namespace e2e
         Window(int width, int height);
         void Loop(const std::vector<std::reference_wrapper<Quad>>& quads);
         void Loop(const std::vector<std::reference_wrapper<drawable_base>>& drawables);
+        void reset_viewport();
 
         /*template <class... Ts>
         void Loop(Ts&&... drawables)
@@ -48,7 +51,11 @@ namespace e2e
         bool get_key_down(int btn);
         bool get_key_up(int btn);
 
+        void ShouldClose(bool set);
         bool ShouldClose() const;
+
+        void StartDraw();
+        void EndDraw();
 
 		GLFWwindow* get_window() const { return m_window; }
     };

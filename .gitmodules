@@ -9,7 +9,10 @@
 	url = git@github.com:gabime/spdlog.git
 [submodule "3rd_party/imgui"]
 	path = 3rd_party/imgui
-	url = git@github.com:ocornut/imgui.git
+url=git@github.com:FatihBAKIR/imgui.git
 [submodule "3rd_party/eigen"]
 	path = 3rd_party/eigen
 	url = git@github.com:RLovelett/eigen.git
+[submodule "3rd_party/cpr"]
+	path = 3rd_party/cpr
+	url = git@github.com:whoshuu/cpr.git
