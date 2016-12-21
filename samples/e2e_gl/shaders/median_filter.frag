@@ -7,7 +7,7 @@ out vec4 color;
 
 uniform float dx;
 uniform float dy;
-uniform sampler2D prefiltered;
+uniform sampler2D disparity_map;
 
 vec4[WINDOW_SIZE] sort(vec4 arr[WINDOW_SIZE]);
 
@@ -20,7 +20,7 @@ void main()
 	{
 		for (int j=-1; j<=1; ++j)
 		{
-			arr[idx++] = texture(prefiltered, vec2(tex_coord.x+i*dx, tex_coord.y+j*dy));
+			arr[idx++] = texture(disparity_map, vec2(tex_coord.x+i*dx, tex_coord.y+j*dy));
 		}
 	}
 	
