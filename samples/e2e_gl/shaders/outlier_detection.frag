@@ -3,6 +3,8 @@
 in vec2 tex_coord;
 out vec4 color;
 
+uniform int N;
+uniform float threshold;
 uniform float dx;
 uniform float dy;
 uniform sampler2D disparity_map;
@@ -23,16 +25,16 @@ void main()
 	//Outlier detection
 	float min_cost = 0.0f;
 	float second_min_cost = 0.0f;
-	for (int i=-5; i<=5; ++i)
+	for (int i=-N; i<=N; ++i)
 	{
-		for (int j=-5; j<=5; ++j)
+		for (int j=-N; j<=N; ++j)
 		{
 			min_cost += texture(dsi, vec3(tex_coord.x+i*dx, tex_coord.y+j*dy, min_cost_disparity)).r;
 			second_min_cost += texture(dsi, vec3(tex_coord.x+i*dx, tex_coord.y+j*dy, second_min_cost_disparity)).r;
 		}
 	}
 	
-	if (second_min_cost/min_cost < 1.15f)
+	if (second_min_cost/min_cost < threshold)
 	{
 		color = vec4(1.0f, 0.0f, 0.0f, 1.0f);
 	}
