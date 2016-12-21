@@ -20,8 +20,8 @@ namespace e2e
 		, m_position_y(0.0f)
 		, m_scale_factor_x(1.0f)
 		, m_scale_factor_y(1.0f)
-		, m_cost_choice(-1)
-		, m_aggregation_choice(-1)
+		, m_cost_choice(1)
+		, m_aggregation_choice(0)
 		, m_outlier_detection(true)
 		, m_threshold(1.1f)
 		, m_window_size(7)
@@ -57,24 +57,7 @@ namespace e2e
 		m_refinement_texture.create(image_width, image_height, nullptr);
 
 		//SHADERS
-		chooseCost(1);
-		chooseAggregation(0);
-
-		m_median_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
-		m_median_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/median_filter.frag");
-		m_median_shader.link();
-
-		m_outlier_detection_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
-		m_outlier_detection_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/outlier_detection.frag");
-		m_outlier_detection_shader.link();
-
-		m_outlier_correction_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
-		m_outlier_correction_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/outlier_correction.frag");
-		m_outlier_correction_shader.link();
-
-		m_hdr_merge_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
-		m_hdr_merge_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/basic.frag");
-		m_hdr_merge_shader.link();
+		compileShaders();
 	}
 
 	Merger::~Merger()
@@ -233,6 +216,39 @@ namespace e2e
 
 		//Draw quad
 		render();
+	}
+
+	void Merger::compileShaders()
+	{
+		m_cost_shader.clear();
+		m_aggregate_shader.clear();
+		m_outlier_detection_shader.clear();
+		m_outlier_correction_shader.clear();
+		m_median_shader.clear();
+		m_hdr_merge_shader.clear();
+
+		int selection = m_cost_choice;
+		m_cost_choice = -1;
+		chooseCost(selection);
+		selection = m_aggregation_choice;
+		m_aggregation_choice = -1;
+		chooseAggregation(selection);
+
+		m_outlier_detection_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
+		m_outlier_detection_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/outlier_detection.frag");
+		m_outlier_detection_shader.link();
+
+		m_outlier_correction_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
+		m_outlier_correction_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/outlier_correction.frag");
+		m_outlier_correction_shader.link();
+
+		m_median_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
+		m_median_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/median_filter.frag");
+		m_median_shader.link();
+
+		m_hdr_merge_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
+		m_hdr_merge_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/basic.frag");
+		m_hdr_merge_shader.link();
 	}
 
 	void Merger::set_textures(const Texture & left, const Texture & right)
