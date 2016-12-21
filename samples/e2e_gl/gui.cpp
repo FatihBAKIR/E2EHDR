@@ -50,7 +50,7 @@ namespace e2e
 			ImGui::End();
 		}
 
-		void displayStereoControl(int& cost_choice, int& agg_choice, bool& detection, bool& correction, bool& median, float& threshold, int& window_size)
+		void displayStereoControl(bool& recompile_shaders, int& cost_choice, int& agg_choice, bool& detection, bool& correction, bool& median, float& threshold, int& window_size)
 		{
 			ImGuiWindowFlags window_flags = 0;
 			window_flags |= ImGuiWindowFlags_NoResize;
@@ -65,16 +65,22 @@ namespace e2e
 				return;
 			}
 
+			recompile_shaders = ImGui::Button("RECOMPILE SHADERS");
+			ImGui::Separator();
 			const char* cost_items[] = { "AD", "AD-CENSUS", "CENSUS", "CENSUS MODIFIED" };
 			ImGui::ListBox("Cost Function", &cost_choice, cost_items, IM_ARRAYSIZE(cost_items), 4);
+			ImGui::Separator();
 
 			const char* aggregation_items[] = { "AGGREGATE3X3", "CROSS AGGREGATION" };
 			ImGui::ListBox("Aggregation Method", &agg_choice, aggregation_items, IM_ARRAYSIZE(aggregation_items), 4);
+			ImGui::Separator();
 
 			ImGui::Checkbox("Outlier Detection", &detection);
 			ImGui::InputFloat("Threshold", &threshold, 0.01f, 1.0f);
-			ImGui::InputInt("Window Size", &window_size, 1);
+			ImGui::InputInt("Window Size", &window_size, 2);
+			ImGui::Separator();
 			ImGui::Checkbox("Outlier Correction", &correction);
+			ImGui::Separator();
 			ImGui::Checkbox("Median Filter", &median);
 
 			ImGui::End();

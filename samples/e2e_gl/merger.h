@@ -18,6 +18,8 @@ namespace e2e
 		~Merger();
 
 		void draw();
+		void compileShaders();
+
 		void set_textures(const Texture& left, const Texture& right);
 		void set_position(float x, float y);
 		void set_scale_factor(float x, float y);
