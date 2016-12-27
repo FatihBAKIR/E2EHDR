@@ -65,3 +65,21 @@ e2e::GLSLProgram make_merge_shader()
 
     return hdr;
 }
+
+e2e::GLSLProgram make_tonemap_shader()
+{
+    e2e::GLSLProgram hdr;
+    hdr.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/tonemap.vert");
+    hdr.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/tonemap.frag");
+    hdr.link();
+
+    auto copy_camera = [&hdr](auto& cam, const std::string& pref)
+    {
+        hdr.setUniformFVar(pref + "Yw" , {(GL_FLOAT)1e12f});
+        hdr.setUniformFVar(pref + "key", {(GL_FLOAT)0.18f});
+        hdr.setUniformFVar(pref + "sat", {(GL_FLOAT)1.0f});
+    };
+
+//    copy_camera();
+    return hdr;
+}
