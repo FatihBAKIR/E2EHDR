@@ -55,9 +55,19 @@ namespace e2e
 		//TEXTURES
 		m_cost_texture.createArray(image_width, image_height, disparity_limit, nullptr);
 		m_refinement_texture.create(image_width, image_height, nullptr);
+		m_left_texture.create(image_width, image_height, nullptr);
+		m_right_texture.create(image_width, image_height, nullptr);
 
 		//SHADERS
 		compileShaders();
+
+		m_undistort_left_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
+		m_undistort_left_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/undistort.frag");
+		m_undistort_left_shader.link();
+
+		m_undistort_right_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
+		m_undistort_right_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/undistort.frag");
+		m_undistort_right_shader.link();
 	}
 
 	Merger::~Merger()
@@ -86,6 +96,24 @@ namespace e2e
 		set_position(0.0f, 0.0f);
 		set_scale_factor(1.0f, 1.0f);
 
+
+#define __UNDISTORT__
+#ifdef __UNDISTORT__
+		m_framebuffer.renderToTexture(m_left_texture);
+		m_undistort_left_shader.use();
+		glActiveTexture(GL_TEXTURE0);
+		m_undistort_left_shader.setUniformIVar("frame", { 0 });
+		m_texture1->use();
+		render();
+
+		m_framebuffer.renderToTexture(m_right_texture);
+		m_undistort_right_shader.use();
+		glActiveTexture(GL_TEXTURE0);
+		m_undistort_right_shader.setUniformIVar("frame", { 0 });
+		m_texture2->use();
+		render();
+#endif
+
 		//COST COMPUTATION//
 		//MULTIPASS TO ARRAY TEXTURE
 		m_cost_shader.use();
@@ -102,10 +130,10 @@ namespace e2e
 
 			glActiveTexture(GL_TEXTURE0);
 			m_cost_shader.setUniformIVar("left", { 0 });
-			m_texture1->use();
+			m_left_texture.use();
 			glActiveTexture(GL_TEXTURE1);
 			m_cost_shader.setUniformIVar("right", { 1 });
-			m_texture2->use();
+			m_right_texture.use();
 			glActiveTexture(GL_TEXTURE2);
 			m_cost_shader.setUniformIVar("dsi", { 2 });
 			m_cost_texture.useArray();
@@ -124,11 +152,11 @@ namespace e2e
 		m_aggregate_shader.setUniformFVar("dy", { dy });
 
 		glActiveTexture(GL_TEXTURE0);
-		m_aggregate_shader.setUniformIVar("left", { 0 });
-		m_texture1->use();
+		m_cost_shader.setUniformIVar("left", { 0 });
+		m_left_texture.use();
 		glActiveTexture(GL_TEXTURE1);
-		m_aggregate_shader.setUniformIVar("right", { 1 });
-		m_texture2->use();
+		m_cost_shader.setUniformIVar("right", { 1 });
+		m_right_texture.use();
 		glActiveTexture(GL_TEXTURE2);
 		m_aggregate_shader.setUniformIVar("dsi", { 2 });
 		m_cost_texture.useArray();
@@ -267,6 +295,21 @@ namespace e2e
 	{
 		m_scale_factor_x = x;
 		m_scale_factor_y = y;
+	}
+
+	GLSLProgram & Merger::get_cost_shader()
+	{
+		return m_cost_shader;
+	}
+
+	GLSLProgram & Merger::get_undistort_left_shader()
+	{
+		return m_undistort_left_shader;
+	}
+
+	GLSLProgram & Merger::get_undistort_right_shader()
+	{
+		return m_undistort_right_shader;
 	}
 
 	void Merger::chooseCost(int selection)
