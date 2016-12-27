@@ -7,6 +7,8 @@ LIST(APPEND CMAKE_MODULE_PATH "/usr/local/cmake_mod/")
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 
+find_package(Boost REQUIRED COMPONENTS system thread filesystem)
+
 include_directories(${CMAKE_SOURCE_DIR})
 
 link_directories(../libs/)
@@ -28,6 +30,10 @@ if (E2E_GPHOTO)
     target_link_libraries(e2e_camera e2e_gphoto)
     target_include_directories(e2e_camera PUBLIC ../e2e_gphoto)
 endif()
+
+
+target_link_libraries(e2e_camera ${Boost_LIBRARIES})
+target_include_directories(e2e_camera PUBLIC ${Boost_INCLUDE_DIRS})
 
 # 3rd PARTY
 

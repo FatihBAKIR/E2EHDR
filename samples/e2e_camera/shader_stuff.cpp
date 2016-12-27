@@ -6,16 +6,15 @@
 #include <iostream>
 #include <camera_struct.h>
 
-e2e::GLSLProgram make_preview_shader(const camera_struct& cam)
+e2e::GLSLProgram make_preview_shader(const camera_struct& cam, const crf& response)
 {
     e2e::GLSLProgram hdr;
     hdr.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
     hdr.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/preview.frag");
     hdr.link();
 
-    auto copy_camera = [&hdr](const auto& cam, const std::string& pref)
+    auto copy_camera = [&hdr](const auto& cam, const crf& crf, const std::string& pref)
     {
-        auto crf = cam.get_response();
         auto undis = cam.get_undistort();
 
         std::cout << "copying response\n";
@@ -31,7 +30,7 @@ e2e::GLSLProgram make_preview_shader(const camera_struct& cam)
         hdr.setUniformFVar(pref + ".undis.image_size",  {undis.im_size[0], undis.im_size[1]});
     };
 
-    copy_camera(cam, "camera");
+    copy_camera(cam, response, "camera");
     return hdr;
 }
 

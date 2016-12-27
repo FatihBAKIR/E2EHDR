@@ -60,14 +60,14 @@ float camera_struct::get_exposure() const {
     return config["exposure"];
 }
 
-const crf& camera_struct::get_response() const {
+/*const crf& camera_struct::get_response() const {
     if (!response)
     {
         response = load_crf(config["crf"]);
     }
 
     return response.get();
-}
+}*/
 
 undistort camera_struct::get_undistort() const {
     return ::get_undistort(config);
@@ -111,3 +111,27 @@ const std::string& camera_struct::get_name() const {
 const std::string &camera_struct::get_ip() const {
     return ip;
 }
+
+int camera_struct::get_exp_code() const {
+    return config["exp_code"];
+}
+
+void camera_struct::update_exp(float ex, int code) {
+    config["exposure"] = ex;
+    config["exp_code"] = code;
+}
+
+void camera_struct::set_profile(const std::string& prof)
+{
+    config["profile"] = prof;
+}
+
+std::string camera_struct::get_profile() const
+{
+    return config["profile"];
+}
+
+/*void camera_struct::set_response(const crf& crf)
+{
+    response = crf;
+}*/
