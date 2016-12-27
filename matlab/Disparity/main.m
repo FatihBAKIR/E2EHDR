@@ -1,1 +1,0 @@
-disparity('leftgrayscale.bmp','rightgrayscale.bmp' , 9, 3);

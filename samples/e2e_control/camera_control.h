@@ -26,9 +26,10 @@ class camera_control
 public:
     camera_control(std::string ip);
     void set_exposure(float exp);
+    void set_exposure(int exp_index);
     float exp_value() { return _exposure; };
     int exp_code() { return _code; };
-
+    float get_exposure(int code);
 };
 
 

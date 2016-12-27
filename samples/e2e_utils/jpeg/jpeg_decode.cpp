@@ -14,6 +14,7 @@
 
 #include <boost/circular_buffer.hpp>
 
+#if defined(E2E_JPEG_DECODE)
 auto read_jpeg_header(gsl::span<const e2e::byte> img)
 {
     scope_profile();
@@ -72,27 +73,36 @@ void read_jpeg_file(gsl::span<const e2e::byte> file, unsigned char* memory)
     jpeg_finish_decompress(&cinfo);
     jpeg_destroy_decompress(&cinfo);
 }
+#endif
 
 namespace e2e {
     JpgDecoder::JpgDecoder(gsl::span<const byte> initial_frame) {
+#if defined(E2E_JPEG_DECODE)
         std::tie(width, height) = read_jpeg_header(initial_frame);
 
         for (int i = 0; i < memory_pool.capacity(); ++i)
         {
             memory_pool.push_back(std::make_unique<e2e::byte []>(width * height * 3));
         }
+#endif
     }
 
     LDRFrame JpgDecoder::decode(gsl::span<const byte> data)
     {
+#if defined(E2E_JPEG_DECODE)
         auto mem = std::move(memory_pool.front());
         memory_pool.pop_front();
         read_jpeg_file(data, mem.get());
         return {std::move(mem), width, height};
-    }
+#else
+		throw std::runtime_error("Jpeg Decoding Was Not Built!");
+#endif
+	}
 
     void JpgDecoder::return_buffer(LDRFrame frame)
     {
+#if defined(E2E_JPEG_DECODE)
         memory_pool.push_back(frame.u_ptr());
-    }
+#endif
+	}
 }

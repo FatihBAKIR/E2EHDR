@@ -28,13 +28,13 @@ void main()
 			
 			n_pixel = texture(left, vec2(tex_coord.x+i*dx, 1.0f-(tex_coord.y+j*dy)));
 			n_intensity = dot(n_pixel.rgb, vec3(0.33f));
-			comp_left = n_intensity-left_pixel_intensity;
+			comp_left = step(0.0f, n_intensity-left_pixel_intensity);
 			
 			n_pixel = texture(right, vec2(tex_coord.x+(i-disparity_level)*dx, 1.0f-(tex_coord.y+j*dy)));
 			n_intensity= dot(n_pixel.rgb, vec3(0.33f));
-			comp_right = n_intensity-right_pixel_intensity;
+			comp_right = step(0.0f, n_intensity-right_pixel_intensity);
 			
-			hamming_distance += abs(comp_left-comp_right);
+			hamming_distance += abs(sign(comp_left-comp_right));
 		}
 	}
 	

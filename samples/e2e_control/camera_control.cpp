@@ -84,3 +84,13 @@ void camera_control::post()
     std::cout << r.text << std::endl;
 
 }
+
+void camera_control::set_exposure(int exp_index) {
+    _code = exp_index;
+    //_exposure = expValues[_code];
+    post();
+}
+
+float camera_control::get_exposure(int code) {
+    return expValues[code].exp;
+}

@@ -112,6 +112,9 @@ void main()
 		}
 	}
 	
+	float pixel_min_cost=1.0f/0.0f; //Infinity
+	int pixel_min_cost_index=-1;
+	int second_pixel_min_cost_index=0;
 	for (int i=0; i<disparity_limit; ++i)
 	{
 		float current_cost=0.0f;
@@ -129,8 +132,22 @@ void main()
 			min_cost = current_cost;
 			min_cost_index=i;
 		}
+		
+		//This operation should be performed regardless of what aggregation method is used
+		//if outlier detection is wanted to be used.
+		//Minimum cost for the particular pixel, not the whole window!
+		float pixel_cost = texture(dsi, vec3(tex_coord.x, tex_coord.y, i)).r;
+		if(pixel_cost<pixel_min_cost)
+		{
+			pixel_min_cost = pixel_cost;
+			second_pixel_min_cost_index = pixel_min_cost_index;
+			pixel_min_cost_index = i;
+		}
 	}
 	
-	float val=min_cost_index/((disparity_limit-1)*1.0f);
-	color = vec4(vec3(val), 1.0f);
+	float r=min_cost_index/255.0f;
+	float g=pixel_min_cost_index/255.0f;
+	float b=second_pixel_min_cost_index/255.0f;
+
+	color = vec4(vec3(r, g, b), 1.0f);
 }
