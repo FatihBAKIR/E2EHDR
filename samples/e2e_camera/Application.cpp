@@ -102,6 +102,7 @@ class ApplicationImpl
     int snap_counter = 1;
 
     bool running = false;
+	e2e::Merger merger{ 1280, 720, 32 };
 
     /*
      * This function finds the most recent image pair
@@ -233,10 +234,12 @@ ApplicationImpl::ApplicationImpl(const std::vector<std::string> &args) :
 
 void ApplicationImpl::Run()
 {
-    e2e::Merger merger { 1280, 720, 63 };
     merger.set_textures(gui.left_tex, gui.right_tex);
     merger.set_position(0.5, 0.5);
     merger.set_scale_factor(0.5, 0.5);
+	make_merge_shader(merger.get_cost_shader(), left_cam, profiles.get_response(left.profile_index), right_cam, profiles.get_response(right.profile_index));
+	make_undistort_shader(merger.get_undistort_left_shader(), left_cam, profiles.get_response(left.profile_index));
+	make_undistort_shader(merger.get_undistort_right_shader(), right_cam, profiles.get_response(right.profile_index));
 
     while (!gui.w.ShouldClose())
     {
@@ -259,6 +262,7 @@ void ApplicationImpl::Run()
         //gui.w.reset_viewport();
 
         draw_preview();
+		merger.draw();
         draw_gui();
         gui.w.EndDraw();
 
@@ -502,6 +506,27 @@ void ApplicationImpl::draw_gui()
 
         ImGui::End();
     }
+
+	static bool recompile_shaders = false;
+	static int cost_choice = 1;
+	static int agg_choice = 0;
+	static bool detection = false;
+	static bool correction = false;
+	static bool median = false;
+	static float threshold = 1.10;
+	static int window_size = 7;
+
+	e2e::gui::displayStereoControl(recompile_shaders, cost_choice, agg_choice, detection, correction, median, threshold, window_size);
+	merger.chooseCost(cost_choice);
+	merger.chooseAggregation(agg_choice);
+	merger.set_outlier_detection(detection, threshold, window_size);
+	merger.set_outlier_correction(correction);
+	merger.set_median_filter(median);
+
+	if (recompile_shaders)
+	{
+		merger.compileShaders();
+	}
 
     ImGui::Render();
 }

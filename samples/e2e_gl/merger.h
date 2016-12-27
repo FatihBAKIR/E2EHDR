@@ -23,6 +23,9 @@ namespace e2e
 		void set_textures(const Texture& left, const Texture& right);
 		void set_position(float x, float y);
 		void set_scale_factor(float x, float y);
+		GLSLProgram& get_cost_shader();
+		GLSLProgram& get_undistort_left_shader();
+		GLSLProgram& get_undistort_right_shader();
 
 		//Parameter setters
 		void chooseCost(int selection);
@@ -44,9 +47,13 @@ namespace e2e
 		Framebuffer m_framebuffer;
 		Texture m_cost_texture;
 		Texture m_refinement_texture;
+		Texture m_left_texture;
+		Texture m_right_texture;
 		const Texture* m_texture1;
 		const Texture* m_texture2;
 
+		GLSLProgram m_undistort_left_shader;
+		GLSLProgram m_undistort_right_shader;
 		GLSLProgram m_cost_shader;
 		GLSLProgram m_aggregate_shader;
 		GLSLProgram m_outlier_detection_shader;
