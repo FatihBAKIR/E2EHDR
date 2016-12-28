@@ -15,6 +15,7 @@ void main()
 {
 	float min_cost=1.0f/0.0f; //Infinity
 	int min_cost_index=0;
+	
 	for (int i=0; i<disparity_limit; ++i)
 	{
 		float current_cost=0.0f;
@@ -34,8 +35,4 @@ void main()
 	
 	float val=min_cost_index/((disparity_limit-1)*1.0f);
 	color = vec4(vec3(val), 1.0f);
-	
-	/*float color_r = texture(left, vec2(tex_coord.x, 1-tex_coord.y)).r;
-	float color_g = texture(right, vec2(tex_coord.x, 1-tex_coord.y)).g;
-	color = vec4(color_r, color_g, 0.0f, 1.0f);*/
 }
