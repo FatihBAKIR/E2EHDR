@@ -27,7 +27,7 @@ namespace e2e
 		GLSLProgram& get_undistort_left_shader();
 		GLSLProgram& get_undistort_right_shader();
 
-		//Parameter setters
+		//Parameter setters and functions
 		void chooseCost(int selection);
 		void chooseAggregation(int selection);
 		void set_outlier_detection(bool outlier_detection, float threshold, int window_size);

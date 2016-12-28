@@ -3,7 +3,7 @@
 in vec2 tex_coord;
 out vec4 color;
 
-uniform sampler2D texture0;
+uniform sampler2D frame;
 
 struct undistort
 {
@@ -12,6 +12,8 @@ struct undistort
     vec2 image_size;
 
     float dist_coeffs[5]; 
+};
+
 struct crf
 {
     float red[256];
@@ -62,5 +64,5 @@ void main()
 {
 	vec2 undistorted_tex_coord = undistort_uv(tex_coord, param.undis);
 	
-	color = texture(texture0, tex_coord);
+	color = texture(frame, undistorted_tex_coord);
 }
