@@ -20,13 +20,13 @@ namespace e2e
 		, m_position_y(0.0f)
 		, m_scale_factor_x(1.0f)
 		, m_scale_factor_y(1.0f)
-		, m_cost_choice(-1)
-		, m_aggregation_choice(-1)
-		, m_outlier_detection(true)
+		, m_cost_choice(1)
+		, m_aggregation_choice(0)
+		, m_outlier_detection(false)
 		, m_threshold(1.1f)
 		, m_window_size(7)
 		, m_outlier_correction(false)
-		, m_median_filter(true)
+		, m_median_filter(false)
 	{
 		GLfloat vertices[] =
 		{
@@ -55,26 +55,11 @@ namespace e2e
 		//TEXTURES
 		m_cost_texture.createArray(image_width, image_height, disparity_limit, nullptr);
 		m_refinement_texture.create(image_width, image_height, nullptr);
+		m_left_texture.create(image_width, image_height, nullptr);
+		m_right_texture.create(image_width, image_height, nullptr);
 
 		//SHADERS
-		chooseCost(1);
-		chooseAggregation(0);
-
-		m_median_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
-		m_median_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/median_filter.frag");
-		m_median_shader.link();
-
-		m_outlier_detection_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
-		m_outlier_detection_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/outlier_detection.frag");
-		m_outlier_detection_shader.link();
-
-		m_outlier_correction_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
-		m_outlier_correction_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/outlier_correction.frag");
-		m_outlier_correction_shader.link();
-
-		m_hdr_merge_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
-		m_hdr_merge_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/basic.frag");
-		m_hdr_merge_shader.link();
+		compileShaders();
 	}
 
 	Merger::~Merger()
@@ -102,12 +87,31 @@ namespace e2e
 		//RESET
 		set_position(0.0f, 0.0f);
 		set_scale_factor(1.0f, 1.0f);
+		static float dx = 1.0f / m_image_width;
+		static float dy = 1.0f / m_image_height;
+
+		//RECTIFICATION//
+		m_framebuffer.renderToTexture(m_left_texture);
+		m_undistort_left_shader.use();
+		m_undistort_left_shader.setUniformFVar("scale", { m_scale_factor_x, m_scale_factor_y });
+		m_undistort_left_shader.setUniformFVar("translate", { m_position_x, m_position_y });
+		glActiveTexture(GL_TEXTURE0);
+		m_undistort_left_shader.setUniformIVar("frame", { 0 });
+		m_texture1->use();
+		render();
+
+		m_framebuffer.renderToTexture(m_right_texture);
+		m_undistort_right_shader.use();
+		m_undistort_right_shader.setUniformFVar("scale", { m_scale_factor_x, m_scale_factor_y });
+		m_undistort_right_shader.setUniformFVar("translate", { m_position_x, m_position_y });
+		glActiveTexture(GL_TEXTURE0);
+		m_undistort_right_shader.setUniformIVar("frame", { 0 });
+		m_texture2->use();
+		render();
 
 		//COST COMPUTATION//
 		//MULTIPASS TO ARRAY TEXTURE
 		m_cost_shader.use();
-		static float dx = 1.0f / m_image_width;
-		static float dy = 1.0f / m_image_height;
 		m_cost_shader.setUniformFVar("scale", { m_scale_factor_x, m_scale_factor_y });
 		m_cost_shader.setUniformFVar("translate", { m_position_x, m_position_y });
 		m_cost_shader.setUniformFVar("dx", { dx });
@@ -119,10 +123,10 @@ namespace e2e
 
 			glActiveTexture(GL_TEXTURE0);
 			m_cost_shader.setUniformIVar("left", { 0 });
-			m_texture1->use();
+			m_left_texture.use();
 			glActiveTexture(GL_TEXTURE1);
 			m_cost_shader.setUniformIVar("right", { 1 });
-			m_texture2->use();
+			m_right_texture.use();
 			glActiveTexture(GL_TEXTURE2);
 			m_cost_shader.setUniformIVar("dsi", { 2 });
 			m_cost_texture.useArray();
@@ -142,10 +146,10 @@ namespace e2e
 
 		glActiveTexture(GL_TEXTURE0);
 		m_aggregate_shader.setUniformIVar("left", { 0 });
-		m_texture1->use();
+		m_left_texture.use();
 		glActiveTexture(GL_TEXTURE1);
 		m_aggregate_shader.setUniformIVar("right", { 1 });
-		m_texture2->use();
+		m_right_texture.use();
 		glActiveTexture(GL_TEXTURE2);
 		m_aggregate_shader.setUniformIVar("dsi", { 2 });
 		m_cost_texture.useArray();
@@ -235,6 +239,46 @@ namespace e2e
 		render();
 	}
 
+	void Merger::compileShaders()
+	{
+		m_undistort_left_shader.clear();
+		m_undistort_left_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
+		m_undistort_left_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/undistort.frag");
+		m_undistort_left_shader.link();
+
+		m_undistort_right_shader.clear();
+		m_undistort_right_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
+		m_undistort_right_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/undistort.frag");
+		m_undistort_right_shader.link();
+
+		int selection = m_cost_choice;
+		m_cost_choice = -1;
+		chooseCost(selection);
+		selection = m_aggregation_choice;
+		m_aggregation_choice = -1;
+		chooseAggregation(selection);
+
+		m_outlier_detection_shader.clear();
+		m_outlier_detection_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
+		m_outlier_detection_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/outlier_detection.frag");
+		m_outlier_detection_shader.link();
+
+		m_outlier_correction_shader.clear();
+		m_outlier_correction_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
+		m_outlier_correction_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/outlier_correction.frag");
+		m_outlier_correction_shader.link();
+
+		m_median_shader.clear();
+		m_median_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
+		m_median_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/median_filter.frag");
+		m_median_shader.link();
+
+		m_hdr_merge_shader.clear();
+		m_hdr_merge_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
+		m_hdr_merge_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/basic.frag");
+		m_hdr_merge_shader.link();
+	}
+
 	void Merger::set_textures(const Texture & left, const Texture & right)
 	{
 		m_texture1 = &left;
@@ -253,53 +297,58 @@ namespace e2e
 		m_scale_factor_y = y;
 	}
 
+	GLSLProgram & Merger::get_cost_shader()
+	{
+		return m_cost_shader;
+	}
+
+	GLSLProgram & Merger::get_undistort_left_shader()
+	{
+		return m_undistort_left_shader;
+	}
+
+	GLSLProgram & Merger::get_undistort_right_shader()
+	{
+		return m_undistort_right_shader;
+	}
+
 	void Merger::chooseCost(int selection)
 	{
 		if (selection != m_cost_choice)
 		{
+			std::string vert_path = "shaders/hdr.vert"; 
+			std::string frag_path;
 			switch (selection)
 			{
 			case 0:
 			{
-				GLSLProgram temp_shader;
-				temp_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
-				temp_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/cost_ad.frag");
-				temp_shader.link();
-				m_cost_shader = std::move(temp_shader);
+				frag_path = "shaders/cost_ad.frag";
 			}
 			break;
 
 			case 1:
 			{
-				GLSLProgram temp_shader;
-				temp_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
-				temp_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/cost_adcensus.frag");
-				temp_shader.link();
-				m_cost_shader = std::move(temp_shader);
+				frag_path = "shaders/cost_adcensus.frag";
 			}
 			break;
 
 			case 2:
 			{
-				GLSLProgram temp_shader;
-				temp_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
-				temp_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/cost_census.frag");
-				temp_shader.link();
-				m_cost_shader = std::move(temp_shader);
+				frag_path = "shaders/cost_census.frag";
 			}
 			break;
 
 			case 3:
 			{
-				GLSLProgram temp_shader;
-				temp_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
-				temp_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/cost_census_modified.frag");
-				temp_shader.link();
-				m_cost_shader = std::move(temp_shader);
+				frag_path = "shaders/cost_census_modified.frag";
 			}
 			break;
 			}
 
+			m_cost_shader.clear();
+			m_cost_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, vert_path.c_str());
+			m_cost_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, frag_path.c_str());
+			m_cost_shader.link();
 			m_cost_choice = selection;
 		}
 	}
@@ -308,35 +357,27 @@ namespace e2e
 	{
 		if (selection != m_aggregation_choice)
 		{
+			std::string vert_path = "shaders/hdr.vert";
+			std::string frag_path;
 			switch (selection)
 			{
 			case 0:
 			{
-				GLSLProgram temp_shader;
-				temp_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
-				if (!m_outlier_detection)
-					temp_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/aggregate3x3.frag");
-				else
-					temp_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/aggregate3x3withAPKR.frag");
-				temp_shader.link();
-				m_aggregate_shader = std::move(temp_shader);
+				frag_path = m_outlier_detection ? "shaders/aggregate3x3withAPKR.frag" : "shaders/aggregate3x3.frag";
 			}
 			break;
 
 			case 1:
 			{
-				GLSLProgram temp_shader;
-				temp_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
-				if (!m_outlier_detection)
-					temp_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/aggregate_cross.frag");
-				else
-					temp_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/aggregate_crosswithAPKR.frag");
-				temp_shader.link();
-				m_aggregate_shader = std::move(temp_shader);
+				frag_path = m_outlier_detection ? "shaders/aggregate_crosswithAPKR.frag" : "shaders/aggregate_cross.frag";
 			}
 			break;
 			}
 
+			m_aggregate_shader.clear();
+			m_aggregate_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, vert_path.c_str());
+			m_aggregate_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, frag_path.c_str());
+			m_aggregate_shader.link();
 			m_aggregation_choice = selection;
 		}
 	}

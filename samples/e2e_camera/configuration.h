@@ -7,6 +7,7 @@
 
 #include <string>
 #include <vector>
+#include <tuple>
 #include <json.hpp>
 
 struct crf
@@ -30,5 +31,7 @@ nlohmann::json load_camera_conf(const std::string&);
 crf load_crf(const std::string& file);
 void save_crf(const crf& res, const std::string& out);
 undistort get_undistort(const nlohmann::json& config);
+
+std::vector<std::tuple<std::string, crf>> find_profiles();
 
 #endif //HDR_CAMERA_CONFIGURATION_H

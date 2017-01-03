@@ -33,19 +33,6 @@
 using FrameT = camera_struct::FrameT;
 using json = nlohmann::json;
 
-class CRF_Calibrate
-{
-    std::vector<FrameT> frames;
-    std::vector<float> times;
-
-public:
-
-    void start();
-    void update();
-
-    bool have_exposure(FrameT&& frame, float time);
-};
-
 class ApplicationImpl
 {
     camera_struct left_cam;
@@ -56,6 +43,30 @@ class ApplicationImpl
 
     e2e::GLSLProgram left_prev_shader;
     e2e::GLSLProgram right_prev_shader;
+
+    struct
+    {
+        std::vector<std::tuple<std::string, crf>> profs;
+        std::vector<const char*> profile_names; // does not own
+        void update_names()
+        {
+            profile_names.resize(profs.size());
+            for (int i = 0; i < profs.size(); ++i)
+            {
+                profile_names[i] = std::get<0>(profs[i]).data();
+            }
+        }
+
+        crf& get_response(int index)
+        {
+            return std::get<1>(profs[index]);
+        }
+        std::string get_name(int index)
+        {
+            return std::get<0>(profs[index]);
+        }
+
+    } profiles;
 
     const FrameT* left_cur_frame;
     const FrameT* right_cur_frame;
@@ -91,6 +102,7 @@ class ApplicationImpl
     int snap_counter = 1;
 
     bool running = false;
+	e2e::Merger merger{ 1280, 720, 32 };
 
     /*
      * This function finds the most recent image pair
@@ -98,6 +110,7 @@ class ApplicationImpl
     std::pair<FrameT, FrameT> get_frame_pair();
 
     struct WaitingRec {};
+
     struct InRecovery
     {
         std::vector<FrameT> left_frames;
@@ -107,6 +120,7 @@ class ApplicationImpl
         float cur_exposure = 0;
         std::chrono::high_resolution_clock::time_point last_take;
     };
+
     struct DoneRecovery
     {
         crf left_crf;
@@ -116,18 +130,14 @@ class ApplicationImpl
     using rec_state = boost::variant<WaitingRec, InRecovery, DoneRecovery>;
     rec_state crf_state;
 
-    /*struct {
-        std::vector<FrameT> left_frames;
-        std::vector<FrameT> right_frames;
-        std::vector<float> times;
+    struct CTL_data
+    {
+        int exposure_index;
+        int profile_index;
+    };
 
-        crf left_crf;
-        crf right_crf;
-        bool recovered = false;
-
-        float cur_exposure = 0;
-        std::chrono::high_resolution_clock::time_point last_take;
-    } crf_data;*/
+    CTL_data left;
+    CTL_data right;
 
     void snapshot();
 
@@ -190,6 +200,12 @@ ApplicationImpl::ApplicationImpl(const std::vector<std::string> &args) :
         right_cam_ctl(right_cam.get_ip()),
         tp(1)
 {
+    left.exposure_index = (left_cam.get_config())["exp_code"];
+    right.exposure_index = (right_cam.get_config())["exp_code"];
+
+    tp.push_job([&]{left_cam_ctl.set_exposure(left.exposure_index);});
+    tp.push_job([&]{right_cam_ctl.set_exposure(right.exposure_index);});
+
     add_keybinding(GLFW_KEY_R, [this]{
         reload_shaders();
     });
@@ -202,16 +218,28 @@ ApplicationImpl::ApplicationImpl(const std::vector<std::string> &args) :
         gui.w.ShouldClose(true);
     });
 
+    // load profiles
+    profiles.profs = find_profiles();
+    profiles.update_names();
+
+    auto l_prof_iter = std::find(profiles.profile_names.begin(), profiles.profile_names.end(), left_cam.get_profile());
+    auto r_prof_iter = std::find(profiles.profile_names.begin(), profiles.profile_names.end(), right_cam.get_profile());
+
+    left.profile_index = std::distance(profiles.profile_names.begin(), l_prof_iter);
+    right.profile_index = std::distance(profiles.profile_names.begin(), r_prof_iter);
+
     e2e::GUI::getGUI().initialize(gui.w, true);
     reload_shaders();
 }
 
 void ApplicationImpl::Run()
 {
-    e2e::Merger merger { 1280, 720, 63 };
     merger.set_textures(gui.left_tex, gui.right_tex);
     merger.set_position(0.5, 0.5);
     merger.set_scale_factor(0.5, 0.5);
+	make_merge_shader(merger.get_cost_shader(), left_cam, profiles.get_response(left.profile_index), right_cam, profiles.get_response(right.profile_index));
+	make_undistort_shader(merger.get_undistort_left_shader(), left_cam, profiles.get_response(left.profile_index));
+	make_undistort_shader(merger.get_undistort_right_shader(), right_cam, profiles.get_response(right.profile_index));
 
     while (!gui.w.ShouldClose())
     {
@@ -234,6 +262,7 @@ void ApplicationImpl::Run()
         //gui.w.reset_viewport();
 
         draw_preview();
+		merger.draw();
         draw_gui();
         gui.w.EndDraw();
 
@@ -325,8 +354,8 @@ void ApplicationImpl::snapshot() {
 void ApplicationImpl::reload_shaders() {
     std::cout << "reloading shaders...\n";
 
-    left_prev_shader = make_preview_shader(left_cam);
-    right_prev_shader = make_preview_shader(right_cam);
+    left_prev_shader = make_preview_shader(left_cam, profiles.get_response(left.profile_index));
+    right_prev_shader = make_preview_shader(right_cam, profiles.get_response(right.profile_index));
 
     gui.left_quad.set_program(left_prev_shader);
     gui.right_quad.set_program(right_prev_shader);
@@ -394,17 +423,25 @@ void ApplicationImpl::draw_gui()
         }, (void*)crf.blue.data(), 256, 0, "", -10, 10, ImVec2(0, 80));
     };
 
-    auto draw_camera = [&plot_crf](const auto& cam)
+    auto draw_camera = [&plot_crf, this](camera_struct& cam, CTL_data& ctl, auto& controller)
     {
         if (ImGui::TreeNode(cam.get_name().c_str()))
         {
             ImGui::Text("Decoded Queue: %d", cam.frame_queue.size());
+            CTL_data d = ctl;
+            ImGui::Combo("Response Profile", &ctl.profile_index, profiles.profile_names.data(), profiles.profile_names.size());
+
+            if (d.profile_index != ctl.profile_index)
+            {
+                cam.set_profile(profiles.get_name(ctl.profile_index));
+                reload_shaders();
+            }
+
             if (ImGui::TreeNode("Inverse Response Function"))
             {
-                plot_crf(cam.get_response());
+                plot_crf(profiles.get_response(ctl.profile_index));
                 ImGui::TreePop();
             }
-            int selected = 7;
             const char* test[] = {
                 "1 s",
                 "1/2 s",
@@ -414,15 +451,24 @@ void ApplicationImpl::draw_gui()
                 "1/30 s",
                 "1/50 s",
                 "1/60 s",
-                "1/100 s"
+                "1/100 s",
+                "1/250 s",
+                "1/500 s",
+                "1/1000 s"
             };
-            ImGui::Combo("Exposure", &selected, test, 9);
+            ImGui::Combo("Exposure", &ctl.exposure_index, test, 12);
+            if (d.exposure_index != ctl.exposure_index)
+            {
+                tp.push_job([&controller, &ctl]{controller.set_exposure(ctl.exposure_index);});
+                cam.update_exp(controller.get_exposure(d.exposure_index), d.exposure_index);
+                reload_shaders();
+            }
             ImGui::TreePop();
         }
     };
 
-    draw_camera(left_cam);
-    draw_camera(right_cam);
+    draw_camera(left_cam, left, left_cam_ctl);
+    draw_camera(right_cam, right, right_cam_ctl);
 
     ImGui::End();
 
@@ -432,8 +478,55 @@ void ApplicationImpl::draw_gui()
         ImGui::Begin("New Crf!");
         plot_crf(state->left_crf);
         plot_crf(state->right_crf);
+
+        static char buf[128];
+        ImGui::InputText("Profile Name", buf, 128);
+        ImGui::SameLine();
+        if (ImGui::Button("Save These"))
+        {
+            save_crf(state->left_crf, buf + std::string("_left"));
+            save_crf(state->right_crf, buf + std::string("_right"));
+
+            profiles.profs = find_profiles();
+            profiles.update_names();
+
+            auto l_prof_iter = std::find(profiles.profile_names.begin(), profiles.profile_names.end(), left_cam.get_profile());
+            auto r_prof_iter = std::find(profiles.profile_names.begin(), profiles.profile_names.end(), right_cam.get_profile());
+
+            left.profile_index = std::distance(profiles.profile_names.begin(), l_prof_iter);
+            right.profile_index = std::distance(profiles.profile_names.begin(), r_prof_iter);
+
+            crf_state = WaitingRec{};
+        }
+
+        if (ImGui::Button("Discard"))
+        {
+            crf_state = WaitingRec{};
+        }
+
         ImGui::End();
     }
+
+	static bool recompile_shaders = false;
+	static int cost_choice = 1;
+	static int agg_choice = 0;
+	static bool detection = false;
+	static bool correction = false;
+	static bool median = false;
+	static float threshold = 1.10;
+	static int window_size = 7;
+
+	e2e::gui::displayStereoControl(recompile_shaders, cost_choice, agg_choice, detection, correction, median, threshold, window_size);
+	merger.chooseCost(cost_choice);
+	merger.chooseAggregation(agg_choice);
+	merger.set_outlier_detection(detection, threshold, window_size);
+	merger.set_outlier_correction(correction);
+	merger.set_median_filter(median);
+
+	if (recompile_shaders)
+	{
+		merger.compileShaders();
+	}
 
     ImGui::Render();
 }

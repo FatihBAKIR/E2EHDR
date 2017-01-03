@@ -63,6 +63,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);
 		gui.newFrame();
 
+		static bool recompile_shaders = false;
 		static int cost_choice = 1;
 		static int agg_choice = 0;
 		static bool detection = false;
@@ -71,12 +72,17 @@ int main()
 		static float threshold = 1.10;
 		static int window_size = 7;
 
-		e2e::gui::displayStereoControl(cost_choice, agg_choice, detection, correction, median, threshold, window_size);
+		e2e::gui::displayStereoControl(recompile_shaders, cost_choice, agg_choice, detection, correction, median, threshold, window_size);
 		merger.chooseCost(cost_choice);
 		merger.chooseAggregation(agg_choice);
 		merger.set_outlier_detection(detection, threshold, window_size);
 		merger.set_outlier_correction(correction);
 		merger.set_median_filter(median);
+
+		if (recompile_shaders)
+		{
+			merger.compileShaders();
+		}
 
 		merger.draw();
 

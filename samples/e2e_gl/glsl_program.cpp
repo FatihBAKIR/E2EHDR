@@ -25,7 +25,7 @@ namespace e2e
 		std::string shader_code;
 
 		//Ensure that files can throw exceptions.
-		shader_file.exceptions(std::ifstream::badbit);
+		shader_file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 		try
 		{
 			std::stringstream vs_stream;
@@ -40,9 +40,10 @@ namespace e2e
 			shader_code = vs_stream.str();
 		}
 
-		catch (std::ifstream::failure e)
+		catch (const std::ifstream::failure& e)
 		{
-			std::cout << "ERROR::glsl_program.cpp::attachShader::SHADER_FILE_NOT_SUCCESFULLY_READ" << std::endl;
+			std::cout << "ERROR::glsl_program.cpp::attachShader::SHADER_FILE_NOT_SUCCESFULLY_READ/OPENED" << std::endl;
+			std::cout << shader_path << std::endl;
 		}
 
 		GLuint shader = 0;
@@ -58,6 +59,7 @@ namespace e2e
 
 		default:
 			std::cout << "WARNING::glsl_program.cpp::attachShader::UNDEFINED_SHADER_TYPE" << std::endl;
+			std::cout << shader_path << std::endl;
 			break;
 		}
 
@@ -74,6 +76,7 @@ namespace e2e
 		{
 			glGetShaderInfoLog(shader, 1024, nullptr, info_log);
 			std::cout << "ERROR::glsl_program.cpp::attachShader::COMPILATION_FAILED\n" << info_log << std::endl;
+			std::cout << shader_path << std::endl;
 		}
 	}
 

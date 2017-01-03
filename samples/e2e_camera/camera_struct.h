@@ -27,16 +27,25 @@ public:
 
     void recycle(FrameT&& f);
 
+    int get_exp_code() const;
     float get_exposure() const;
 
-    const crf& get_response() const;
+    //const crf& get_response() const;
+    //void set_response(const crf& crf);
+
+    void set_profile(const std::string& prof);
+    std::string get_profile() const;
 
     undistort get_undistort() const;
     const std::string& get_name() const;
     const std::string& get_ip() const;
 
+    const auto& get_config() const { return config; }
+
     camera_struct(camera_struct&) = delete;
     camera_struct(camera_struct&&) = delete;
+
+    void update_exp(float ex, int code);
 
     ~camera_struct();
 private:
