@@ -69,8 +69,15 @@ void make_undistort_shader(e2e::GLSLProgram& hdr, const camera_struct& cam1, con
 		hdr.setUniformArray(pref + ".response.green", crf.green);
 		hdr.setUniformArray(pref + ".response.blue", crf.blue);
 
-<<<<<<< HEAD
-    return hdr;
+		hdr.setUniformFVar(pref + ".exposure", { cam.get_exposure() });
+
+		hdr.setUniformFVar(pref + ".undis.focal_length", { undis.focal[0], undis.focal[1] });
+		hdr.setUniformFVar(pref + ".undis.optical_center", { undis.optical[0], undis.optical[1] });
+		hdr.setUniformArray(pref + ".undis.dist_coeffs", undis.coeffs);
+		hdr.setUniformFVar(pref + ".undis.image_size", { undis.im_size[0], undis.im_size[1] });
+	};
+
+	copy_camera(cam1, response1, "param");
 }
 
 e2e::GLSLProgram make_tonemap_shader()
@@ -87,17 +94,5 @@ e2e::GLSLProgram make_tonemap_shader()
         hdr.setUniformFVar(pref + "sat", {(GL_FLOAT)1.0f});
     };
 
-//    copy_camera();
     return hdr;
-=======
-		hdr.setUniformFVar(pref + ".exposure", { cam.get_exposure() });
-
-		hdr.setUniformFVar(pref + ".undis.focal_length", { undis.focal[0], undis.focal[1] });
-		hdr.setUniformFVar(pref + ".undis.optical_center", { undis.optical[0], undis.optical[1] });
-		hdr.setUniformArray(pref + ".undis.dist_coeffs", undis.coeffs);
-		hdr.setUniformFVar(pref + ".undis.image_size", { undis.im_size[0], undis.im_size[1] });
-	};
-
-	copy_camera(cam1, response1, "param");
->>>>>>> FatihBAKIR/master
 }
