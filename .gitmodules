@@ -16,3 +16,6 @@ url=git@github.com:FatihBAKIR/imgui.git
 [submodule "3rd_party/cpr"]
 	path = 3rd_party/cpr
 	url = git@github.com:whoshuu/cpr.git
+[submodule "3rd_party/x264"]
+	path = 3rd_party/x264
+	url = http://git.videolan.org/git/x264.git

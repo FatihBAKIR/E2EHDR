@@ -1,0 +1,8 @@
+/Applications/CLion.app/Contents/bin/cmake/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /Users/goksu/mpeghdr
+-- Found x264: /usr/local/include
+-- Using x264 dir parent as hint: /usr/local/include
+-- x264 include: /usr/local/include
+-- x264 lib: /usr/local/lib/libx264.dylib
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /Users/goksu/mpeghdr/cmake-build-debug
