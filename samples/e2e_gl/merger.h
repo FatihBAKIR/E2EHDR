@@ -26,6 +26,7 @@ namespace e2e
 		GLSLProgram& get_cost_shader();
 		GLSLProgram& get_undistort_left_shader();
 		GLSLProgram& get_undistort_right_shader();
+		GLSLProgram& get_merge_shader();
 
 		//Parameter setters and functions
 		void chooseCost(int selection);

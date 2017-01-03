@@ -237,7 +237,9 @@ void ApplicationImpl::Run()
     merger.set_textures(gui.left_tex, gui.right_tex);
     merger.set_position(0.5, 0.5);
     merger.set_scale_factor(0.5, 0.5);
-	make_merge_shader(merger.get_cost_shader(), left_cam, profiles.get_response(left.profile_index), right_cam, profiles.get_response(right.profile_index));
+
+    make_merge_shader(merger.get_cost_shader(), left_cam, profiles.get_response(left.profile_index), right_cam, profiles.get_response(right.profile_index));
+    make_merge_shader(merger.get_merge_shader(), left_cam, profiles.get_response(left.profile_index), right_cam, profiles.get_response(right.profile_index));
 	make_undistort_shader(merger.get_undistort_left_shader(), left_cam, profiles.get_response(left.profile_index));
 	make_undistort_shader(merger.get_undistort_right_shader(), right_cam, profiles.get_response(right.profile_index));
 

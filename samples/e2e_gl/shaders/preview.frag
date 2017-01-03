@@ -83,19 +83,20 @@ vec2 undistort(vec2 inp)
 
 void main()
 {
-    vec2 resultUV = undistort(tex_coord);
-    //resultUV = tex_coord;
+    vec2 resultUV = prev.undistort ? undistort(tex_coord) : tex_coord;
 
     vec4 col = texture(texture0, vec2(resultUV.x, 1-resultUV.y));
+
+    if (!prev.apply_crf)
+    {
+        color = col;
+        return;
+    }
 
     vec3 cols = apply_crf(vec3(col));
     cols /= camera.exposure;
 
-    cols = cols * pow(2.0, exposure);
-	//cols = pow(cols, vec3(pow(2.0, gamma)));
-
-    cols = pow(cols, vec3(1.0 / 2.2)); // gamma correction
+    cols *= pow(2.0, prev.exposure);
+    cols = pow(cols, vec3(1.0 / 2.2));
     color = vec4(cols, 1.0);
-
-    //color = col;
 }

@@ -232,7 +232,15 @@ namespace e2e
 		m_hdr_merge_shader.setUniformFVar("dy", { dy });
 
 		glActiveTexture(GL_TEXTURE0);
-		m_hdr_merge_shader.setUniformIVar("disparity_map", { 0 });
+		m_aggregate_shader.setUniformIVar("left_exp", { 0 });
+		m_left_texture.use();
+		glActiveTexture(GL_TEXTURE1);
+		m_aggregate_shader.setUniformIVar("right_exp", { 1 });
+		m_right_texture.use();
+		glActiveTexture(GL_TEXTURE2);
+		m_hdr_merge_shader.setUniformIVar("disparity_map", { 2 });
+
+
 		m_refinement_texture.use();
 
 		//Draw quad
@@ -420,5 +428,10 @@ namespace e2e
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
+	GLSLProgram& Merger::get_merge_shader()
+	{
+		return m_hdr_merge_shader;
 	}
 }
