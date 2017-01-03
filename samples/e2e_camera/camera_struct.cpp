@@ -128,6 +128,7 @@ void camera_struct::set_profile(const std::string& prof)
 
 std::string camera_struct::get_profile() const
 {
+	std::cout << config << '\n';
     return config["profile"];
 }
 

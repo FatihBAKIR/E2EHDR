@@ -2,3 +2,5 @@
 *.jpg
 
 *.jpg
+
+samples/e2e_gl/main_goksu.cpp
