@@ -101,7 +101,7 @@ boost::optional<camera_struct::FrameT> camera_struct::handle_packet(e2e::ff::Cam
     }
 
     std::cout << "nope\n";
-    return boost::none;
+    return boost::none; 
 }
 
 const std::string& camera_struct::get_name() const {

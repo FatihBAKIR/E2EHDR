@@ -68,6 +68,32 @@ void Texture::createArray(int width, int height, int layer, unsigned char* image
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 }
 
+void Texture::createFloat(int width, int height)
+{
+	if (m_texture_id)
+	{
+		glDeleteTextures(1, &m_texture_id);
+		m_texture_id = 0;
+	}
+
+	m_width = width;
+	m_height = height;
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glGenTextures(1, &m_texture_id);
+
+	glBindTexture(GL_TEXTURE_2D, m_texture_id);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
+
+	//Settings
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 void Texture::use() const
 {
 	assert(m_texture_id);

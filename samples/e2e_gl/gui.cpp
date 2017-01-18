@@ -85,5 +85,25 @@ namespace e2e
 
 			ImGui::End();
 		}
+
+		void displayTonemapControl(float& base_lum, float& max_lum)
+		{
+			ImGuiWindowFlags window_flags = 0;
+			window_flags |= ImGuiWindowFlags_NoResize;
+			window_flags |= ImGuiWindowFlags_NoScrollbar;
+			window_flags |= ImGuiWindowFlags_AlwaysAutoResize;
+			window_flags |= ImGuiWindowFlags_NoCollapse;
+
+			static bool open1 = true;
+			if (!ImGui::Begin("Tonemapping Settings", &open1, window_flags))
+			{
+				ImGui::End();
+				return;
+			}
+			ImGui::InputFloat("Base Luminance", &base_lum, 0.25f, 40000.0f);
+			ImGui::InputFloat("Max Luminance", &max_lum, 5.0f, 5000.0f);
+
+			ImGui::End();
+		}
 	}
 }
