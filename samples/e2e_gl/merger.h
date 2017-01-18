@@ -1,7 +1,7 @@
 #pragma once
 
 //GL
-#include <GL/glew.h>
+#include "include\glad\glad.h"
 
 //FRAMEWORK
 #include "framebuffer.h"

@@ -74,9 +74,34 @@ vec2 undistort_uv(vec2 inp, undistort undis)
     return resultUV;
 }
 
+float luminance(vec3 color)
+{
+    // Assuming that input color is in linear sRGB color space.
+
+    return (color.r * 0.2126) +
+           (color.g * 0.7152) +
+           (color.b * 0.0722);
+}
+
+float weight(float val)
+{
+    float w;
+
+    if (val <= 0.5){
+        w = val * 2.0;
+    }
+    else {
+        w = (1.0 - val) * 2.0;
+    }
+
+    return w;
+}
+
 void main()
 {
 	vec2 undistorted_tex_coord = undistort_uv(tex_coord, param.undis);
 	
-	color = vec4(apply_crf(vec3(texture(frame, undistorted_tex_coord)), param) / param.exposure, 1.0);
+	vec3 col = vec3(texture(frame, undistorted_tex_coord));
+	
+	color = vec4(apply_crf(col, param) / param.exposure, weight(luminance(col)));
 }

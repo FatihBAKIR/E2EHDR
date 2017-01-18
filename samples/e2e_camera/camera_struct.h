@@ -17,7 +17,7 @@ public:
     using FrameT = e2e::Frame<uint8_t, 3, decltype(&av_free)>;
 
     /// decoded frames are stored in this queue
-    e2e::spsc_queue<FrameT, e2e::constant_storage<FrameT, 128>> frame_queue;
+    e2e::spsc_queue<FrameT, e2e::constant_storage<FrameT, 256>> frame_queue;
 
     camera_struct(const nlohmann::json& config);
 

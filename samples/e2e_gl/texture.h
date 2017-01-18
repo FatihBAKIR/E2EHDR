@@ -1,7 +1,7 @@
 #pragma once
 
 //GL
-#include <GL/glew.h>
+#include "include\glad\glad.h"
 
 //OTHER
 #include <boost/core/noncopyable.hpp>
@@ -14,6 +14,7 @@ public:
 
 	void create(int width, int height, unsigned char* image);
 	void createArray(int width, int height, int layer, unsigned char* image);
+	void createFloat(int width, int height);
 	void use() const;
 	void useArray() const;
 

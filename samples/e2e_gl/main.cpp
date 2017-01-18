@@ -1,6 +1,6 @@
 ﻿//GL
 #define GLEW_STATIC /*Define GLEW_STATIC for static linking*/
-#include <GL/glew.h>
+#include "include\glad\glad.h"
 #include <GLFW/glfw3.h>
 #include <imgui.h>
 
@@ -24,27 +24,27 @@
 
 using namespace e2e;
 
-constexpr int gDisparityLimit = 64;
-constexpr int gScreenWidth = 900;
-constexpr int gScreenHeight = 375;
+constexpr int gDisparityLimit = 128;
+constexpr int gScreenWidth = 1280;
+constexpr int gScreenHeight = 720;
 
 int main()
 {
 	e2e::Window w(gScreenWidth, gScreenHeight);
 
 	int width, height;
-	unsigned char* image1 = SOIL_load_image("cones_left.png", &width, &height, 0, SOIL_LOAD_RGB);
+	unsigned char* image1 = SOIL_load_image("left_im.jpg", &width, &height, 0, SOIL_LOAD_RGB);
 	Texture tex1;
 	tex1.create(width, height, image1);
 
-	unsigned char* image2 = SOIL_load_image("cones_right.png", &width, &height, 0, SOIL_LOAD_RGB);
+	unsigned char* image2 = SOIL_load_image("right_im.jpg", &width, &height, 0, SOIL_LOAD_RGB);
 	Texture tex2;
 	tex2.create(width, height, image2);
 
 	e2e::Merger merger(width, height, gDisparityLimit);
 	merger.set_textures(tex1, tex2);
 	merger.set_position(-0.5f, 0.0f);
-	merger.set_scale_factor(0.5f, 1.0f);
+	merger.set_scale_factor(0.5f, 0.5f);
 
 	e2e::GUI& gui = e2e::GUI::getGUI();
 	gui.initialize(w, true);
