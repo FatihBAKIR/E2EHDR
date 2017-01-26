@@ -20,7 +20,7 @@ namespace e2e
 		, m_position_y(0.0f)
 		, m_scale_factor_x(1.0f)
 		, m_scale_factor_y(1.0f)
-		, m_cost_choice(1)
+		, m_cost_choice(0)
 		, m_aggregation_choice(0)
 		, m_outlier_detection(false)
 		, m_threshold(1.1f)
@@ -55,8 +55,10 @@ namespace e2e
 		//TEXTURES
 		m_cost_texture.createArray(image_width, image_height, disparity_limit, nullptr);
 		m_refinement_texture.create(image_width, image_height, nullptr);
-		m_left_texture.create(image_width, image_height, nullptr);
-		m_right_texture.create(image_width, image_height, nullptr);
+		m_left_texture.createFloat(image_width, image_height);
+		m_right_texture.createFloat(image_width, image_height);
+
+		glFinish();
 
 		//SHADERS
 		compileShaders();
@@ -232,7 +234,15 @@ namespace e2e
 		m_hdr_merge_shader.setUniformFVar("dy", { dy });
 
 		glActiveTexture(GL_TEXTURE0);
-		m_hdr_merge_shader.setUniformIVar("disparity_map", { 0 });
+		m_hdr_merge_shader.setUniformIVar("left_exp", { 0 });
+		m_left_texture.use();
+		glActiveTexture(GL_TEXTURE1);
+		m_hdr_merge_shader.setUniformIVar("right_exp", { 1 });
+		m_right_texture.use();
+		glActiveTexture(GL_TEXTURE2);
+		m_hdr_merge_shader.setUniformIVar("disparity_map", { 2 });
+
+
 		m_refinement_texture.use();
 
 		//Draw quad
@@ -420,5 +430,10 @@ namespace e2e
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
+	GLSLProgram& Merger::get_merge_shader()
+	{
+		return m_hdr_merge_shader;
 	}
 }

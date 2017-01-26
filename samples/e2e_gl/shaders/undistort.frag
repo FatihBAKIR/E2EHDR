@@ -30,6 +30,20 @@ struct camera_params
 
 uniform camera_params param;
 
+int get_byte(float channel)
+{
+    return min(int(channel * 255), 255);
+}
+
+vec3 apply_crf(vec3 col, camera_params camera)
+{
+	float r = camera.response.red[get_byte(col.r)];
+	float g = camera.response.green[get_byte(col.g)];
+	float b = camera.response.blue[get_byte(col.b)];
+
+    return vec3(r, g, b);
+}
+
 vec2 undistort_uv(vec2 inp, undistort undis)
 {
     vec2 focalLength = undis.focal_length;
@@ -60,9 +74,34 @@ vec2 undistort_uv(vec2 inp, undistort undis)
     return resultUV;
 }
 
+float luminance(vec3 color)
+{
+    // Assuming that input color is in linear sRGB color space.
+
+    return (color.r * 0.2126) +
+           (color.g * 0.7152) +
+           (color.b * 0.0722);
+}
+
+float weight(float val)
+{
+    float w;
+
+    if (val <= 0.5){
+        w = val * 2.0;
+    }
+    else {
+        w = (1.0 - val) * 2.0;
+    }
+
+    return w;
+}
+
 void main()
 {
 	vec2 undistorted_tex_coord = undistort_uv(tex_coord, param.undis);
 	
-	color = texture(frame, undistorted_tex_coord);
+	vec3 col = vec3(texture(frame, undistorted_tex_coord));
+	
+	color = vec4(apply_crf(col, param) / param.exposure, weight(luminance(col)));
 }

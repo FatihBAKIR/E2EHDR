@@ -169,8 +169,6 @@ namespace e2e
 				break;
 
 		}
-		//auto er = glGetError();
-		//std::cout << "(" << er << ") " << glewGetErrorString(er) << '\n';
 	}
 
 	void GLSLProgram::setUniformArray(const std::string &name, const std::vector<float> &arr)

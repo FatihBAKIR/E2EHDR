@@ -4,7 +4,8 @@
 
 //GL
 #define GLEW_STATIC /*Define GLEW_STATIC for static linking*/
-#include <GL/glew.h>
+//#include "include\glad\glad.h"
+#include "include\glad\glad.h"
 #include <GLFW/glfw3.h>
 
 //FRAMEWORK
@@ -28,22 +29,6 @@ namespace
 			glfwTerminate();
 		}
 	};
-
-	struct GLEW
-	{
-		GLEW()
-		{
-			//Initialize glew.
-			//Before initializing it, make sure glewExperimental is set GL_TRUE.
-			//To understand the reason, visit glew documentation.
-			glewExperimental = GL_TRUE;
-			auto res = glewInit();
-			if (res != GLEW_OK)
-			{
-				throw std::runtime_error("GLEW Initialization Failed!");
-			}
-		}
-	};
 }
 
 namespace e2e
@@ -54,6 +39,7 @@ namespace e2e
 	{
 		//GLFW//
 		static GLFW glfw_global;
+
 
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -68,9 +54,25 @@ namespace e2e
 		assert(m_window);
 		glfwMakeContextCurrent(m_window);
 
-		//GLEW//
-		GLEW g;
+		static auto _ = ([&] {
+			if (!gladLoadGL())
+			{
+				printf("Something went wrong!\n");
+				exit(-1);
+			}
 
+			glad_set_post_callback([](const char *name, void *funcptr, int len_args, ...) {
+				GLenum error_code;
+				error_code = glad_glGetError();
+
+				if (error_code != GL_NO_ERROR)
+				{
+					throw std::runtime_error("something broke, fuck it (" + std::string(name) + ")");
+				}
+			});
+
+			return 0;
+		})();
 		//OpenGL//
 		//Lower left point is (0,0). Top right point is (width, height).
 		reset_viewport();
