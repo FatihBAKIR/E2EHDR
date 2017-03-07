@@ -103,6 +103,9 @@ namespace e2e
 		glActiveTexture(GL_TEXTURE0);
 		m_undistort_left_shader.setUniformIVar("frame", { 0 });
 		m_texture1->use();
+        glActiveTexture(GL_TEXTURE1);
+		m_undistort_left_shader.setUniformIVar("other", { 1 });
+		m_texture2->use();
 		render();
 
 		m_framebuffer.renderToTexture(m_right_texture);
@@ -112,6 +115,10 @@ namespace e2e
 		glActiveTexture(GL_TEXTURE0);
 		m_undistort_right_shader.setUniformIVar("frame", { 0 });
 		m_texture2->use();
+
+		glActiveTexture(GL_TEXTURE1);
+		m_undistort_right_shader.setUniformIVar("other", { 1 });
+		m_texture1->use();
 		render();
 
 		//COST COMPUTATION//
@@ -255,14 +262,17 @@ namespace e2e
 	void Merger::compileShaders()
 	{
 		m_undistort_left_shader.clear();
-		m_undistort_left_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
+		m_undistort_left_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/undistort.vert");
 		m_undistort_left_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/undistort.frag");
 		m_undistort_left_shader.link();
 
+		m_undistort_left_shader.setUniformIVar("is_left", {true});
+
 		m_undistort_right_shader.clear();
-		m_undistort_right_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
+		m_undistort_right_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/undistort.vert");
 		m_undistort_right_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/undistort.frag");
 		m_undistort_right_shader.link();
+		m_undistort_right_shader.setUniformIVar("is_left", {false});
 
 		int selection = m_cost_choice;
 		m_cost_choice = -1;

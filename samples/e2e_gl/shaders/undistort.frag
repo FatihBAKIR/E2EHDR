@@ -1,6 +1,7 @@
 #version 330 core
 
 in vec2 tex_coord;
+in vec3 ratio;
 out vec4 color;
 
 uniform sampler2D frame;
@@ -77,10 +78,7 @@ vec2 undistort_uv(vec2 inp, undistort undis)
 float luminance(vec3 color)
 {
     // Assuming that input color is in linear sRGB color space.
-
-    return (color.r * 0.2126) +
-           (color.g * 0.7152) +
-           (color.b * 0.0722);
+    return dot(vec3(0.2126, 0.7152, 0.0722), color);
 }
 
 float weight(float val)
@@ -100,8 +98,8 @@ float weight(float val)
 void main()
 {
 	vec2 undistorted_tex_coord = undistort_uv(tex_coord, param.undis);
-	
+
 	vec3 col = vec3(texture(frame, undistorted_tex_coord));
 	
-	color = vec4(apply_crf(col, param) / param.exposure, weight(luminance(col)));
+	color = vec4(apply_crf(col, param) / param.exposure * ratio, weight(luminance(col)));
 }
