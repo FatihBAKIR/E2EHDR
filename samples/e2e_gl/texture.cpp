@@ -68,7 +68,7 @@ void Texture::createArray(int width, int height, int layer, unsigned char* image
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 }
 
-void Texture::createFloat(int width, int height)
+void Texture::createFloat(int width, int height, float* data)
 {
 	if (m_texture_id)
 	{
@@ -83,7 +83,7 @@ void Texture::createFloat(int width, int height)
 	glGenTextures(1, &m_texture_id);
 
 	glBindTexture(GL_TEXTURE_2D, m_texture_id);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_BGR, GL_FLOAT, data);
 
 	//Settings
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
