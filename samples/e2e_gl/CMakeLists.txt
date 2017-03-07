@@ -17,6 +17,7 @@ set(SOURCE_FILES
         shaders/preview.frag
     shaders/hdr.vert
         quad.cpp
+        src/glad.c
     quad.h Window.cpp Window.h glsl_program.h glsl_program.cpp gui.cpp gui.h
         imgui_wrapper.cpp imgui_wrapper.h texture.cpp texture.h
         Drawable.h merger.cpp merger.h framebuffer.cpp framebuffer.h)
@@ -25,12 +26,11 @@ add_library(e2e_gl STATIC ${SOURCE_FILES})
 #add_executable(e2e_gl ${SOURCE_FILES})
 
 target_link_libraries(e2e_gl ${OPENGL_LIBRARIES})
-target_link_libraries(e2e_gl ${GLEW_LIBRARIES})
 target_link_libraries(e2e_gl ${GLFW_LIBRARIES})
 target_link_libraries(e2e_gl ${Boost_LIBRARIES})
 
 target_include_directories(e2e_gl PUBLIC ${OPENGL_INCLUDE_DIR})
-target_include_directories(e2e_gl PUBLIC ${GLEW_INCLUDE_DIR})
 target_include_directories(e2e_gl PUBLIC ${GLFW_INCLUDE_DIR})
 target_include_directories(e2e_gl PUBLIC ${Boost_INCLUDE_DIRS})
 target_include_directories(e2e_gl PUBLIC "../../3rd_party/imgui")
+target_include_directories(e2e_gl PUBLIC "include")

@@ -5,7 +5,7 @@
 //GL
 #define GLEW_STATIC /*Define GLEW_STATIC for static linking*/
 //#include "include\glad\glad.h"
-#include "include\glad\glad.h"
+#include "include/glad/glad.h"
 #include <GLFW/glfw3.h>
 
 //FRAMEWORK
@@ -29,6 +29,17 @@ namespace
 			glfwTerminate();
 		}
 	};
+
+	void glad_post_handler(const char *name, void *funcptr, int len_args, ...)
+	{
+		GLenum error_code;
+		error_code = glad_glGetError();
+
+		if (error_code != GL_NO_ERROR)
+		{
+			throw std::runtime_error("something broke, fuck it (" + std::string(name) + ")");
+		}
+	}
 }
 
 namespace e2e
@@ -61,15 +72,7 @@ namespace e2e
 				exit(-1);
 			}
 
-			glad_set_post_callback([](const char *name, void *funcptr, int len_args, ...) {
-				GLenum error_code;
-				error_code = glad_glGetError();
-
-				if (error_code != GL_NO_ERROR)
-				{
-					throw std::runtime_error("something broke, fuck it (" + std::string(name) + ")");
-				}
-			});
+			glad_set_post_callback(glad_post_handler);
 
 			return 0;
 		})();

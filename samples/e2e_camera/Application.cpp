@@ -369,6 +369,8 @@ std::pair<FrameT, FrameT> ApplicationImpl::get_frame_pair() {
 }
 
 void ApplicationImpl::snapshot() {
+	if (!left_cur_frame || !right_cur_frame) return;
+
 	std::cout << "SAVING" << '\n';
 
 	e2e::save_jpeg(left_cur_frame->buffer().data(), left_cur_frame->width(), left_cur_frame->height(),

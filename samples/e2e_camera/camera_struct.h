@@ -50,6 +50,8 @@ public:
     ~camera_struct();
 private:
 
+    int                 drop_counter = 0;
+
     nlohmann::json      config;
     e2e::ff::Camera     camera;
 

@@ -68,7 +68,7 @@ void make_undistort_shader(e2e::GLSLProgram& hdr, const camera_struct& cam1, con
 	copy_camera(cam1, response1, "param");
 }
 
-e2e::GLSLProgram make_tonemap_shader()
+e2e::GLSLProgram make_tonemap_shader_()
 {
     e2e::GLSLProgram hdr;
     hdr.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/tonemap.vert");
@@ -77,9 +77,9 @@ e2e::GLSLProgram make_tonemap_shader()
 
     auto copy_camera = [&hdr](auto& cam, const std::string& pref)
     {
-        hdr.setUniformFVar(pref + "Yw" , {(GL_FLOAT)1e12f});
-        hdr.setUniformFVar(pref + "key", {(GL_FLOAT)0.18f});
-        hdr.setUniformFVar(pref + "sat", {(GL_FLOAT)1.0f});
+        /*hdr.setUniformFVar(pref + "Yw" , { static_cast<GL_FLOAT>(1e12f) });
+        hdr.setUniformFVar(pref + "key", { static_cast<GL_FLOAT>(0.18f) });
+        hdr.setUniformFVar(pref + "sat", { static_cast<GL_FLOAT>(1.0f) });*/
     };
 
     return hdr;

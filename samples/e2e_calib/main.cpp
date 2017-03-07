@@ -374,7 +374,7 @@ int main(int argc, char* argv[])
             cout << "hello1" << endl;
             imshow("Image View", rview);
             cout << rview.size().width << " - " << rview.size().height << endl;
-            imwrite("/Users/goksu/Documents/E2EHDR/samples/e2e_calib/undistorted_images/" + to_string(i) + "_undistorted.jpg", rview);
+            imwrite("/Users/fatih/bitirme/samples/e2e_calib/undistorted_images/" + to_string(i) + "_undistorted.jpg", rview);
             char c = (char)waitKey();
             if( c  == ESC_KEY || c == 'q' || c == 'Q' )
                 break;
