@@ -22,6 +22,8 @@ public:
 	GLuint get_width() const { return m_width; }
 	GLuint get_height() const { return m_height; }
 
+    void create_mipmaps() const;
+
 private:
 	GLuint m_texture_id;
 	int m_width;

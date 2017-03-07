@@ -92,6 +92,9 @@ namespace e2e
 		static float dx = 1.0f / m_image_width;
 		static float dy = 1.0f / m_image_height;
 
+        m_texture1->create_mipmaps();
+        m_texture2->create_mipmaps();
+
 		//RECTIFICATION//
 		m_framebuffer.renderToTexture(m_left_texture);
 		m_undistort_left_shader.use();

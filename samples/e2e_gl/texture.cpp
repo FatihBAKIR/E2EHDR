@@ -105,3 +105,9 @@ void Texture::useArray() const
 	assert(m_texture_id);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture_id);
 }
+
+void Texture::create_mipmaps() const
+{
+    use();
+	glGenerateTextureMipmap(m_texture_id);
+}
