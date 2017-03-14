@@ -1,8 +1,21 @@
-/Applications/CLion.app/Contents/bin/cmake/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /Users/goksu/mpeghdr
--- Found x264: /usr/local/include
--- Using x264 dir parent as hint: /usr/local/include
--- x264 include: /usr/local/include
--- x264 lib: /usr/local/lib/libx264.dylib
+/Applications/CLion.app/Contents/bin/cmake/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /Users/fatih/Bitirme/samples/e2e_x264
+-- Found x264: /usr/local/Cellar/x264/r2699/include
+-- Using x264 dir parent as hint: /usr/local/Cellar/x264/r2699/include
+-- x264 include: /usr/local/Cellar/x264/r2699/include
+-- x264 lib: /usr/local/Cellar/x264/r2699/lib/libx264.dylib
+-- Boost version: 1.61.0
+-- Found the following Boost libraries:
+--   system
+--   iostreams
+--   regex
+-- Found JPEG: /usr/local/lib/libjpeg.dylib  
+-- Boost version: 1.61.0
+-- Found the following Boost libraries:
+--   system
+--   thread
+--   chrono
+--   date_time
+--   atomic
 -- Configuring done
 -- Generating done
--- Build files have been written to: /Users/goksu/mpeghdr/cmake-build-debug
+-- Build files have been written to: /Users/fatih/Bitirme/samples/e2e_x264/cmake-build-debug

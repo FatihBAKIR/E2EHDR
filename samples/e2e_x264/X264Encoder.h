@@ -21,7 +21,7 @@ public:
     X264Encoder();
     ~X264Encoder();
     bool open(std::string filename);                              /* open for encoding */
-    bool encode(char* pixels);                                    /* encode the given data */
+    bool encode(char* pixels, std::function<void(uint8_t* data, int len)> handler);                                    /* encode the given data */
     bool close();                                                 /* close the encoder and file, frees all memory */
 private:
     bool validateSettings();                                      /* validates if all params are set correctly, like width,height, etc.. */

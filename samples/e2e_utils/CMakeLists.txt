@@ -23,7 +23,7 @@ add_library(e2e_utils STATIC ${SOURCE_FILES})
 
 if (JPEG_FOUND)
     message(STATUS "Found JPEG, jpeg decoding available")
-    target_compile_definitions(e2e_utils PUBLIC -DE2E_JPEG_DECODE)
+    target_compile_definitions(e2e_utils PUBLIC -DE2E_JPEG_DECODE=1)
     target_link_libraries(e2e_utils ${JPEG_LIBRARIES})
     target_include_directories(e2e_utils PUBLIC ${JPEG_INCLUDE_DIR})
 else()

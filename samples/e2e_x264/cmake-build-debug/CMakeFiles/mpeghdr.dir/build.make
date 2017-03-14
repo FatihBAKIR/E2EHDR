@@ -43,10 +43,10 @@ RM = /Applications/CLion.app/Contents/bin/cmake/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/goksu/mpeghdr
+CMAKE_SOURCE_DIR = /Users/fatih/Bitirme/samples/e2e_x264
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/goksu/mpeghdr/cmake-build-debug
+CMAKE_BINARY_DIR = /Users/fatih/Bitirme/samples/e2e_x264/cmake-build-debug
 
 # Include any dependencies generated for this target.
 include CMakeFiles/mpeghdr.dir/depend.make
@@ -59,16 +59,16 @@ include CMakeFiles/mpeghdr.dir/flags.make
 
 CMakeFiles/mpeghdr.dir/main.cpp.o: CMakeFiles/mpeghdr.dir/flags.make
 CMakeFiles/mpeghdr.dir/main.cpp.o: ../main.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/goksu/mpeghdr/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/mpeghdr.dir/main.cpp.o"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/mpeghdr.dir/main.cpp.o -c /Users/goksu/mpeghdr/main.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/fatih/Bitirme/samples/e2e_x264/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/mpeghdr.dir/main.cpp.o"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/mpeghdr.dir/main.cpp.o -c /Users/fatih/Bitirme/samples/e2e_x264/main.cpp
 
 CMakeFiles/mpeghdr.dir/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/mpeghdr.dir/main.cpp.i"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/goksu/mpeghdr/main.cpp > CMakeFiles/mpeghdr.dir/main.cpp.i
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/fatih/Bitirme/samples/e2e_x264/main.cpp > CMakeFiles/mpeghdr.dir/main.cpp.i
 
 CMakeFiles/mpeghdr.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/mpeghdr.dir/main.cpp.s"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/goksu/mpeghdr/main.cpp -o CMakeFiles/mpeghdr.dir/main.cpp.s
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/fatih/Bitirme/samples/e2e_x264/main.cpp -o CMakeFiles/mpeghdr.dir/main.cpp.s
 
 CMakeFiles/mpeghdr.dir/main.cpp.o.requires:
 
@@ -83,16 +83,16 @@ CMakeFiles/mpeghdr.dir/main.cpp.o.provides.build: CMakeFiles/mpeghdr.dir/main.cp
 
 CMakeFiles/mpeghdr.dir/X264Encoder.cpp.o: CMakeFiles/mpeghdr.dir/flags.make
 CMakeFiles/mpeghdr.dir/X264Encoder.cpp.o: ../X264Encoder.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/goksu/mpeghdr/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/mpeghdr.dir/X264Encoder.cpp.o"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/mpeghdr.dir/X264Encoder.cpp.o -c /Users/goksu/mpeghdr/X264Encoder.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/fatih/Bitirme/samples/e2e_x264/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/mpeghdr.dir/X264Encoder.cpp.o"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/mpeghdr.dir/X264Encoder.cpp.o -c /Users/fatih/Bitirme/samples/e2e_x264/X264Encoder.cpp
 
 CMakeFiles/mpeghdr.dir/X264Encoder.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/mpeghdr.dir/X264Encoder.cpp.i"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/goksu/mpeghdr/X264Encoder.cpp > CMakeFiles/mpeghdr.dir/X264Encoder.cpp.i
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/fatih/Bitirme/samples/e2e_x264/X264Encoder.cpp > CMakeFiles/mpeghdr.dir/X264Encoder.cpp.i
 
 CMakeFiles/mpeghdr.dir/X264Encoder.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/mpeghdr.dir/X264Encoder.cpp.s"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/goksu/mpeghdr/X264Encoder.cpp -o CMakeFiles/mpeghdr.dir/X264Encoder.cpp.s
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/fatih/Bitirme/samples/e2e_x264/X264Encoder.cpp -o CMakeFiles/mpeghdr.dir/X264Encoder.cpp.s
 
 CMakeFiles/mpeghdr.dir/X264Encoder.cpp.o.requires:
 
@@ -116,14 +116,70 @@ mpeghdr_EXTERNAL_OBJECTS =
 mpeghdr: CMakeFiles/mpeghdr.dir/main.cpp.o
 mpeghdr: CMakeFiles/mpeghdr.dir/X264Encoder.cpp.o
 mpeghdr: CMakeFiles/mpeghdr.dir/build.make
-mpeghdr: /usr/local/lib/libx264.dylib
+mpeghdr: /usr/local/Cellar/x264/r2699/lib/libx264.dylib
 mpeghdr: /usr/local/lib/libavformat.dylib
 mpeghdr: /usr/local/lib/libavdevice.dylib
 mpeghdr: /usr/local/lib/libavcodec.dylib
 mpeghdr: /usr/local/lib/libavutil.dylib
 mpeghdr: /usr/local/lib/libswscale.dylib
+mpeghdr: /usr/local/lib/libboost_system-mt.dylib
+mpeghdr: /usr/local/lib/libboost_iostreams-mt.dylib
+mpeghdr: /usr/local/lib/libboost_regex-mt.dylib
+mpeghdr: /usr/local/lib/libjpeg.dylib
+mpeghdr: /usr/local/lib/libboost_system-mt.dylib
+mpeghdr: /usr/local/lib/libboost_thread-mt.dylib
+mpeghdr: /usr/local/lib/libboost_chrono-mt.dylib
+mpeghdr: /usr/local/lib/libboost_date_time-mt.dylib
+mpeghdr: /usr/local/lib/libboost_atomic-mt.dylib
+mpeghdr: /usr/local/lib/libopencv_stitching.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_superres.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_videostab.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_aruco.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_bgsegm.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_bioinspired.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_ccalib.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_dnn.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_dpm.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_fuzzy.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_line_descriptor.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_optflow.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_plot.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_reg.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_saliency.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_stereo.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_structured_light.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_surface_matching.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_tracking.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_xfeatures2d.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_ximgproc.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_xobjdetect.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_xphoto.3.1.0.dylib
+mpeghdr: /usr/local/lib/libboost_iostreams-mt.dylib
+mpeghdr: /usr/local/lib/libboost_regex-mt.dylib
+mpeghdr: /usr/local/lib/libjpeg.dylib
+mpeghdr: /usr/local/lib/libboost_thread-mt.dylib
+mpeghdr: /usr/local/lib/libboost_chrono-mt.dylib
+mpeghdr: /usr/local/lib/libboost_date_time-mt.dylib
+mpeghdr: /usr/local/lib/libboost_atomic-mt.dylib
+mpeghdr: /usr/local/lib/libopencv_shape.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_rgbd.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_calib3d.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_video.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_datasets.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_face.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_text.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_features2d.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_flann.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_objdetect.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_ml.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_highgui.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_photo.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_videoio.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_imgcodecs.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_imgproc.3.1.0.dylib
+mpeghdr: /usr/local/lib/libopencv_core.3.1.0.dylib
 mpeghdr: CMakeFiles/mpeghdr.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/goksu/mpeghdr/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable mpeghdr"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/fatih/Bitirme/samples/e2e_x264/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable mpeghdr"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/mpeghdr.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -141,6 +197,6 @@ CMakeFiles/mpeghdr.dir/clean:
 .PHONY : CMakeFiles/mpeghdr.dir/clean
 
 CMakeFiles/mpeghdr.dir/depend:
-	cd /Users/goksu/mpeghdr/cmake-build-debug && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /Users/goksu/mpeghdr /Users/goksu/mpeghdr /Users/goksu/mpeghdr/cmake-build-debug /Users/goksu/mpeghdr/cmake-build-debug /Users/goksu/mpeghdr/cmake-build-debug/CMakeFiles/mpeghdr.dir/DependInfo.cmake --color=$(COLOR)
+	cd /Users/fatih/Bitirme/samples/e2e_x264/cmake-build-debug && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /Users/fatih/Bitirme/samples/e2e_x264 /Users/fatih/Bitirme/samples/e2e_x264 /Users/fatih/Bitirme/samples/e2e_x264/cmake-build-debug /Users/fatih/Bitirme/samples/e2e_x264/cmake-build-debug /Users/fatih/Bitirme/samples/e2e_x264/cmake-build-debug/CMakeFiles/mpeghdr.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/mpeghdr.dir/depend
 
