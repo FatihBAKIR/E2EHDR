@@ -48,6 +48,7 @@ namespace e2e
 		Framebuffer m_framebuffer;
 		Texture m_cost_texture;
 		Texture m_refinement_texture;
+        Texture m_previous_texture;
 		Texture m_left_texture;
 		Texture m_right_texture;
 		const Texture* m_texture1;
@@ -61,6 +62,8 @@ namespace e2e
 		GLSLProgram m_outlier_correction_shader;
 		GLSLProgram m_median_shader;
 		GLSLProgram m_hdr_merge_shader;
+        GLSLProgram m_copy_shader_shader;
+        GLSLProgram m_temporal_stability_shader;
 
 		GLfloat m_position_x;
 		GLfloat m_position_y;

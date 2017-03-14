@@ -6,11 +6,15 @@
 //OTHER
 #include <boost/core/noncopyable.hpp>
 
-class Texture : public boost::noncopyable
+class Texture
 {
 public:
 	Texture();
 	~Texture();
+    Texture(const Texture&) = delete;
+    Texture& operator = (const Texture&) = delete;
+    Texture(Texture&&);
+    Texture& operator = (Texture&&);
 
 	void create(int width, int height, unsigned char* image);
 	void createArray(int width, int height, int layer, unsigned char* image);

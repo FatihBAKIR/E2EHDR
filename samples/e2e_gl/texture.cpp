@@ -16,6 +16,24 @@ Texture::~Texture()
 	}
 }
 
+Texture::Texture(Texture&& texture)
+{
+    m_texture_id = texture.m_texture_id;
+    m_width = texture.m_width;
+    m_height = texture.m_height;
+    texture.m_texture_id = 0;
+}
+
+Texture& Texture::operator=(Texture&& texture)
+{
+    m_texture_id = texture.m_texture_id;
+    m_width = texture.m_width;
+    m_height = texture.m_height;
+    texture.m_texture_id = 0;
+
+    return *this;
+}
+
 void Texture::create(int width, int height, unsigned char* image)
 {
 	if (m_texture_id)
