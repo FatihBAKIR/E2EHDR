@@ -20,10 +20,12 @@ namespace e2e
     {
         friend class e2e::GUI;
         int m_width, m_height;
-        GLFWwindow* m_window;
+        GLFWwindow* m_window_primary;
+        GLFWwindow* m_window_secondary;
+        bool twoscreens;
 
     public:
-        Window(int width, int height);
+        Window(int width, int height, bool ts = false);
         void Loop(const std::vector<std::reference_wrapper<Quad>>& quads);
         void Loop(const std::vector<std::reference_wrapper<drawable_base>>& drawables);
         void reset_viewport();
@@ -57,6 +59,7 @@ namespace e2e
         void StartDraw();
         void EndDraw();
 
-		GLFWwindow* get_window() const { return m_window; }
+        GLFWwindow* get_window() const { return m_window_primary; }
+        GLFWwindow* get_secondary_window() const { return m_window_secondary; }
     };
 }
