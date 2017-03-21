@@ -16,6 +16,24 @@ Texture::~Texture()
 	}
 }
 
+Texture::Texture(Texture&& texture)
+{
+    m_texture_id = texture.m_texture_id;
+    m_width = texture.m_width;
+    m_height = texture.m_height;
+    texture.m_texture_id = 0;
+}
+
+Texture& Texture::operator=(Texture&& texture)
+{
+    m_texture_id = texture.m_texture_id;
+    m_width = texture.m_width;
+    m_height = texture.m_height;
+    texture.m_texture_id = 0;
+
+    return *this;
+}
+
 void Texture::create(int width, int height, unsigned char* image)
 {
 	if (m_texture_id)
@@ -83,7 +101,7 @@ void Texture::createFloat(int width, int height, float* data)
 	glGenTextures(1, &m_texture_id);
 
 	glBindTexture(GL_TEXTURE_2D, m_texture_id);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_BGR, GL_FLOAT, data);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, data);
 
 	//Settings
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
