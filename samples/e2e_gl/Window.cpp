@@ -44,9 +44,10 @@ namespace
 
 namespace e2e
 {
-	Window::Window(int width, int height)
-		: m_width(width)
-		, m_height(height)
+	Window::Window(int width, int height, bool ts)
+		: twoscreens(ts),
+		  m_width(width),
+		  m_height(height)
 	{
 		//GLFW//
 		static GLFW glfw_global;
@@ -60,10 +61,31 @@ namespace e2e
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-		m_window = glfwCreateWindow(m_width, m_height, "E2EHDR", nullptr, nullptr);
 
-		assert(m_window);
-		glfwMakeContextCurrent(m_window);
+		if (!twoscreens)
+		{
+			m_window_primary = glfwCreateWindow(m_width, m_height, "E2EHDR", nullptr, nullptr);
+			m_window_secondary = nullptr;
+		}
+		else
+		{
+			auto primary = glfwGetPrimaryMonitor();
+			const GLFWvidmode* mode = glfwGetVideoMode(primary);
+
+			glfwWindowHint(GLFW_RED_BITS, mode->redBits);
+			glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
+			glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
+	    	glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
+
+//			m_width = mode->width;
+//			m_height = mode->height;
+
+			m_window_primary   = glfwCreateWindow(m_width, m_height, "E2EHDRPrimary", nullptr, nullptr);
+			m_window_secondary = glfwCreateWindow(m_width, m_height, "E2EHDRSecondary", nullptr, m_window_primary);
+		}
+
+		assert(m_window_primary);
+		glfwMakeContextCurrent(m_window_primary);
 
 		static auto _ = ([&] {
 			if (!gladLoadGL())
@@ -76,6 +98,7 @@ namespace e2e
 
 			return 0;
 		})();
+
 		//OpenGL//
 		//Lower left point is (0,0). Top right point is (width, height).
 		reset_viewport();
@@ -92,7 +115,9 @@ namespace e2e
 
 		if (get_key_down(GLFW_KEY_ESCAPE))
 		{
-			glfwSetWindowShouldClose(m_window, GL_TRUE);
+			glfwSetWindowShouldClose(m_window_primary, GL_TRUE);
+			if (twoscreens)
+				glfwSetWindowShouldClose(m_window_secondary, GL_TRUE);
 		}
 
 		//RENDER//
@@ -101,30 +126,33 @@ namespace e2e
 		{
 			q.get().draw();
 		}
-		glfwSwapBuffers(m_window);
+		glfwSwapBuffers(m_window_primary);
+
+		if (twoscreens)
+			glfwSwapBuffers(m_window_secondary);
 	}
 
 	void Window::reset_viewport()
 	{
 	    int vp_w, vp_h;
-	    glfwGetFramebufferSize(m_window, &vp_w, &vp_h);
+	    glfwGetFramebufferSize(m_window_primary, &vp_w, &vp_h);
 		glViewport(0, 0, vp_w, vp_h);
 	}
 
 	bool Window::get_key_up(int key)
 	{
-		return glfwGetKey(m_window, key) == GLFW_RELEASE;
+		return glfwGetKey(m_window_primary, key) == GLFW_RELEASE;
 	}
 
 	bool Window::get_key_down(int key)
 	{
-		return glfwGetKey(m_window, key) == GLFW_PRESS;
+		return glfwGetKey(m_window_primary, key) == GLFW_PRESS;
 	}
 
 
 	bool Window::ShouldClose() const
 	{
-		return static_cast<bool>(glfwWindowShouldClose(m_window));
+		return static_cast<bool>(glfwWindowShouldClose(m_window_primary));
 	}
 
     void Window::StartDraw()
@@ -135,7 +163,9 @@ namespace e2e
 
     void Window::EndDraw()
     {
-        glfwSwapBuffers(m_window);
+		glfwSwapBuffers(m_window_primary);
+		if (twoscreens)
+			glfwSwapBuffers(m_window_secondary);
     }
 
     void Window::Loop(const std::vector<std::reference_wrapper<drawable_base>> &drawables)
@@ -146,7 +176,9 @@ namespace e2e
 
         if (get_key_down(GLFW_KEY_ESCAPE))
         {
-            glfwSetWindowShouldClose(m_window, GL_TRUE);
+			glfwSetWindowShouldClose(m_window_primary, GL_TRUE);
+			if (twoscreens)
+				glfwSetWindowShouldClose(m_window_secondary, GL_TRUE);
         }
 
         //RENDER//
@@ -155,10 +187,14 @@ namespace e2e
         {
             drawable.get().draw();
         }
-        glfwSwapBuffers(m_window);
+		glfwSwapBuffers(m_window_primary);
+		if (twoscreens)
+			glfwSwapBuffers(m_window_secondary);
     }
 
     void Window::ShouldClose(bool set) {
-        glfwSetWindowShouldClose(m_window, set);
+		glfwSetWindowShouldClose(m_window_primary, set);
+		if (twoscreens)
+			glfwSetWindowShouldClose(m_window_secondary, set);
     }
 }

@@ -49,7 +49,7 @@ namespace e2e
 
 	bool GUI::initialize(e2e::Window& window, bool install_callbacks)
 	{
-		m_window = window.m_window;
+		m_window = window.m_window_primary;
 
 		//Keyboard mapping. ImGui will use those indices to peek into the io.KeyDown[] array.
 		ImGuiIO& io = ImGui::GetIO();
