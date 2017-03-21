@@ -7,6 +7,7 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include <string>
+#include <gsl/span>
 
 extern "C"
 {
@@ -20,8 +21,8 @@ class X264Encoder
 public:
     X264Encoder();
     ~X264Encoder();
-    bool open(std::string filename);                              /* open for encoding */
-    bool encode(char* pixels, std::function<void(uint8_t* data, int len)> handler);                                    /* encode the given data */
+    bool open(std::string filename, std::function<void(uint8_t*, int)> handler);                              /* open for encoding */
+    bool encode(char* pixels, gsl::span<const uint8_t> side, std::function<void(uint8_t* data, int len)> handler);                                    /* encode the given data */
     bool close();                                                 /* close the encoder and file, frees all memory */
 private:
     bool validateSettings();                                      /* validates if all params are set correctly, like width,height, etc.. */

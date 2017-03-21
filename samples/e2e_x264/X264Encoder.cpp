@@ -15,7 +15,7 @@ X264Encoder::~X264Encoder()
     }
 }
 
-bool X264Encoder::open(std::string filename)
+bool X264Encoder::open(std::string filename, std::function<void(uint8_t*, int)> handler)
 {
     validateSettings(); // throws runtime_error if anything is wrong
 
@@ -42,7 +42,6 @@ bool X264Encoder::open(std::string filename)
 
     fp = fopen(filename.c_str(), "w+b");
     if (!fp) {
-        //FIXME : file descriptor leak : close()
         throw std::runtime_error("Cannot open the h264 destination file");
     }
 
@@ -62,16 +61,18 @@ bool X264Encoder::open(std::string filename)
         throw std::runtime_error("x264_encoder_headers() failed");
     }
 
-    header_size = nals[0].i_payload+nals[1].i_payload+nals[2].i_payload;
+    header_size = nals[0].i_payload + nals[1].i_payload + nals[2].i_payload;
     if (!fwrite(nals[0].p_payload, header_size, 1, fp)) {
         throw std::runtime_error("Cannot write headers");
     }
+    fflush(fp);
+    handler(nals[0].p_payload, header_size);
 
     pts = 0;
     return true;
 }
 
-bool X264Encoder::encode(char* pixels, std::function<void(uint8_t* data, int len)> handler)
+bool X264Encoder::encode(char* pixels, gsl::span<const uint8_t> side, std::function<void(uint8_t*, int)> handler)
 {
     if (!sws) {
         throw std::runtime_error("Not initialized, so cannot encode");
@@ -95,32 +96,57 @@ bool X264Encoder::encode(char* pixels, std::function<void(uint8_t* data, int len
     // and encode and store into pic_out
     pic_in.i_pts = pts;
 
-    auto wtv = pic_in.extra_sei;
+    if (side.size() > 0) {
+        x264_sei_t sei;
+        sei.num_payloads = 1;
+        sei.payloads = new x264_sei_payload_t[1];
+        sei.sei_free = [](void* data) {
+            delete[] (x264_sei_payload_t*) data;
+        };
+        sei.payloads[0].payload = new uint8_t[side.size_bytes()+sizeof(uint64_t)*2];
+        sei.payloads[0].payload_size = side.size_bytes()+sizeof(uint64_t)*2;
+        sei.payloads[0].payload_type = 5;
 
-    x264_sei_t sei;
-    sei.num_payloads = 1;
-    sei.payloads = new x264_sei_payload_t[1];
-    sei.sei_free = [](void* data) {
-        delete (x264_sei_payload_t*) data;
-    };
-    sei.payloads[0].payload = new uint8_t[666];
-    uint32_t data = 0xDEADBEEF;
-    uint32_t * p = (uint32_t *) sei.payloads[0].payload, i;
+        auto p = sei.payloads[0].payload;
 
-    for(i = 0; i < 666 / sizeof(* p); ++i) {
-        p[i] = data;
+        memset(p, 0, sei.payloads[0].payload_size);
+        memcpy(p, "###musta", 8);
+        memcpy(p+8+side.size_bytes(), "fatih###", 8);
+        memcpy(p+8, side.data(), side.size_bytes());
+
+        for(auto i = p; i < p + sei.payloads[0].payload_size; ++i)
+        {
+            constexpr char start1[4] = { 0, 0, 0, 1 };
+            constexpr char start2[3] = { 0, 0, 1 };
+            constexpr char start3[] = { 0, 0, 2 };
+            constexpr char start4[] = { 0, 0, 3 };
+            if (!memcmp(i, start1, 4))
+            {
+                memcpy(i, "#MU#", 4);
+            }
+            else if (!memcmp(i, start2, 3))
+            {
+                memcpy(i, "#M#", 3);
+            }
+            else if (!memcmp(i, start3, 3))
+            {
+                memcpy(i, "#F#", 3);
+            }
+            else if (!memcmp(i, start4, 3))
+            {
+                memcpy(i, "#G#", 3);
+            }
+        }
+
+        pic_in.extra_sei = sei;
     }
-
-    sei.payloads[0].payload_size = 666;
-    sei.payloads[0].payload_type = 5;
-    pic_in.extra_sei = sei;
-
 
     int frame_size = x264_encoder_encode(encoder, &nals, &num_nals, &pic_in, &pic_out);
     if (frame_size) {
         if (!fwrite(nals[0].p_payload, frame_size, 1, fp)) {
             throw std::runtime_error("Error while trying to write nal");
         }
+        fflush(fp);
 
         handler(nals[0].p_payload, frame_size);
     }

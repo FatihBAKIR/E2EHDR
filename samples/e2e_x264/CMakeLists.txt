@@ -12,7 +12,7 @@ link_directories(../libs/)
 
 set(CMAKE_CXX_STANDARD 14)
 
-set(SOURCE_FILES main.cpp X264Encoder.cpp X264Encoder.h)
+set(SOURCE_FILES main.cpp X264Encoder.cpp X264Encoder.h X264Decoder.cpp X264Decoder.hpp)
 add_executable(mpeghdr ${SOURCE_FILES})
 
 target_include_directories(mpeghdr PUBLIC ${X264_INCLUDE_DIR})
