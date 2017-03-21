@@ -337,7 +337,7 @@ namespace e2e
 
 		m_hdr_merge_shader.clear();
 		m_hdr_merge_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
-		m_hdr_merge_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/basic.frag");
+		m_hdr_merge_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/temporal_merge_shader.frag");
 		m_hdr_merge_shader.link();
 
         m_copy_shader_shader.clear();
