@@ -7,6 +7,7 @@
 //#include "include\glad\glad.h"
 #include "include/glad/glad.h"
 #include <GLFW/glfw3.h>
+#include <iostream>
 
 //FRAMEWORK
 #include "Window.h"
@@ -37,7 +38,7 @@ namespace
 
 		if (error_code != GL_NO_ERROR)
 		{
-			throw std::runtime_error("something broke, fuck it (" + std::string(name) + ")");
+			throw std::runtime_error("something broke (" + std::string(name) + ")");
 		}
 	}
 }
@@ -64,6 +65,9 @@ namespace e2e
 
 		if (!twoscreens)
 		{
+//			int count;
+//			GLFWmonitor** monitors = glfwGetMonitors(&count);
+
 			m_window_primary = glfwCreateWindow(m_width, m_height, "E2EHDR", nullptr, nullptr);
 			m_window_secondary = nullptr;
 		}
@@ -72,17 +76,17 @@ namespace e2e
 			auto primary = glfwGetPrimaryMonitor();
 			const GLFWvidmode* mode = glfwGetVideoMode(primary);
 
-			glfwWindowHint(GLFW_RED_BITS, mode->redBits);
-			glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
-			glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
-	    	glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
+			int count;
+			GLFWmonitor** monitors = glfwGetMonitors(&count);
+			assert(count == 2);
+			const GLFWvidmode* sec_mode = glfwGetVideoMode(monitors[1]);
 
-//			m_width = mode->width;
-//			m_height = mode->height;
+			m_width = mode->width;
+			m_height = mode->height;
 
-			m_window_primary   = glfwCreateWindow(m_width, m_height, "E2EHDRPrimary", nullptr, nullptr);
-			m_window_secondary = glfwCreateWindow(m_width, m_height, "E2EHDRSecondary", nullptr, m_window_primary);
-		}
+			m_window_primary   = glfwCreateWindow(m_width, m_height, "E2EHDRPrimary", monitors[0], nullptr);
+			m_window_secondary = glfwCreateWindow(sec_mode->width, sec_mode->height, "E2EHDRSecondary", monitors[1], m_window_primary);
+        }
 
 		assert(m_window_primary);
 		glfwMakeContextCurrent(m_window_primary);
@@ -101,7 +105,12 @@ namespace e2e
 
 		//OpenGL//
 		//Lower left point is (0,0). Top right point is (width, height).
-		reset_viewport();
+		reset_viewport(m_window_primary);
+
+        if (twoscreens)
+		    reset_viewport(m_window_secondary);
+
+		glfwMakeContextCurrent(m_window_primary);
 
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -126,16 +135,14 @@ namespace e2e
 		{
 			q.get().draw();
 		}
-		glfwSwapBuffers(m_window_primary);
-
-		if (twoscreens)
-			glfwSwapBuffers(m_window_secondary);
+		EndDraw();
 	}
 
-	void Window::reset_viewport()
+	void Window::reset_viewport(GLFWwindow* wind)
 	{
 	    int vp_w, vp_h;
-	    glfwGetFramebufferSize(m_window_primary, &vp_w, &vp_h);
+	    glfwGetFramebufferSize(wind, &vp_w, &vp_h);
+		glfwMakeContextCurrent(wind);
 		glViewport(0, 0, vp_w, vp_h);
 	}
 
@@ -158,7 +165,11 @@ namespace e2e
     void Window::StartDraw()
     {
         glfwPollEvents();
+		glfwMakeContextCurrent(m_window_primary);
         glClear(GL_COLOR_BUFFER_BIT);
+
+		glfwMakeContextCurrent(m_window_secondary);
+		glClear(GL_COLOR_BUFFER_BIT);
     }
 
     void Window::EndDraw()
