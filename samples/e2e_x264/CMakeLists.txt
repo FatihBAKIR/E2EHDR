@@ -5,14 +5,14 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules")
 
 find_package(x264 REQUIRED)
 find_package(FFmpeg REQUIRED)
-find_package(Boost REQUIRED COMPONENTS system iostreams)
+find_package(Boost REQUIRED COMPONENTS system iostreams filesystem)
 find_package(JPEG)
 
 link_directories(../libs/)
 
 set(CMAKE_CXX_STANDARD 14)
 
-set(SOURCE_FILES main.cpp X264Encoder.cpp X264Encoder.h X264Decoder.cpp X264Decoder.hpp)
+set(SOURCE_FILES main.cpp X264Encoder.cpp X264Encoder.h X264Decoder.cpp X264Decoder.hpp hdr_encode.cpp hdr_encode.hpp hdr_decode.cpp hdr_decode.hpp)
 add_executable(mpeghdr ${SOURCE_FILES})
 
 target_include_directories(mpeghdr PUBLIC ${X264_INCLUDE_DIR})
