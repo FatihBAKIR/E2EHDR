@@ -12,11 +12,14 @@ int main()
     auto image1 = cv::imread("/Users/goksu/Downloads/office.hdr", -1);
     cv::flip(image1, image1, 0);
 
-//    GLFWwindow* window = glfwCreateWindow(1080, 720, "My Title", nullptr, nullptr);
+//			int count;
+//			GLFWmonitor** monitors = glfwGetMonitors(&count);
+//			assert(count == 2);
+//			const GLFWvidmode* sec_mode = glfwGetVideoMode(monitors[1]);
 
-    e2e::Window w(1920, 1080, false);
+    e2e::Window w_prj(1920, 1080, nullptr, nullptr, "E2EHDRPrimary");
+    e2e::Window w_LCD(1920, 1080, nullptr, w_prj.get_window(), "E2EHDRSecondary");
 
-//    e2e::Window w(1080, 720);
     Texture tex1;
     tex1.createFloat(image1.cols, image1.rows, reinterpret_cast<float*>(image1.ptr()));
 
@@ -56,17 +59,19 @@ int main()
 
 
     bool window = false;
-    while(!w.ShouldClose()){
-        w.StartDraw();
+    while(!w_prj.ShouldClose() || !w_LCD.ShouldClose()){
+        w_prj.StartDraw();
+        w_LCD.StartDraw();
 
-        auto primary = w.get_window();
+        auto primary = w_prj.get_window();
         glfwMakeContextCurrent(primary);
         q_projector.draw();
 
-//        auto secondary = w.get_secondary_window();
-//        glfwMakeContextCurrent(secondary);
-//        q_LCD.draw();
+        auto secondary = w_LCD.get_window();
+        glfwMakeContextCurrent(secondary);
+        q_LCD.draw();
 
-        w.EndDraw();
+        w_prj.EndDraw();
+        w_LCD.EndDraw();
     }
 }

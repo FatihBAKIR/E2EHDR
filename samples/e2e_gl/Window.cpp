@@ -45,10 +45,11 @@ namespace
 
 namespace e2e
 {
-	Window::Window(int width, int height, bool ts)
-		: twoscreens(ts),
-		  m_width(width),
-		  m_height(height)
+	Window::Window(int width, int height, GLFWmonitor* monitor, GLFWwindow* share, const std::string& name)
+        : m_width(width),
+		  m_height(height),
+          m_monitor(monitor),
+          m_name(name)
 	{
 		//GLFW//
 		static GLFW glfw_global;
@@ -62,34 +63,21 @@ namespace e2e
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-
-		if (!twoscreens)
-		{
-//			int count;
-//			GLFWmonitor** monitors = glfwGetMonitors(&count);
-
-			m_window_primary = glfwCreateWindow(m_width, m_height, "E2EHDR", nullptr, nullptr);
-			m_window_secondary = nullptr;
-		}
-		else
-		{
-			auto primary = glfwGetPrimaryMonitor();
-			const GLFWvidmode* mode = glfwGetVideoMode(primary);
-
-			int count;
-			GLFWmonitor** monitors = glfwGetMonitors(&count);
-			assert(count == 2);
-			const GLFWvidmode* sec_mode = glfwGetVideoMode(monitors[1]);
-
-			m_width = mode->width;
-			m_height = mode->height;
-
-			m_window_primary   = glfwCreateWindow(m_width, m_height, "E2EHDRPrimary", monitors[0], nullptr);
-			m_window_secondary = glfwCreateWindow(sec_mode->width, sec_mode->height, "E2EHDRSecondary", monitors[1], m_window_primary);
+        const GLFWvidmode* mode;
+        if (m_monitor){
+			mode = glfwGetVideoMode(monitor);
+        }
+        else {
+            mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
         }
 
-		assert(m_window_primary);
-		glfwMakeContextCurrent(m_window_primary);
+        m_width = mode->width / 5;
+		m_height = mode->height / 5;
+
+        m_window = glfwCreateWindow(m_width, m_height, m_name.c_str(), m_monitor, share);
+
+		assert(m_window);
+		glfwMakeContextCurrent(m_window);
 
 		static auto _ = ([&] {
 			if (!gladLoadGL())
@@ -105,12 +93,9 @@ namespace e2e
 
 		//OpenGL//
 		//Lower left point is (0,0). Top right point is (width, height).
-		reset_viewport(m_window_primary);
+		reset_viewport(m_window);
 
-        if (twoscreens)
-		    reset_viewport(m_window_secondary);
-
-		glfwMakeContextCurrent(m_window_primary);
+		glfwMakeContextCurrent(m_window);
 
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -124,9 +109,7 @@ namespace e2e
 
 		if (get_key_down(GLFW_KEY_ESCAPE))
 		{
-			glfwSetWindowShouldClose(m_window_primary, GL_TRUE);
-			if (twoscreens)
-				glfwSetWindowShouldClose(m_window_secondary, GL_TRUE);
+			glfwSetWindowShouldClose(m_window, GL_TRUE);
 		}
 
 		//RENDER//
@@ -148,35 +131,30 @@ namespace e2e
 
 	bool Window::get_key_up(int key)
 	{
-		return glfwGetKey(m_window_primary, key) == GLFW_RELEASE;
+		return glfwGetKey(m_window, key) == GLFW_RELEASE;
 	}
 
 	bool Window::get_key_down(int key)
 	{
-		return glfwGetKey(m_window_primary, key) == GLFW_PRESS;
+		return glfwGetKey(m_window, key) == GLFW_PRESS;
 	}
 
 
 	bool Window::ShouldClose() const
 	{
-		return static_cast<bool>(glfwWindowShouldClose(m_window_primary));
+		return static_cast<bool>(glfwWindowShouldClose(m_window));
 	}
 
     void Window::StartDraw()
     {
         glfwPollEvents();
-		glfwMakeContextCurrent(m_window_primary);
+		glfwMakeContextCurrent(m_window);
         glClear(GL_COLOR_BUFFER_BIT);
-
-		glfwMakeContextCurrent(m_window_secondary);
-		glClear(GL_COLOR_BUFFER_BIT);
     }
 
     void Window::EndDraw()
     {
-		glfwSwapBuffers(m_window_primary);
-		if (twoscreens)
-			glfwSwapBuffers(m_window_secondary);
+		glfwSwapBuffers(m_window);
     }
 
     void Window::Loop(const std::vector<std::reference_wrapper<drawable_base>> &drawables)
@@ -187,9 +165,7 @@ namespace e2e
 
         if (get_key_down(GLFW_KEY_ESCAPE))
         {
-			glfwSetWindowShouldClose(m_window_primary, GL_TRUE);
-			if (twoscreens)
-				glfwSetWindowShouldClose(m_window_secondary, GL_TRUE);
+			glfwSetWindowShouldClose(m_window, GL_TRUE);
         }
 
         //RENDER//
@@ -198,14 +174,11 @@ namespace e2e
         {
             drawable.get().draw();
         }
-		glfwSwapBuffers(m_window_primary);
-		if (twoscreens)
-			glfwSwapBuffers(m_window_secondary);
+		glfwSwapBuffers(m_window);
     }
 
-    void Window::ShouldClose(bool set) {
-		glfwSetWindowShouldClose(m_window_primary, set);
-		if (twoscreens)
-			glfwSetWindowShouldClose(m_window_secondary, set);
+    void Window::ShouldClose(bool set)
+	{
+		glfwSetWindowShouldClose(m_window, set);
     }
 }
