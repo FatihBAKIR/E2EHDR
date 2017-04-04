@@ -105,8 +105,8 @@ e2e::ff::data_ptr e2e::ff::Decoder::decode_one(AVPacket *p) {
         avpicture_fill((AVPicture *) pic_rgb, buffer.get(), AV_PIX_FMT_RGB24, ctx_->width, ctx_->height);
 
         sws_scale(img_convert_ctx_,
-                  pic->data, pic->linesize, 0, ctx_->height,
-                  pic_rgb->data, pic_rgb->linesize); // color conversion
+                pic->data, pic->linesize, 0, ctx_->height,
+                pic_rgb->data, pic_rgb->linesize); // color conversion
 
         return std::move(buffer);
     }

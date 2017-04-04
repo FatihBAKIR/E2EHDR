@@ -2,15 +2,12 @@
 
 <opencv_storage>
     <images>
-        /Users/goksu/calib/0.jpeg
-        /Users/goksu/calib/1.jpeg
-        /Users/goksu/calib/2.jpeg
-        /Users/goksu/calib/3.jpeg
-        /Users/goksu/calib/4.jpeg
-        /Users/goksu/calib/5.jpeg
-        /Users/goksu/calib/6.jpeg
-        /Users/goksu/calib/7.jpeg
-        /Users/goksu/calib/8.jpeg
-        /Users/goksu/calib/9.jpeg
+        /Users/fatih/Bitirme/samples/e2e_camera/cmake-build-debug/snap_110_2.jpg
+        /Users/fatih/Bitirme/samples/e2e_camera/cmake-build-debug/snap_110_3.jpg
+        /Users/fatih/Bitirme/samples/e2e_camera/cmake-build-debug/snap_110_4.jpg
+        /Users/fatih/Bitirme/samples/e2e_camera/cmake-build-debug/snap_110_5.jpg
+        /Users/fatih/Bitirme/samples/e2e_camera/cmake-build-debug/snap_110_6.jpg
+        /Users/fatih/Bitirme/samples/e2e_camera/cmake-build-debug/snap_110_7.jpg
+        /Users/fatih/Bitirme/samples/e2e_camera/cmake-build-debug/snap_110_8.jpg
     </images>
 </opencv_storage>

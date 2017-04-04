@@ -642,7 +642,7 @@ typedef void (* GLADcallback)(const char *name, void *funcptr, int len_args, ...
 GLAPI void glad_set_pre_callback(GLADcallback cb);
 GLAPI void glad_set_post_callback(GLADcallback cb);
 #include <stddef.h>
-#include <KHR/khrplatform.h>
+#include "../KHR/khrplatform.h"
 #ifndef GLEXT_64_TYPES_DEFINED
 /* This code block is duplicated in glxext.h, so must be protected */
 #define GLEXT_64_TYPES_DEFINED

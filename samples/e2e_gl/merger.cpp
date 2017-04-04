@@ -1,3 +1,6 @@
+#include "include/glad/glad.h"
+#include <GLFW/glfw3.h>
+
 //FRAMEWORK
 #include "merger.h"
 #include "glsl_program.h"
@@ -55,6 +58,8 @@ namespace e2e
 		//TEXTURES
 		m_cost_texture.createArray(image_width, image_height, disparity_limit, nullptr);
 		m_refinement_texture.create(image_width, image_height, nullptr);
+        m_residual_texture.create(image_width, image_height, nullptr);
+        m_previous_texture.create(image_width, image_height, nullptr);
 		m_left_texture.createFloat(image_width, image_height);
 		m_right_texture.createFloat(image_width, image_height);
 
@@ -79,7 +84,7 @@ namespace e2e
 		}
 	}
 
-	void Merger::draw()
+	void Merger::draw(Window& w)
 	{
 		//SAVE THE DEFAULT VALUES
 		float transformation[4] = { m_position_x, m_position_y, m_scale_factor_x, m_scale_factor_y };
@@ -92,6 +97,9 @@ namespace e2e
 		static float dx = 1.0f / m_image_width;
 		static float dy = 1.0f / m_image_height;
 
+        m_texture1->create_mipmaps();
+        m_texture2->create_mipmaps();
+
 		//RECTIFICATION//
 		m_framebuffer.renderToTexture(m_left_texture);
 		m_undistort_left_shader.use();
@@ -100,6 +108,9 @@ namespace e2e
 		glActiveTexture(GL_TEXTURE0);
 		m_undistort_left_shader.setUniformIVar("frame", { 0 });
 		m_texture1->use();
+        glActiveTexture(GL_TEXTURE1);
+		m_undistort_left_shader.setUniformIVar("other", { 1 });
+		m_texture2->use();
 		render();
 
 		m_framebuffer.renderToTexture(m_right_texture);
@@ -109,6 +120,10 @@ namespace e2e
 		glActiveTexture(GL_TEXTURE0);
 		m_undistort_right_shader.setUniformIVar("frame", { 0 });
 		m_texture2->use();
+
+		glActiveTexture(GL_TEXTURE1);
+		m_undistort_right_shader.setUniformIVar("other", { 1 });
+		m_texture1->use();
 		render();
 
 		//COST COMPUTATION//
@@ -221,17 +236,32 @@ namespace e2e
 			render();
 		}
 
-		//BACK TO DEFAULT VALUES
-		set_position(transformation[0], transformation[1]);
-		set_scale_factor(transformation[2], transformation[3]);
-		glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+        static bool record = false;
+        static int mode = 0;
 
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        if (w.get_key_down(GLFW_KEY_A))
+        {
+            mode = 1;
+        }
+        else
+        {
+            mode = 0;
+        }
+
+        if (record)
+        {
+            m_framebuffer.renderToTexture2D(m_refinement_texture, m_residual_texture);
+        }
+        else
+        {
+            m_framebuffer.renderToTexture(m_refinement_texture);
+        }
 		m_hdr_merge_shader.use();
 		m_hdr_merge_shader.setUniformFVar("scale", { m_scale_factor_x, m_scale_factor_y });
 		m_hdr_merge_shader.setUniformFVar("translate", { m_position_x, m_position_y });
 		m_hdr_merge_shader.setUniformFVar("dx", { dx });
 		m_hdr_merge_shader.setUniformFVar("dy", { dy });
+        m_hdr_merge_shader.setUniformIVar("mode", { mode });
 
 		glActiveTexture(GL_TEXTURE0);
 		m_hdr_merge_shader.setUniformIVar("left_exp", { 0 });
@@ -241,25 +271,76 @@ namespace e2e
 		m_right_texture.use();
 		glActiveTexture(GL_TEXTURE2);
 		m_hdr_merge_shader.setUniformIVar("disparity_map", { 2 });
-
-
 		m_refinement_texture.use();
 
 		//Draw quad
 		render();
+
+        if (record)
+        {
+            auto pixel_ptr1 = static_cast<unsigned char*>(m_refinement_texture.getTextureImage());
+            auto pixel_ptr2 = static_cast<unsigned char*>(m_residual_texture.getTextureImage());
+        }
+
+        static int swap_counter = 0;
+        if (swap_counter % 100 == 0)
+        {
+            //Copy refinement_texture to previous_texture
+            m_framebuffer.renderToTexture(m_previous_texture);
+            m_copy_shader_shader.use();
+            m_copy_shader_shader.setUniformFVar("scale", { m_scale_factor_x, m_scale_factor_y });
+            m_copy_shader_shader.setUniformFVar("translate", { m_position_x, m_position_y });
+
+            glActiveTexture(GL_TEXTURE0);
+            m_copy_shader_shader.setUniformIVar("source_texture", { 0 });
+            m_refinement_texture.use();
+
+            //Draw quad
+            render();
+        }
+        ++swap_counter;
+
+
+        //BACK TO DEFAULT VALUES
+        set_position(transformation[0], transformation[1]);
+        set_scale_factor(transformation[2], transformation[3]);
+        glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        m_temporal_stability_shader.use();
+        m_temporal_stability_shader.setUniformFVar("scale", { m_scale_factor_x, m_scale_factor_y });
+        m_temporal_stability_shader.setUniformFVar("translate", { m_position_x, m_position_y });
+        m_temporal_stability_shader.setUniformFVar("dx", { dx });
+        m_temporal_stability_shader.setUniformFVar("dy", { dy });
+
+        glActiveTexture(GL_TEXTURE0);
+        m_temporal_stability_shader.setUniformIVar("previous_frame", { 0 });
+        m_previous_texture.use();
+        glActiveTexture(GL_TEXTURE1);
+        m_temporal_stability_shader.setUniformIVar("new_frame", { 1 });
+        m_refinement_texture.use();
+
+        //Draw quad
+        render();
 	}
 
 	void Merger::compileShaders()
 	{
 		m_undistort_left_shader.clear();
-		m_undistort_left_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
+		m_undistort_left_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/undistort.vert");
 		m_undistort_left_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/undistort.frag");
 		m_undistort_left_shader.link();
 
+        m_undistort_left_shader.use();
+		m_undistort_left_shader.setUniformIVar("is_left", {1});
+
 		m_undistort_right_shader.clear();
-		m_undistort_right_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
+		m_undistort_right_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/undistort.vert");
 		m_undistort_right_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/undistort.frag");
 		m_undistort_right_shader.link();
+
+        m_undistort_right_shader.use();
+		m_undistort_right_shader.setUniformIVar("is_left", {0});
 
 		int selection = m_cost_choice;
 		m_cost_choice = -1;
@@ -285,11 +366,21 @@ namespace e2e
 
 		m_hdr_merge_shader.clear();
 		m_hdr_merge_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
-		m_hdr_merge_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/basic.frag");
+		m_hdr_merge_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/temporal_merge_shader.frag");
 		m_hdr_merge_shader.link();
+
+        m_copy_shader_shader.clear();
+        m_copy_shader_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
+        m_copy_shader_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/texture_copy.frag");
+        m_copy_shader_shader.link();
+
+        m_temporal_stability_shader.clear();
+        m_temporal_stability_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
+        m_temporal_stability_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/temporal_stability.frag");
+        m_temporal_stability_shader.link();
 	}
 
-	void Merger::set_textures(const Texture & left, const Texture & right)
+	void Merger::set_textures(const Texture& left, const Texture& right)
 	{
 		m_texture1 = &left;
 		m_texture2 = &right;

@@ -16,6 +16,24 @@ Texture::~Texture()
 	}
 }
 
+Texture::Texture(Texture&& texture)
+{
+    m_texture_id = texture.m_texture_id;
+    m_width = texture.m_width;
+    m_height = texture.m_height;
+    texture.m_texture_id = 0;
+}
+
+Texture& Texture::operator=(Texture&& texture)
+{
+    m_texture_id = texture.m_texture_id;
+    m_width = texture.m_width;
+    m_height = texture.m_height;
+    texture.m_texture_id = 0;
+
+    return *this;
+}
+
 void Texture::create(int width, int height, unsigned char* image)
 {
 	if (m_texture_id)
@@ -68,7 +86,7 @@ void Texture::createArray(int width, int height, int layer, unsigned char* image
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 }
 
-void Texture::createFloat(int width, int height)
+void Texture::createFloat(int width, int height, float* data)
 {
 	if (m_texture_id)
 	{
@@ -83,7 +101,7 @@ void Texture::createFloat(int width, int height)
 	glGenTextures(1, &m_texture_id);
 
 	glBindTexture(GL_TEXTURE_2D, m_texture_id);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, data);
 
 	//Settings
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -104,4 +122,19 @@ void Texture::useArray() const
 {
 	assert(m_texture_id);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture_id);
+}
+
+void* Texture::getTextureImage()
+{
+    auto size = 3 * m_width * m_height * sizeof(unsigned char);
+    void* pixels = new unsigned char[size];
+    glGetTextureImage(m_texture_id, 0, GL_RGB, GL_UNSIGNED_BYTE, size, pixels);
+
+    return pixels;
+}
+
+void Texture::create_mipmaps() const
+{
+    use();
+	glGenerateTextureMipmap(m_texture_id);
 }

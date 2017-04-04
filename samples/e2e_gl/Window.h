@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <GLFW/glfw3.h>
+
 //CPP
 #include <functional>
 #include <vector>
@@ -21,12 +23,14 @@ namespace e2e
         friend class e2e::GUI;
         int m_width, m_height;
         GLFWwindow* m_window;
+        GLFWmonitor* m_monitor;
+        std::string m_name;
 
     public:
-        Window(int width, int height);
+        Window(int width, int height, GLFWmonitor* monitor = nullptr, GLFWwindow* share = nullptr, const std::string& name = "E2EHDR");
         void Loop(const std::vector<std::reference_wrapper<Quad>>& quads);
         void Loop(const std::vector<std::reference_wrapper<drawable_base>>& drawables);
-        void reset_viewport();
+        void reset_viewport(GLFWwindow* wind);
 
         /*template <class... Ts>
         void Loop(Ts&&... drawables)
@@ -57,6 +61,6 @@ namespace e2e
         void StartDraw();
         void EndDraw();
 
-		GLFWwindow* get_window() const { return m_window; }
+        GLFWwindow* get_window() const { return m_window; }
     };
 }

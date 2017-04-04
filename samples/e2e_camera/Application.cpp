@@ -29,6 +29,7 @@
 #include <future>
 #include <thread_pool.h>
 #include <boost/variant.hpp>
+#include <hdr_encode.hpp>
 
 using FrameT = camera_struct::FrameT;
 using json = nlohmann::json;
@@ -108,6 +109,8 @@ class ApplicationImpl
 	 * This function finds the most recent image pair
 	 */
 	std::pair<FrameT, FrameT> get_frame_pair();
+
+    e2e::x264::hdr_encode encoder;
 
 	struct WaitingRec {};
 
@@ -200,7 +203,8 @@ ApplicationImpl::ApplicationImpl(const std::vector<std::string> &args) :
 	right_cam(load_camera_conf(args[1])),
 	left_cam_ctl(left_cam.get_ip()),
 	right_cam_ctl(right_cam.get_ip()),
-	tp(1)
+	tp(1),
+	encoder("output.h264", 1280, 720)
 {
 	left.exposure_index = (left_cam.get_config())["exp_code"];
 	right.exposure_index = (right_cam.get_config())["exp_code"];
@@ -287,7 +291,7 @@ void ApplicationImpl::Run()
 			//std::cout << "(" << er << ") " << glewGetErrorString(er) << '\n';
 			draw_preview();
 
-			merger.draw();
+			//merger.draw();
 
 			er = glGetError();
 			//std::cout << "(" << er << ") " << glewGetErrorString(er) << '\n';
@@ -369,6 +373,8 @@ std::pair<FrameT, FrameT> ApplicationImpl::get_frame_pair() {
 }
 
 void ApplicationImpl::snapshot() {
+	if (!left_cur_frame || !right_cur_frame) return;
+
 	std::cout << "SAVING" << '\n';
 
 	e2e::save_jpeg(left_cur_frame->buffer().data(), left_cur_frame->width(), left_cur_frame->height(),
