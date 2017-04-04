@@ -124,6 +124,15 @@ void Texture::useArray() const
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture_id);
 }
 
+void* Texture::getTextureImage()
+{
+    auto size = 3 * m_width * m_height * sizeof(unsigned char);
+    void* pixels = new unsigned char[size];
+    glGetTextureImage(m_texture_id, 0, GL_RGB, GL_UNSIGNED_BYTE, size, pixels);
+
+    return pixels;
+}
+
 void Texture::create_mipmaps() const
 {
     use();

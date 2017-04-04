@@ -21,6 +21,7 @@ public:
 	void createFloat(int width, int height, float* data = nullptr);
 	void use() const;
 	void useArray() const;
+    void* getTextureImage();
 
 	GLuint get_texture_id() const { return m_texture_id; }
 	GLuint get_width() const { return m_width; }

@@ -1,3 +1,6 @@
+#include "include/glad/glad.h"
+#include <GLFW/glfw3.h>
+
 //FRAMEWORK
 #include "merger.h"
 #include "glsl_program.h"
@@ -55,6 +58,7 @@ namespace e2e
 		//TEXTURES
 		m_cost_texture.createArray(image_width, image_height, disparity_limit, nullptr);
 		m_refinement_texture.create(image_width, image_height, nullptr);
+        m_residual_texture.create(image_width, image_height, nullptr);
         m_previous_texture.create(image_width, image_height, nullptr);
 		m_left_texture.createFloat(image_width, image_height);
 		m_right_texture.createFloat(image_width, image_height);
@@ -80,7 +84,7 @@ namespace e2e
 		}
 	}
 
-	void Merger::draw()
+	void Merger::draw(Window& w)
 	{
 		//SAVE THE DEFAULT VALUES
 		float transformation[4] = { m_position_x, m_position_y, m_scale_factor_x, m_scale_factor_y };
@@ -232,12 +236,32 @@ namespace e2e
 			render();
 		}
 
-        m_framebuffer.renderToTexture(m_refinement_texture);
+        static bool record = false;
+        static int mode = 0;
+
+        if (w.get_key_down(GLFW_KEY_A))
+        {
+            mode = 1;
+        }
+        else
+        {
+            mode = 0;
+        }
+
+        if (record)
+        {
+            m_framebuffer.renderToTexture2D(m_refinement_texture, m_residual_texture);
+        }
+        else
+        {
+            m_framebuffer.renderToTexture(m_refinement_texture);
+        }
 		m_hdr_merge_shader.use();
 		m_hdr_merge_shader.setUniformFVar("scale", { m_scale_factor_x, m_scale_factor_y });
 		m_hdr_merge_shader.setUniformFVar("translate", { m_position_x, m_position_y });
 		m_hdr_merge_shader.setUniformFVar("dx", { dx });
 		m_hdr_merge_shader.setUniformFVar("dy", { dy });
+        m_hdr_merge_shader.setUniformIVar("mode", { mode });
 
 		glActiveTexture(GL_TEXTURE0);
 		m_hdr_merge_shader.setUniformIVar("left_exp", { 0 });
@@ -252,6 +276,11 @@ namespace e2e
 		//Draw quad
 		render();
 
+        if (record)
+        {
+            auto pixel_ptr1 = static_cast<unsigned char*>(m_refinement_texture.getTextureImage());
+            auto pixel_ptr2 = static_cast<unsigned char*>(m_residual_texture.getTextureImage());
+        }
 
         static int swap_counter = 0;
         if (swap_counter % 100 == 0)
