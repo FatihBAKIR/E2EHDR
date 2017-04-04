@@ -15,7 +15,10 @@ find_package(GLFW REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system)
 
 set(SOURCE_FILES Player.cpp Player.h main.cpp)
+
 add_executable(e2e_player ${SOURCE_FILES})
+
+target_compile_definitions(e2e_player PRIVATE GLFW_INCLUDE_NONE=1)
 
 target_link_libraries(e2e_player ${OPENGL_LIBRARIES})
 target_link_libraries(e2e_player ${OpenCV_LIBRARIES})
