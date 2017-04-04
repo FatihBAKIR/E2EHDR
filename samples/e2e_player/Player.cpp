@@ -4,8 +4,6 @@
 
 #include <memory>
 #include "Player.h"
-#include "include/glad/glad.h"
-#include <GLFW/glfw3.h>
 
 Player::Player()
 {
@@ -26,7 +24,7 @@ Player::Player()
     e2e::HDRFrame frame2(std::move(data2), image2.size().width, image2.size().height);
 
 //    for (int i = 0; i < 100; i++) {
-    frames.push(e2e::duplicate(frame1));
+//    frames.push(e2e::duplicate(frame1));
     frames.push(e2e::duplicate(frame2));
 //    }
 }

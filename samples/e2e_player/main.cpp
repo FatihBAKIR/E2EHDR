@@ -17,7 +17,7 @@ int main()
 
     Player p;
 
-    e2e::Window w(1920, 1080, false);
+    e2e::Window w(1920, 1080, glfwGetPrimaryMonitor());
 
     auto& frame = p.Frames().front();
 
@@ -63,14 +63,14 @@ int main()
         auto& frame = p.Frames().front();
 
         tex1.createFloat(frame.width(), frame.height(), frame.buffer().data());
-        q_LCD.set_texture(tex1);
+        q_projector.set_texture(tex1);
 
         w.StartDraw();
 
         auto primary = w.get_window();
         glfwMakeContextCurrent(primary);
 
-        q_LCD.draw();
+        q_projector.draw();
 
 
 //        auto secondary = w.get_secondary_window();

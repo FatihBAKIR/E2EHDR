@@ -71,10 +71,10 @@ namespace e2e
             mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
         }
 
-        m_width = mode->width / 5;
-		m_height = mode->height / 5;
+        m_width = mode->width / 2;
+		m_height = mode->height / 2;
 
-        m_window = glfwCreateWindow(m_width, m_height, m_name.c_str(), m_monitor, share);
+        m_window = glfwCreateWindow(m_width, m_height, m_name.c_str(), glfwGetPrimaryMonitor(), share);
 
 		assert(m_window);
 		glfwMakeContextCurrent(m_window);
