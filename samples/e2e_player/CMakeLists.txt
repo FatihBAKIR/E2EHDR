@@ -12,7 +12,7 @@ set(CMAKE_CXX_STANDARD 14)
 find_package(OpenGL REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(GLFW REQUIRED)
-find_package(Boost REQUIRED COMPONENTS system)
+find_package(Boost REQUIRED COMPONENTS system thread filesystem iostreams)
 
 set(SOURCE_FILES Player.cpp Player.h main.cpp)
 

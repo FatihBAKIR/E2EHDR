@@ -74,7 +74,7 @@ namespace e2e
         m_width = mode->width / 2;
 		m_height = mode->height / 2;
 
-        m_window = glfwCreateWindow(m_width, m_height, m_name.c_str(), glfwGetPrimaryMonitor(), share);
+        m_window = glfwCreateWindow(m_width, m_height, m_name.c_str(), nullptr, share);
 
 		assert(m_window);
 		glfwMakeContextCurrent(m_window);

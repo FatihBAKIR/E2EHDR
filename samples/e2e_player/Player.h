@@ -11,14 +11,47 @@
 #include <spsc/spsc_queue.h>
 
 #include <Window.h>
+#include <boost/thread.hpp>
+
+#include <texture.h>
+#include <glsl_program.h>
 
 class Player
 {
+    boost::thread work_thread;
+    e2e::Window display_window;
+    e2e::Window project_window;
     e2e::spsc_queue<e2e::HDRFrame, e2e::constant_storage<e2e::HDRFrame, 128>> frames;
 
+    e2e::Quad lcd_quad;
+    e2e::Quad prj_quad;
+
+    Texture frame_tex;
+
+    e2e::GLSLProgram lcd_shader;
+    e2e::GLSLProgram prj_shader;
+
+    boost::atomic<bool> is_playing;
+
+    std::set<int> prev_pressed;
+
+    void init_playback();
+    void init_quads();
+    void init_shaders();
+    void init_worker();
+
+    void play_loop();
 
 public:
     Player();
+    ~Player();
+
+    void play();
+    void pause();
+
+    bool get_playing() const {
+        return is_playing.load();
+    }
 
     auto& Frames() { return frames; }
 };
