@@ -112,6 +112,32 @@ void Texture::createFloat(int width, int height, float* data)
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+void Texture::createFloatBGR(int width, int height, float* data)
+{
+	if (m_texture_id)
+	{
+		glDeleteTextures(1, &m_texture_id);
+		m_texture_id = 0;
+	}
+
+	m_width = width;
+	m_height = height;
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glGenTextures(1, &m_texture_id);
+
+	glBindTexture(GL_TEXTURE_2D, m_texture_id);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_BGR, GL_FLOAT, data);
+
+	//Settings
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 void Texture::use() const
 {
 	assert(m_texture_id);
