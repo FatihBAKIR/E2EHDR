@@ -41,6 +41,9 @@ class Player
     void init_worker();
 
     void play_loop();
+    e2e::HDRFrame get_next_frame();
+
+    void init_player(const std::string& path);
 
 public:
     Player();

@@ -19,3 +19,6 @@ url=git@github.com:FatihBAKIR/imgui.git
 [submodule "3rd_party/x264"]
 	path = 3rd_party/x264
 	url = http://git.videolan.org/git/x264.git
+[submodule "samples/e2e_player/nanogui"]
+	path = samples/e2e_player/nanogui
+	url = git@github.com:wjakob/nanogui.git

@@ -5,20 +5,32 @@
 #include <memory>
 #include "Player.h"
 #include <hdr_decode.hpp>
+#include "Video.h"
+#include <nanogui/window.h>
+#include <nanogui/widget.h>
+#include <nanogui/screen.h>
 
 Player::Player() :
     display_window(1280, 720),
     project_window(1280, 720, nullptr, display_window.get_window())
 {
     auto image2 = cv::imread("/Users/fatih/Downloads/belgium.hdr", -1);
+    using namespace nanogui;
 
-    auto size2 = image2.size().width * image2.size().height * 3;
-    auto data2 = std::make_unique<float[]>(size2);
+    Screen *screen = new Screen();
+    screen->initialize(display_window.get_window(), true);
 
-    std::copy((const float*)image2.ptr(), (const float*)image2.ptr() + size2, data2.get());
-    e2e::HDRFrame frame2(std::move(data2), image2.size().width, image2.size().height);
+    Window window = new Window(screen->window(), "name");
 
-    frames.push(e2e::duplicate(frame2));
+    nanogui::Widget *panel = new nanogui::Widget(window);
+    window->setPosition(Vector2i(15, 15));
+    window->setLayout(new GroupLayout());
+
+    panel->setLayout(new nanogui::BoxLayout(nanogui::BoxLayout::Horizontal, nanogui::BoxLayout::Middle, 0, 20));
+
+    // OTHER STUFF
+//    init_player("/Users/goksu/Downloads/office.hdr");
+    init_player("/Users/goksu/Desktop/VideoDeghosting/InputVideos/towelHigh.mp4");
 
     pause();
 
@@ -31,6 +43,36 @@ Player::Player() :
 
     //display_window.go_fullscreen(glfwGetPrimaryMonitor());
     init_playback();
+}
+
+void Player::init_player(const std::string& path)
+{
+
+    // IMAGE
+//    auto image2 = cv::imread(path, -1);
+//
+//    auto size2 = image2.size().width * image2.size().height * 3;
+//    auto data2 = std::make_unique<float[]>(size2);
+//
+//    std::copy((const float*)image2.ptr(), (const float*)image2.ptr() + size2, data2.get());
+//    e2e::HDRFrame frame2(std::move(data2), image2.size().width, image2.size().height);
+//
+//    frames.push(e2e::duplicate(frame2));
+
+    // VIDEO
+    Video video(path);
+
+//    for (auto& frame : video.Frames()){
+    for (int i = 0; i < 2; i++){
+        auto& frame = video.Frames()[i];
+        auto size = frame.cols * frame.rows * 3;
+        auto data = std::make_unique<float[]>(size);
+
+        std::copy((const float*)frame.data, (const float*)frame.data + size, data.get());
+        e2e::HDRFrame hdrframe(std::move(data), frame.cols, frame.rows);
+
+        frames.push(e2e::duplicate(hdrframe));
+    }
 }
 
 void Player::init_playback()
@@ -54,8 +96,8 @@ void Player::play_loop()
         project_window.StartDraw();
 
         if (is_playing.load()) {
-            auto frame = std::move(Frames().front());
-            Frames().pop();
+            auto frame = std::move(get_next_frame());
+
             frame_tex.createFloatBGR(frame.width(), frame.height(), frame.buffer().data());
             Frames().push(std::move(frame));
         }
@@ -137,4 +179,12 @@ void Player::init_worker()
             }
         }
     });
+}
+
+e2e::HDRFrame Player::get_next_frame()
+{
+    auto frame = std::move(Frames().front());
+    Frames().pop();
+
+    return frame;
 }
