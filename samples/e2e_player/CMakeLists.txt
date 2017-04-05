@@ -32,7 +32,7 @@ target_include_directories(e2e_player PUBLIC ${Boost_INCLUDE_DIRS})
 target_include_directories(e2e_player PUBLIC ../../3rd_party/GSL)
 target_include_directories(e2e_player PUBLIC "include")
 
-target_link_libraries(e2e_player e2e_gl)
+target_link_libraries(e2e_player e2e_gl dl)
 target_link_libraries(e2e_player e2e_utils)
 
 target_include_directories(e2e_player PUBLIC ../e2e_gl)

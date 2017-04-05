@@ -11,7 +11,7 @@ using namespace e2e;
 
 int main()
 {
-//    auto image1 = cv::imread("/Users/goksu/Downloads/office.hdr", -1);
+//    auto image1 = cv::imread("/home/berna/Documents/dev/E2EHDR/samples/e2e_player/belgium.hdr", -1);
 //    cv::flip(image1, image1, 0);
     using namespace std::chrono_literals;
 
@@ -27,16 +27,16 @@ int main()
 
     GLSLProgram program_projector;
     program_projector.attachShader(e2e::GLSLProgram::ShaderType::VERTEX_SHADER,
-                                   "/Users/goksu/Documents/E2EHDR/samples/e2e_gl/shaders/projector.vert");
+                                   "/home/berna/Documents/dev/E2EHDR/samples/e2e_gl/shaders/projector.vert");
     program_projector.attachShader(e2e::GLSLProgram::ShaderType::FRAGMENT_SHADER,
-                                   "/Users/goksu/Documents/E2EHDR/samples/e2e_gl/shaders/projector.frag");
+                                   "/home/berna/Documents/dev/E2EHDR/samples/e2e_gl/shaders/projector.frag");
 
 
     GLSLProgram program_LCD;
     program_LCD.attachShader(e2e::GLSLProgram::ShaderType::VERTEX_SHADER,
-                             "/Users/goksu/Documents/E2EHDR/samples/e2e_gl/shaders/LCD.vert");
+                             "/home/berna/Documents/dev/E2EHDR/samples/e2e_gl/shaders/LCD.vert");
     program_LCD.attachShader(e2e::GLSLProgram::ShaderType::FRAGMENT_SHADER,
-                             "/Users/goksu/Documents/E2EHDR/samples/e2e_gl/shaders/LCD.frag");
+                             "/home/berna/Documents/dev/E2EHDR/samples/e2e_gl/shaders/LCD.frag");
 
 
     program_LCD.link();
@@ -62,7 +62,7 @@ int main()
     while(!w.ShouldClose()){
         auto& frame = p.Frames().front();
 
-        tex1.createFloat(frame.width(), frame.height(), frame.buffer().data());
+        tex1.createFloatBGR(frame.width(), frame.height(), frame.buffer().data());
         q_projector.set_texture(tex1);
 
         w.StartDraw();

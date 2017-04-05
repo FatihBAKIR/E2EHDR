@@ -8,8 +8,8 @@
 Player::Player()
 {
 
-    auto image2 = cv::imread("/Users/goksu/Downloads/office.hdr", -1);
-    auto image1 = cv::imread("/Users/goksu/Desktop/HDRs/belgium.hdr", -1);
+    auto image2 = cv::imread("/home/berna/Documents/dev/E2EHDR/samples/e2e_player/belgium.hdr", -1);
+    auto image1 = cv::imread("/home/berna/Documents/dev/E2EHDR/samples/e2e_player/belgium.hdr", -1);
 
     auto size1 = image1.size().width * image1.size().height * 3;
     auto data1 = std::make_unique<float[]>(size1);

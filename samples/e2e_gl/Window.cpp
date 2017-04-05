@@ -20,7 +20,7 @@ namespace
 		GLFW()
 		{
 			auto res = glfwInit();
-			if (res != GLFW_TRUE)
+			if (res != 1)
 			{
 				throw std::runtime_error("GLFW Initialization Failed!");
 			}
