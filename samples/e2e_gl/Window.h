@@ -61,6 +61,8 @@ namespace e2e
         void StartDraw();
         void EndDraw();
 
+        void go_fullscreen(GLFWmonitor*);
+
         GLFWwindow* get_window() const { return m_window; }
     };
 }

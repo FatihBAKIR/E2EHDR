@@ -71,8 +71,8 @@ namespace e2e
             mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
         }
 
-        m_width = mode->width / 2;
-		m_height = mode->height / 2;
+        m_width = mode->width;
+		m_height = mode->height;
 
         m_window = glfwCreateWindow(m_width, m_height, m_name.c_str(), nullptr, share);
 
@@ -180,5 +180,17 @@ namespace e2e
     void Window::ShouldClose(bool set)
 	{
 		glfwSetWindowShouldClose(m_window, set);
+    }
+
+    void Window::go_fullscreen(GLFWmonitor* mon)
+    {
+
+        const GLFWvidmode* mode;
+        m_monitor = mon;
+			mode = glfwGetVideoMode(mon);
+
+        m_width = mode->width;
+		m_height = mode->height;
+		glfwSetWindowMonitor(m_window, mon, 0, 0, m_width, m_height, GLFW_DONT_CARE);
     }
 }
