@@ -34,6 +34,8 @@ target_include_directories(e2e_player PUBLIC "include")
 
 target_link_libraries(e2e_player e2e_gl)
 target_link_libraries(e2e_player e2e_utils)
+target_link_libraries(e2e_player e2e_x264)
 
 target_include_directories(e2e_player PUBLIC ../e2e_gl)
 target_include_directories(e2e_player PUBLIC ../e2e_utils)
+target_include_directories(e2e_player PUBLIC ../e2e_x264)

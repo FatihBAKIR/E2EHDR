@@ -4,17 +4,13 @@
 
 #include <memory>
 #include "Player.h"
-
-class PlayerImpl
-{
-
-};
+#include <hdr_decode.hpp>
 
 Player::Player() :
     display_window(1280, 720),
     project_window(1280, 720, nullptr, display_window.get_window())
 {
-    auto image2 = cv::imread("/Users/fatih/Downloads/office.hdr", -1);
+    auto image2 = cv::imread("/Users/fatih/Downloads/belgium.hdr", -1);
 
     auto size2 = image2.size().width * image2.size().height * 3;
     auto data2 = std::make_unique<float[]>(size2);
@@ -32,6 +28,8 @@ Player::Player() :
     init_shaders();
     init_quads();
     init_worker();
+
+    //display_window.go_fullscreen(glfwGetPrimaryMonitor());
     init_playback();
 }
 
@@ -118,7 +116,8 @@ void Player::init_worker()
     work_thread = boost::thread([this]{
         while (!boost::this_thread::interruption_requested())
         {
-            if (display_window.get_key_up(GLFW_KEY_SPACE) || project_window.get_key_up(GLFW_KEY_SPACE))
+            if (prev_pressed.find(GLFW_KEY_SPACE) != prev_pressed.end() && (
+                    display_window.get_key_up(GLFW_KEY_SPACE) || project_window.get_key_up(GLFW_KEY_SPACE)))
             {
                 if (get_playing())
                 {
@@ -128,6 +127,13 @@ void Player::init_worker()
                 {
                     play();
                 }
+            }
+
+            prev_pressed.clear();
+
+            if (display_window.get_key_down(GLFW_KEY_SPACE) || project_window.get_key_down(GLFW_KEY_SPACE))
+            {
+                prev_pressed.insert(GLFW_KEY_SPACE);
             }
         }
     });
