@@ -124,11 +124,11 @@ void Texture::useArray() const
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture_id);
 }
 
-void* Texture::getTextureImage()
+std::unique_ptr<unsigned char> Texture::getTextureImage() const
 {
     auto size = 3 * m_width * m_height * sizeof(unsigned char);
-    void* pixels = new unsigned char[size];
-    glGetTextureImage(m_texture_id, 0, GL_RGB, GL_UNSIGNED_BYTE, size, pixels);
+    std::unique_ptr<unsigned char> pixels(new unsigned char[size]);
+    glGetTextureImage(m_texture_id, 0, GL_RGB, GL_UNSIGNED_BYTE, size, pixels.get());
 
     return pixels;
 }

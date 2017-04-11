@@ -287,7 +287,7 @@ void ApplicationImpl::Run()
 			//std::cout << "(" << er << ") " << glewGetErrorString(er) << '\n';
 			draw_preview();
 
-			merger.draw();
+			merger.draw(gui.w);
 
 			er = glGetError();
 			//std::cout << "(" << er << ") " << glewGetErrorString(er) << '\n';
@@ -554,14 +554,17 @@ void ApplicationImpl::draw_gui()
 	static float base_lum = 0.05f;
 	static float max_lum = 150.0f;
 	static int window_size = 7;
+    static bool record = false;
 
-	e2e::gui::displayStereoControl(recompile_shaders, cost_choice, agg_choice, detection, correction, median, threshold, window_size);
+	//e2e::gui::displayStereoControl(recompile_shaders, cost_choice, agg_choice, detection, correction, median, threshold, window_size);
 	e2e::gui::displayTonemapControl(base_lum, max_lum);
+    e2e::gui::displayRecord(record);
 	merger.chooseCost(cost_choice);
 	merger.chooseAggregation(agg_choice);
 	merger.set_outlier_detection(detection, threshold, window_size);
 	merger.set_outlier_correction(correction);
 	merger.set_median_filter(median);
+    merger.set_record(record);
 
 	if (recompile_shaders)
 	{

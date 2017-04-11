@@ -2,6 +2,7 @@
 
 in vec2 tex_coord;
 out vec4 color;
+out vec4 resid_color;
 
 uniform float dx;
 uniform float dy;
@@ -83,4 +84,5 @@ void main()
 	cols.a = 1;
 	
 	color = cols;
+	resid_color = hdr_cols / cols;
 }

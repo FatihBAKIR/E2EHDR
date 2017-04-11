@@ -18,6 +18,7 @@ namespace e2e
 
 		void renderToTexture(const Texture & rtt_tex);
         void renderToTexture2D(const Texture & rtt_tex1, const Texture & rtt_tex2);
+        void renderToTexture2D(const Texture & rtt_tex1, const Texture & rtt_tex2, const Texture & rtt_tex3);
 		void renderToTextureLayer(const Texture & rtt_tex, int layer);
 
 	private:
