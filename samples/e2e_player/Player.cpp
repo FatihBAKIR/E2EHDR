@@ -20,6 +20,10 @@ Player::Player() :
     Screen *screen = new Screen();
     screen->initialize(display_window.get_window(), true);
 
+    auto image2 = cv::imread("/home/berna/Documents/dev/E2EHDR/samples/e2e_player/belgium.hdr", -1);
+    auto image1 = cv::imread("/home/berna/Documents/dev/E2EHDR/samples/e2e_player/belgium.hdr", -1);
+
+
     Window window = new Window(screen->window(), "name");
 
     nanogui::Widget *panel = new nanogui::Widget(window);
