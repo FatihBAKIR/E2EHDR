@@ -1,30 +1,21 @@
+#include <iostream>
 #include "X264Encoder.h"
 
 X264Encoder::X264Encoder()
-        :in_width(0)
-        ,in_height(0)
-        ,in_pixel_format(AV_PIX_FMT_NONE)
-        ,out_width(0)
-        ,out_height(0)
-        ,out_pixel_format(AV_PIX_FMT_NONE)
-        ,fps(25)
-        ,fp(NULL)
-        ,encoder(NULL)
-        ,sws(NULL)
-        ,num_nals(0)
-        ,pts(0)
+        :in_width(0), in_height(0), in_pixel_format(AV_PIX_FMT_NONE), out_width(0), out_height(0),
+         out_pixel_format(AV_PIX_FMT_NONE), fps(25), fp(nullptr), encoder(nullptr), sws(nullptr), num_nals(0), pts(0)
 {
-    memset((char*)&pic_raw, 0, sizeof(pic_raw));
+    memset((char*) &pic_raw, 0, sizeof(pic_raw));
 }
 
 X264Encoder::~X264Encoder()
 {
-    if(sws) {
+    if (sws) {
         close();
     }
 }
 
-bool X264Encoder::open(std::string filename)
+bool X264Encoder::open(std::string filename, std::function<void(uint8_t*, int)> handler)
 {
     validateSettings(); // throws runtime_error if anything is wrong
 
@@ -33,29 +24,26 @@ bool X264Encoder::open(std::string filename)
     int header_size = 0;
 
     // @todo add validate which checks if all params are set (in/out width/height, fps,etc..);
-    if(encoder) {
+    if (encoder) {
         throw std::runtime_error("Already opened. first call close()");
     }
 
-
-    if(out_pixel_format != AV_PIX_FMT_YUV420P) {
+    if (out_pixel_format!=AV_PIX_FMT_YUV420P) {
         throw std::runtime_error("At this moment the output format must be AV_PIX_FMT_YUV420P");
     }
 
     sws = sws_getContext(in_width, in_height, in_pixel_format,
-                         out_width, out_height, out_pixel_format,
-                         SWS_FAST_BILINEAR, NULL, NULL, NULL);
+            out_width, out_height, out_pixel_format,
+            SWS_FAST_BILINEAR, nullptr, nullptr, nullptr);
 
-    if(!sws) {
+    if (!sws) {
         throw std::runtime_error("Cannot create SWS context");
     }
 
     fp = fopen(filename.c_str(), "w+b");
-    if(!fp) {
-        //FIXME : file descriptor leak : close()
+    if (!fp) {
         throw std::runtime_error("Cannot open the h264 destination file");
     }
-
 
     x264_picture_alloc(&pic_in, X264_CSP_I420, out_width, out_height);
 
@@ -63,55 +51,104 @@ bool X264Encoder::open(std::string filename)
 
     // create the encoder using our params
     encoder = x264_encoder_open(&params);
-    if(!encoder) {
+    if (!encoder) {
         throw std::runtime_error("Cannot open the encoder");
     }
 
     // write headers
     r = x264_encoder_headers(encoder, &nals, &nheader);
-    if(r < 0) {
+    if (r<0) {
         throw std::runtime_error("x264_encoder_headers() failed");
     }
 
     header_size = nals[0].i_payload + nals[1].i_payload + nals[2].i_payload;
-    if(!fwrite(nals[0].p_payload, header_size, 1, fp)) {
+    if (!fwrite(nals[0].p_payload, header_size, 1, fp)) {
         throw std::runtime_error("Cannot write headers");
     }
+    fflush(fp);
+    handler(nals[0].p_payload, header_size);
 
     pts = 0;
     return true;
 }
 
-bool X264Encoder::encode(char* pixels)
+bool X264Encoder::encode(char* pixels, gsl::span<const uint8_t> side, std::function<void(uint8_t*, int)> handler)
 {
-    if(!sws) {
+    if (!sws) {
         throw std::runtime_error("Not initialized, so cannot encode");
     }
 
     // copy the pixels into our "raw input" container.
-    int bytes_filled = avpicture_fill(&pic_raw, (uint8_t*)pixels, in_pixel_format, in_width, in_height);
-    if(!bytes_filled) {
+    int bytes_filled = avpicture_fill(&pic_raw, (uint8_t*) pixels, in_pixel_format, in_width, in_height);
+    if (!bytes_filled) {
         throw std::runtime_error("Cannot fill the raw input buffer");
     }
 
     // convert to I420 for x264
     int h = sws_scale(sws, pic_raw.data, pic_raw.linesize, 0,
-                      in_height, pic_in.img.plane, pic_in.img.i_stride);
+            in_height, pic_in.img.plane, pic_in.img.i_stride);
 
-    if(h != out_height) {
-        throw std::runtime_error("scale failed: " + std::to_string(h));
+    if (h!=out_height) {
+        throw std::runtime_error("scale failed: "+std::to_string(h));
         return false;
     }
 
     // and encode and store into pic_out
     pic_in.i_pts = pts;
 
-    int frame_size = x264_encoder_encode(encoder, &nals, &num_nals, &pic_in, &pic_out);
-    if(frame_size) {
-        if(!fwrite(nals[0].p_payload, frame_size, 1, fp)) {
-            throw std::runtime_error("Error while trying to write nal");
-            return false;
+    if (side.size() > 0) {
+        x264_sei_t sei;
+        sei.num_payloads = 1;
+        sei.payloads = new x264_sei_payload_t[1];
+        sei.sei_free = [](void* data) {
+            delete[] (x264_sei_payload_t*) data;
+        };
+        sei.payloads[0].payload = new uint8_t[side.size_bytes()+sizeof(uint64_t)*2];
+        sei.payloads[0].payload_size = side.size_bytes()+sizeof(uint64_t)*2;
+        sei.payloads[0].payload_type = 5;
+
+        auto p = sei.payloads[0].payload;
+
+        memset(p, 0, sei.payloads[0].payload_size);
+        memcpy(p, "###musta", 8);
+        memcpy(p+8+side.size_bytes(), "fatih###", 8);
+        memcpy(p+8, side.data(), side.size_bytes());
+
+        for(auto i = p; i < p + sei.payloads[0].payload_size; ++i)
+        {
+            constexpr char start1[4] = { 0, 0, 0, 1 };
+            constexpr char start2[3] = { 0, 0, 1 };
+            constexpr char start3[] = { 0, 0, 2 };
+            constexpr char start4[] = { 0, 0, 3 };
+            if (!memcmp(i, start1, 4))
+            {
+                memcpy(i, "#MU#", 4);
+            }
+            else if (!memcmp(i, start2, 3))
+            {
+                memcpy(i, "#M#", 3);
+            }
+            else if (!memcmp(i, start3, 3))
+            {
+                memcpy(i, "#F#", 3);
+            }
+            else if (!memcmp(i, start4, 3))
+            {
+                memcpy(i, "#G#", 3);
+            }
         }
+
+        pic_in.extra_sei = sei;
+    }
+
+    int frame_size = x264_encoder_encode(encoder, &nals, &num_nals, &pic_in, &pic_out);
+    if (frame_size) {
+        if (!fwrite(nals[0].p_payload, frame_size, 1, fp)) {
+            throw std::runtime_error("Error while trying to write nal");
+        }
+        fflush(fp);
+
+        handler(nals[0].p_payload, frame_size);
     }
     ++pts;
 
@@ -120,25 +157,32 @@ bool X264Encoder::encode(char* pixels)
 
 bool X264Encoder::close()
 {
-    if(encoder) {
+    if (encoder) {
+        while (x264_encoder_delayed_frames(encoder)) {
+            auto frame_size = x264_encoder_encode(encoder, &nals, &num_nals, nullptr, &pic_out);
+            if (!fwrite(nals[0].p_payload, frame_size, 1, fp)) {
+                throw std::runtime_error("Error while trying to write nal");
+            }
+        }
+
         x264_picture_clean(&pic_in);
-        memset((char*)&pic_in, 0, sizeof(pic_in));
-        memset((char*)&pic_out, 0, sizeof(pic_out));
+        memset((char*) &pic_in, 0, sizeof(pic_in));
+        memset((char*) &pic_out, 0, sizeof(pic_out));
 
         x264_encoder_close(encoder);
-        encoder = NULL;
+        encoder = nullptr;
     }
 
-    if(sws) {
+    if (sws) {
         sws_freeContext(sws);
-        sws = NULL;
+        sws = nullptr;
     }
 
-    memset((char*)&pic_raw, 0, sizeof(pic_raw));
+    memset((char*) &pic_raw, 0, sizeof(pic_raw));
 
-    if(fp) {
+    if (fp) {
         fclose(fp);
-        fp = NULL;
+        fp = nullptr;
     }
     return true;
 }
@@ -155,22 +199,22 @@ void X264Encoder::setParams()
 
 bool X264Encoder::validateSettings()
 {
-    if(!in_width) {
+    if (!in_width) {
         throw std::runtime_error("No in_width set");
     }
-    if(!in_height) {
+    if (!in_height) {
         throw std::runtime_error("No in_height set");
     }
-    if(!out_width) {
+    if (!out_width) {
         throw std::runtime_error("No out_width set");
     }
-    if(!out_height) {
+    if (!out_height) {
         throw std::runtime_error("No out_height set");
     }
-    if(in_pixel_format == AV_PIX_FMT_NONE) {
+    if (in_pixel_format==AV_PIX_FMT_NONE) {
         throw std::runtime_error("No in_pixel_format set");
     }
-    if(out_pixel_format == AV_PIX_FMT_NONE) {
+    if (out_pixel_format==AV_PIX_FMT_NONE) {
         throw std::runtime_error("No out_pixel_format set");
     }
     return true;

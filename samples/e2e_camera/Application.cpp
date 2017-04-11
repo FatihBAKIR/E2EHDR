@@ -2,6 +2,7 @@
 // Created by Mehmet Fatih BAKIR on 13/12/2016.
 //
 
+#include "shared_frame_queue.hpp"
 #include <vector>
 #include <e2e_ff/ffmpeg_wrapper.h>
 #include <boost/thread.hpp>
@@ -29,6 +30,7 @@
 #include <future>
 #include <thread_pool.h>
 #include <boost/variant.hpp>
+#include <hdr_encode.hpp>
 
 using FrameT = camera_struct::FrameT;
 using json = nlohmann::json;
@@ -59,6 +61,9 @@ class ApplicationImpl
 
 	e2e::GLSLProgram left_prev_shader;
 	e2e::GLSLProgram right_prev_shader;
+
+	e2e::shared_frames_queue mq = {true, 1280, 720};
+	bool is_player_available = false;
 
 	struct
 	{
@@ -108,6 +113,8 @@ class ApplicationImpl
 	 * This function finds the most recent image pair
 	 */
 	std::pair<FrameT, FrameT> get_frame_pair();
+
+    e2e::x264::hdr_encode encoder;
 
 	struct WaitingRec {};
 
@@ -200,7 +207,8 @@ ApplicationImpl::ApplicationImpl(const std::vector<std::string> &args) :
 	right_cam(load_camera_conf(args[1])),
 	left_cam_ctl(left_cam.get_ip()),
 	right_cam_ctl(right_cam.get_ip()),
-	tp(1)
+	tp(1),
+	encoder("output.h264", 1280, 720)
 {
 	left.exposure_index = (left_cam.get_config())["exp_code"];
 	right.exposure_index = (right_cam.get_config())["exp_code"];
@@ -288,6 +296,19 @@ void ApplicationImpl::Run()
 			draw_preview();
 
 			merger.draw(gui.w);
+			//merger.draw();
+
+            /*auto frames = merger.get_frames();
+
+            e2e::LDRFrame tmod{std::move(frames.tonemapped), 1280, 720};
+			e2e::LDRFrame resid{std::move(frames.residual), 1280, 720};
+
+			encoder.encode(tmod, resid);
+
+			if (is_player_available)
+			{
+				mq.push(tmod, resid);
+			}*/
 
 			er = glGetError();
 			//std::cout << "(" << er << ") " << glewGetErrorString(er) << '\n';

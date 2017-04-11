@@ -35,6 +35,7 @@ namespace e2e
     };
 
     using LDRFrame = Frame<byte, 3>;
+    using HDRFrame = Frame<float, 3>;
 
     template <class FrT>
     FrT duplicate(const FrT& src)

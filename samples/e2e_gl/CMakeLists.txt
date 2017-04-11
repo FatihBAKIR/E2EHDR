@@ -22,10 +22,11 @@ set(SOURCE_FILES
     quad.h Window.cpp Window.h glsl_program.h glsl_program.cpp gui.cpp gui.h
         imgui_wrapper.cpp imgui_wrapper.h texture.cpp texture.h
         Drawable.h merger.cpp merger.h framebuffer.cpp framebuffer.h
-        projector_main.cpp)
+#        projector_main.cpp)
+        )
 
-#add_library(e2e_gl STATIC ${SOURCE_FILES})
-add_executable(e2e_gl ${SOURCE_FILES})
+add_library(e2e_gl STATIC ${SOURCE_FILES})
+#add_executable(e2e_gl ${SOURCE_FILES})
 
 target_link_libraries(e2e_gl ${OPENGL_LIBRARIES})
 target_link_libraries(e2e_gl ${OpenCV_LIBRARIES})

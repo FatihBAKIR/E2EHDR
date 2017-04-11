@@ -7,6 +7,7 @@
 //#include "include\glad\glad.h"
 #include "include/glad/glad.h"
 #include <GLFW/glfw3.h>
+#include <iostream>
 
 //FRAMEWORK
 #include "Window.h"
@@ -19,7 +20,7 @@ namespace
 		GLFW()
 		{
 			auto res = glfwInit();
-			if (res != GLFW_TRUE)
+			if (res != 1)
 			{
 				throw std::runtime_error("GLFW Initialization Failed!");
 			}
@@ -37,16 +38,18 @@ namespace
 
 		if (error_code != GL_NO_ERROR)
 		{
-			throw std::runtime_error("something broke, fuck it (" + std::string(name) + ")");
+			throw std::runtime_error("something broke (" + std::string(name) + ")");
 		}
 	}
 }
 
 namespace e2e
 {
-	Window::Window(int width, int height)
-		: m_width(width)
-		, m_height(height)
+	Window::Window(int width, int height, GLFWmonitor* monitor, GLFWwindow* share, const std::string& name)
+        : m_width(width),
+		  m_height(height),
+          m_monitor(monitor),
+          m_name(name)
 	{
 		//GLFW//
 		static GLFW glfw_global;
@@ -60,7 +63,18 @@ namespace e2e
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-		m_window = glfwCreateWindow(m_width, m_height, "E2EHDR", nullptr, nullptr);
+        const GLFWvidmode* mode;
+        if (m_monitor){
+			mode = glfwGetVideoMode(monitor);
+        }
+        else {
+            mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+        }
+
+        m_width = mode->width;
+		m_height = mode->height;
+
+        m_window = glfwCreateWindow(m_width, m_height, m_name.c_str(), nullptr, share);
 
 		assert(m_window);
 		glfwMakeContextCurrent(m_window);
@@ -76,9 +90,12 @@ namespace e2e
 
 			return 0;
 		})();
+
 		//OpenGL//
 		//Lower left point is (0,0). Top right point is (width, height).
-		reset_viewport();
+		reset_viewport(m_window);
+
+		glfwMakeContextCurrent(m_window);
 
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -101,13 +118,14 @@ namespace e2e
 		{
 			q.get().draw();
 		}
-		glfwSwapBuffers(m_window);
+		EndDraw();
 	}
 
-	void Window::reset_viewport()
+	void Window::reset_viewport(GLFWwindow* wind)
 	{
 	    int vp_w, vp_h;
-	    glfwGetFramebufferSize(m_window, &vp_w, &vp_h);
+	    glfwGetFramebufferSize(wind, &vp_w, &vp_h);
+		glfwMakeContextCurrent(wind);
 		glViewport(0, 0, vp_w, vp_h);
 	}
 
@@ -130,12 +148,13 @@ namespace e2e
     void Window::StartDraw()
     {
         glfwPollEvents();
+		glfwMakeContextCurrent(m_window);
         glClear(GL_COLOR_BUFFER_BIT);
     }
 
     void Window::EndDraw()
     {
-        glfwSwapBuffers(m_window);
+		glfwSwapBuffers(m_window);
     }
 
     void Window::Loop(const std::vector<std::reference_wrapper<drawable_base>> &drawables)
@@ -146,7 +165,7 @@ namespace e2e
 
         if (get_key_down(GLFW_KEY_ESCAPE))
         {
-            glfwSetWindowShouldClose(m_window, GL_TRUE);
+			glfwSetWindowShouldClose(m_window, GL_TRUE);
         }
 
         //RENDER//
@@ -155,10 +174,25 @@ namespace e2e
         {
             drawable.get().draw();
         }
-        glfwSwapBuffers(m_window);
+		glfwSwapBuffers(m_window);
     }
 
-    void Window::ShouldClose(bool set) {
-        glfwSetWindowShouldClose(m_window, set);
+    void Window::ShouldClose(bool set)
+	{
+		glfwSetWindowShouldClose(m_window, set);
+    }
+
+
+    void Window::go_fullscreen(GLFWmonitor* mon)
+    {
+
+        const GLFWvidmode* mode;
+        m_monitor = mon;
+			mode = glfwGetVideoMode(mon);
+
+        m_width = mode->width;
+		m_height = mode->height;
+		glfwSetWindowMonitor(m_window, mon, 0, 0, m_width, m_height, GLFW_DONT_CARE);
     }
 }
+

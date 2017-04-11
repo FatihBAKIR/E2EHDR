@@ -20,6 +20,8 @@ public:
 	void create(int width, int height, unsigned char* image);
 	void createArray(int width, int height, int layer, unsigned char* image);
 	void createFloat(int width, int height, float* data = nullptr);
+	void createFloatBGR(int width, int height, float* data);
+
 	void use() const;
 	void useArray() const;
     std::unique_ptr<unsigned char> getTextureImage() const;
