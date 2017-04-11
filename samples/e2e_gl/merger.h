@@ -12,6 +12,12 @@
 
 namespace e2e
 {
+    struct texRecord
+    {
+        std::unique_ptr<unsigned char> tonemapped_texture;
+        std::unique_ptr<unsigned char> residual_texture;
+    };
+
     class Merger
     {
     public:
@@ -21,9 +27,11 @@ namespace e2e
         void draw(Window& w);
         void compileShaders();
 
+
         void set_textures(const Texture& left, const Texture& right);
         void set_position(float x, float y);
         void set_scale_factor(float x, float y);
+        texRecord& get_tex_record();
         GLSLProgram& get_cost_shader();
         GLSLProgram& get_undistort_left_shader();
         GLSLProgram& get_undistort_right_shader();
@@ -32,6 +40,7 @@ namespace e2e
         //Parameter setters and functions
         void chooseCost(int selection);
         void chooseAggregation(int selection);
+        void set_record(bool record);
         void set_outlier_detection(bool outlier_detection, float threshold, int window_size);
         void set_outlier_correction(bool outlier_correction);
         void set_median_filter(bool median_filter);
@@ -55,6 +64,7 @@ namespace e2e
         Texture m_right_texture;
         const Texture* m_texture1;
         const Texture* m_texture2;
+        texRecord m_tex_record;
 
         GLSLProgram m_undistort_left_shader;
         GLSLProgram m_undistort_right_shader;
@@ -63,9 +73,10 @@ namespace e2e
         GLSLProgram m_outlier_detection_shader;
         GLSLProgram m_outlier_correction_shader;
         GLSLProgram m_median_shader;
-        GLSLProgram m_hdr_merge_shader;
+        GLSLProgram m_record_merge_shader;
         GLSLProgram m_copy_shader_shader;
         GLSLProgram m_temporal_stability_shader;
+        GLSLProgram m_hdr_merge_shader;
 
         GLfloat m_position_x;
         GLfloat m_position_y;
@@ -75,12 +86,13 @@ namespace e2e
         //Setting parameters.
         int m_cost_choice;
         int m_aggregation_choice;
-
-        bool m_outlier_detection;
         float m_threshold;
         int m_window_size;
+
+        bool m_outlier_detection;
         bool m_outlier_correction;
         bool m_median_filter;
+        bool m_record;
 
     private:
         void render();
