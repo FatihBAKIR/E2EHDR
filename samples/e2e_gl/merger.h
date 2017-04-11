@@ -8,7 +8,7 @@
 #include "glsl_program.h"
 #include "texture.h"
 #include "quad.h"
-#include "window.h"
+#include "Window.h"
 
 namespace e2e
 {

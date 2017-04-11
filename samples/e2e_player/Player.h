@@ -19,6 +19,8 @@
 class Player
 {
     boost::thread work_thread;
+    boost::thread vid_thread;
+
     e2e::Window display_window;
     e2e::Window project_window;
     e2e::spsc_queue<e2e::HDRFrame, e2e::constant_storage<e2e::HDRFrame, 128>> frames;
@@ -27,6 +29,9 @@ class Player
     e2e::Quad prj_quad;
 
     Texture frame_tex;
+
+    Texture ldr_tex;
+    Texture resid_tex;
 
     e2e::GLSLProgram lcd_shader;
     e2e::GLSLProgram prj_shader;
@@ -39,6 +44,7 @@ class Player
     void init_quads();
     void init_shaders();
     void init_worker();
+    void init_video(const std::string& path);
 
     void play_loop();
     e2e::HDRFrame get_next_frame();
@@ -48,11 +54,12 @@ class Player
     void draw_gui();
 
 public:
-    Player();
+    Player(const std::string& path);
     ~Player();
 
     void play();
     void pause();
+    void quit();
 
     bool get_playing() const {
         return is_playing.load();

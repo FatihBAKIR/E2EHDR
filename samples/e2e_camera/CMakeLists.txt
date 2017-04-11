@@ -13,7 +13,7 @@ include_directories(${CMAKE_SOURCE_DIR})
 
 link_directories(../libs/)
 
-set(SOURCE_FILES main.cpp configuration.cpp configuration.h Application.cpp Application.h shader_stuff.h shader_stuff.cpp camera_struct.cpp camera_struct.h calibration.h calibration.cpp)
+set(SOURCE_FILES main.cpp configuration.cpp configuration.h Application.cpp Application.h shader_stuff.h shader_stuff.cpp camera_struct.cpp camera_struct.h calibration.h calibration.cpp shared_frame_queue.hpp)
 add_executable(e2e_camera ${SOURCE_FILES})
 
 target_link_libraries(e2e_camera e2e_gl)

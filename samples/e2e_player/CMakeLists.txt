@@ -10,6 +10,8 @@ link_directories(nanogui/src)
 
 set(CMAKE_CXX_STANDARD 14)
 
+find_package(x264 REQUIRED)
+find_package(FFmpeg REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(GLFW REQUIRED)
@@ -42,9 +44,18 @@ target_include_directories(e2e_player PUBLIC nanogui/ext/eigen)
 #target_include_directories(e2e_player PUBLIC nanogui/ext/glad)
 
 target_link_libraries(e2e_player e2e_gl)
+
 target_link_libraries(e2e_player e2e_utils)
 target_link_libraries(e2e_player e2e_x264)
 
 target_include_directories(e2e_player PUBLIC ../e2e_gl)
 target_include_directories(e2e_player PUBLIC ../e2e_utils)
 target_include_directories(e2e_player PUBLIC ../e2e_x264)
+
+target_include_directories(e2e_player PUBLIC ${X264_INCLUDE_DIR})
+target_include_directories(e2e_player PUBLIC ${FFMPEG_INCLUDE_DIRS})
+
+target_link_libraries(e2e_player ${X264_LIBRARIES})
+target_link_libraries(e2e_player ${FFMPEG_LIBRARIES})
+
+target_link_libraries(e2e_player e2e_utils)

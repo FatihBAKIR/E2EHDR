@@ -11,5 +11,6 @@ using namespace e2e;
 
 int main()
 {
-    Player p;
+    Player p("/Users/goksu/Desktop/output.h264");
 }
+
