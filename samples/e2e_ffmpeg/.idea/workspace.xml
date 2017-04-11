@@ -14,6 +14,7 @@
     <list default="true" id="c00da6ba-0929-4d86-9ab3-7d3a61dd4f0e" name="Default" comment="" />
     <ignored path="e2e_ffmpeg.iws" />
     <ignored path=".idea/workspace.xml" />
+    <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -33,7 +34,7 @@
       <file leaf-file-name="main.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="731">
+            <state relative-caret-position="627">
               <caret line="43" column="13" lean-forward="false" selection-start-line="43" selection-start-column="13" selection-end-line="43" selection-end-column="13" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
@@ -45,9 +46,11 @@
       <file leaf-file-name="ffmpeg_wrapper.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/e2e_ff/ffmpeg_wrapper.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="357">
-              <caret line="94" column="0" lean-forward="false" selection-start-line="94" selection-start-column="0" selection-end-line="94" selection-end-column="0" />
-              <folding />
+            <state relative-caret-position="-228">
+              <caret line="78" column="35" lean-forward="false" selection-start-line="78" selection-start-column="35" selection-end-line="78" selection-end-column="35" />
+              <folding>
+                <element signature="e#55#74#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -55,10 +58,11 @@
       <file leaf-file-name="ffmpeg_wrapper.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/e2e_ff/ffmpeg_wrapper.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-22">
-              <caret line="44" column="0" lean-forward="false" selection-start-line="44" selection-start-column="0" selection-end-line="44" selection-end-column="0" />
+            <state relative-caret-position="180">
+              <caret line="21" column="25" lean-forward="false" selection-start-line="21" selection-start-column="25" selection-end-line="21" selection-end-column="25" />
               <folding>
                 <element signature="e#69#89#0" expanded="true" />
+                <element signature="e#168#199#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -67,7 +71,7 @@
       <file leaf-file-name="avformat.h" pinned="false" current-in-tab="false">
         <entry file="file:///usr/local/include/libavformat/avformat.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="39678">
+            <state relative-caret-position="44346">
               <caret line="2334" column="50" lean-forward="false" selection-start-line="2334" selection-start-column="50" selection-end-line="2334" selection-end-column="50" />
               <folding />
             </state>
@@ -77,7 +81,7 @@
       <file leaf-file-name="type_traits" pinned="false" current-in-tab="false">
         <entry file="file:///Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1/type_traits">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="28305">
+            <state relative-caret-position="31635">
               <caret line="1665" column="0" lean-forward="false" selection-start-line="1665" selection-start-column="0" selection-end-line="1665" selection-end-column="0" />
               <folding />
             </state>
@@ -87,7 +91,7 @@
       <file leaf-file-name="memory" pinned="false" current-in-tab="false">
         <entry file="file:///Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1/memory">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="43384">
+            <state relative-caret-position="48488">
               <caret line="2552" column="28" lean-forward="false" selection-start-line="2552" selection-start-column="28" selection-end-line="2552" selection-end-column="28" />
               <folding>
                 <element signature="e#89255#89300#0" expanded="true" />
@@ -99,8 +103,8 @@
       <file leaf-file-name="avcodec.h" pinned="false" current-in-tab="false">
         <entry file="file:///usr/local/include/libavcodec/avcodec.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="91630">
-              <caret line="5390" column="4" lean-forward="false" selection-start-line="5390" selection-start-column="4" selection-end-line="5390" selection-end-column="4" />
+            <state relative-caret-position="612">
+              <caret line="5387" column="38" lean-forward="false" selection-start-line="5387" selection-start-column="38" selection-end-line="5387" selection-end-column="38" />
               <folding />
             </state>
           </provider>
@@ -109,7 +113,7 @@
       <file leaf-file-name="CMakeLists.txt" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="255">
+            <state relative-caret-position="285">
               <caret line="15" column="32" lean-forward="false" selection-start-line="15" selection-start-column="32" selection-end-line="15" selection-end-column="32" />
               <folding />
             </state>
@@ -142,9 +146,8 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="y" value="22" />
     <option name="width" value="1440" />
-    <option name="height" value="874" />
+    <option name="height" value="900" />
   </component>
   <component name="ProjectView">
     <navigator currentView="ProjectPane" proportions="" version="1">
@@ -198,6 +201,7 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$/.." />
     <property name="nodejs_interpreter_path" value="/usr/local/bin/node" />
     <property name="js.eslint.eslintPackage" value="" />
+    <property name="FullScreen" value="true" />
   </component>
   <component name="RunManager" selected="Application.e2e_ffmpeg">
     <configuration default="true" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" PASS_PARENT_ENVS_2="true" TEST_MODE="SUITE_TEST">
@@ -256,7 +260,7 @@
       <method />
     </configuration>
     <configuration default="true" type="js.build_tools.npm" factoryName="npm">
-      <command value="run-script" />
+      <command value="run" />
       <scripts />
       <node-interpreter value="project" />
       <envs />
@@ -399,14 +403,15 @@
       <workItem from="1480337368550" duration="1193000" />
       <workItem from="1481655751019" duration="275000" />
       <workItem from="1482237508387" duration="1465000" />
+      <workItem from="1490114233870" duration="3817000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="28529000" />
+    <option name="totallyTimeSpent" value="32346000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="22" width="1440" height="874" extended-state="6" />
+    <frame x="0" y="0" width="1440" height="900" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.15902779" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -464,7 +469,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="e#55#74#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -474,6 +481,7 @@
           <caret line="80" column="0" lean-forward="true" selection-start-line="80" selection-start-column="0" selection-end-line="80" selection-end-column="0" />
           <folding>
             <element signature="e#69#89#0" expanded="true" />
+            <element signature="e#168#199#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -534,7 +542,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1768">
           <caret line="104" column="30" lean-forward="false" selection-start-line="104" selection-start-column="30" selection-end-line="104" selection-end-column="30" />
-          <folding />
+          <folding>
+            <element signature="e#55#74#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -544,6 +554,7 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#69#89#0" expanded="true" />
+            <element signature="e#168#199#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -604,7 +615,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="e#55#74#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -614,6 +627,7 @@
           <caret line="72" column="0" lean-forward="false" selection-start-line="72" selection-start-column="0" selection-end-line="72" selection-end-column="0" />
           <folding>
             <element signature="e#69#89#0" expanded="true" />
+            <element signature="e#168#199#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -666,7 +680,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1649">
           <caret line="97" column="9" lean-forward="false" selection-start-line="97" selection-start-column="9" selection-end-line="97" selection-end-column="9" />
-          <folding />
+          <folding>
+            <element signature="e#55#74#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -676,6 +692,7 @@
           <caret line="53" column="0" lean-forward="true" selection-start-line="53" selection-start-column="0" selection-end-line="53" selection-end-column="0" />
           <folding>
             <element signature="e#69#89#0" expanded="true" />
+            <element signature="e#168#199#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -728,7 +745,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1649">
           <caret line="97" column="9" lean-forward="false" selection-start-line="97" selection-start-column="9" selection-end-line="97" selection-end-column="9" />
-          <folding />
+          <folding>
+            <element signature="e#55#74#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -738,6 +757,7 @@
           <caret line="40" column="7" lean-forward="true" selection-start-line="40" selection-start-column="7" selection-end-line="40" selection-end-column="7" />
           <folding>
             <element signature="e#69#89#0" expanded="true" />
+            <element signature="e#168#199#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -817,17 +837,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file:///usr/local/include/libavcodec/avcodec.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="91630">
-          <caret line="5390" column="4" lean-forward="false" selection-start-line="5390" selection-start-column="4" selection-end-line="5390" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1/type_traits">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="28305">
+        <state relative-caret-position="31635">
           <caret line="1665" column="0" lean-forward="false" selection-start-line="1665" selection-start-column="0" selection-end-line="1665" selection-end-column="0" />
           <folding />
         </state>
@@ -835,7 +847,7 @@
     </entry>
     <entry file="file:///Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1/memory">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="43384">
+        <state relative-caret-position="48488">
           <caret line="2552" column="28" lean-forward="false" selection-start-line="2552" selection-start-column="28" selection-end-line="2552" selection-end-column="28" />
           <folding>
             <element signature="e#89255#89300#0" expanded="true" />
@@ -843,9 +855,17 @@
         </state>
       </provider>
     </entry>
+    <entry file="file:///usr/local/include/libavformat/avformat.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="44346">
+          <caret line="2334" column="50" lean-forward="false" selection-start-line="2334" selection-start-column="50" selection-end-line="2334" selection-end-column="50" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/main.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="731">
+        <state relative-caret-position="627">
           <caret line="43" column="13" lean-forward="false" selection-start-line="43" selection-start-column="13" selection-end-line="43" selection-end-column="13" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
@@ -853,37 +873,40 @@
         </state>
       </provider>
     </entry>
-    <entry file="file:///usr/local/include/libavformat/avformat.h">
+    <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="39678">
-          <caret line="2334" column="50" lean-forward="false" selection-start-line="2334" selection-start-column="50" selection-end-line="2334" selection-end-column="50" />
+        <state relative-caret-position="285">
+          <caret line="15" column="32" lean-forward="false" selection-start-line="15" selection-start-column="32" selection-end-line="15" selection-end-column="32" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
+    <entry file="file:///usr/local/include/libavcodec/avcodec.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="15" column="32" lean-forward="false" selection-start-line="15" selection-start-column="32" selection-end-line="15" selection-end-column="32" />
+        <state relative-caret-position="612">
+          <caret line="5387" column="38" lean-forward="false" selection-start-line="5387" selection-start-column="38" selection-end-line="5387" selection-end-column="38" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/e2e_ff/ffmpeg_wrapper.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-22">
-          <caret line="44" column="0" lean-forward="false" selection-start-line="44" selection-start-column="0" selection-end-line="44" selection-end-column="0" />
+        <state relative-caret-position="180">
+          <caret line="21" column="25" lean-forward="false" selection-start-line="21" selection-start-column="25" selection-end-line="21" selection-end-column="25" />
           <folding>
             <element signature="e#69#89#0" expanded="true" />
+            <element signature="e#168#199#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/e2e_ff/ffmpeg_wrapper.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="357">
-          <caret line="94" column="0" lean-forward="false" selection-start-line="94" selection-start-column="0" selection-end-line="94" selection-end-column="0" />
-          <folding />
+        <state relative-caret-position="-228">
+          <caret line="78" column="35" lean-forward="false" selection-start-line="78" selection-start-column="35" selection-end-line="78" selection-end-column="35" />
+          <folding>
+            <element signature="e#55#74#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

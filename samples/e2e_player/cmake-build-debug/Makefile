@@ -48,10 +48,10 @@ RM = /Applications/CLion.app/Contents/bin/cmake/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/fatih/Bitirme/samples/e2e_x264
+CMAKE_SOURCE_DIR = /Users/fatih/Bitirme/samples/e2e_player
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/fatih/Bitirme/samples/e2e_x264/cmake-build-debug
+CMAKE_BINARY_DIR = /Users/fatih/Bitirme/samples/e2e_player/cmake-build-debug
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,9 +80,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/fatih/Bitirme/samples/e2e_x264/cmake-build-debug/CMakeFiles /Users/fatih/Bitirme/samples/e2e_x264/cmake-build-debug/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/fatih/Bitirme/samples/e2e_player/cmake-build-debug/CMakeFiles /Users/fatih/Bitirme/samples/e2e_player/cmake-build-debug/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/fatih/Bitirme/samples/e2e_x264/cmake-build-debug/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/fatih/Bitirme/samples/e2e_player/cmake-build-debug/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -111,125 +111,71 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named e2e_x264
+# Target rules for targets named e2e_player
 
 # Build rule for target.
-e2e_x264: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 e2e_x264
-.PHONY : e2e_x264
+e2e_player: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 e2e_player
+.PHONY : e2e_player
 
 # fast build rule for target.
-e2e_x264/fast:
-	$(MAKE) -f CMakeFiles/e2e_x264.dir/build.make CMakeFiles/e2e_x264.dir/build
-.PHONY : e2e_x264/fast
+e2e_player/fast:
+	$(MAKE) -f CMakeFiles/e2e_player.dir/build.make CMakeFiles/e2e_player.dir/build
+.PHONY : e2e_player/fast
 
-X264Decoder.o: X264Decoder.cpp.o
+Player.o: Player.cpp.o
 
-.PHONY : X264Decoder.o
-
-# target to build an object file
-X264Decoder.cpp.o:
-	$(MAKE) -f CMakeFiles/e2e_x264.dir/build.make CMakeFiles/e2e_x264.dir/X264Decoder.cpp.o
-.PHONY : X264Decoder.cpp.o
-
-X264Decoder.i: X264Decoder.cpp.i
-
-.PHONY : X264Decoder.i
-
-# target to preprocess a source file
-X264Decoder.cpp.i:
-	$(MAKE) -f CMakeFiles/e2e_x264.dir/build.make CMakeFiles/e2e_x264.dir/X264Decoder.cpp.i
-.PHONY : X264Decoder.cpp.i
-
-X264Decoder.s: X264Decoder.cpp.s
-
-.PHONY : X264Decoder.s
-
-# target to generate assembly for a file
-X264Decoder.cpp.s:
-	$(MAKE) -f CMakeFiles/e2e_x264.dir/build.make CMakeFiles/e2e_x264.dir/X264Decoder.cpp.s
-.PHONY : X264Decoder.cpp.s
-
-X264Encoder.o: X264Encoder.cpp.o
-
-.PHONY : X264Encoder.o
+.PHONY : Player.o
 
 # target to build an object file
-X264Encoder.cpp.o:
-	$(MAKE) -f CMakeFiles/e2e_x264.dir/build.make CMakeFiles/e2e_x264.dir/X264Encoder.cpp.o
-.PHONY : X264Encoder.cpp.o
+Player.cpp.o:
+	$(MAKE) -f CMakeFiles/e2e_player.dir/build.make CMakeFiles/e2e_player.dir/Player.cpp.o
+.PHONY : Player.cpp.o
 
-X264Encoder.i: X264Encoder.cpp.i
+Player.i: Player.cpp.i
 
-.PHONY : X264Encoder.i
+.PHONY : Player.i
 
 # target to preprocess a source file
-X264Encoder.cpp.i:
-	$(MAKE) -f CMakeFiles/e2e_x264.dir/build.make CMakeFiles/e2e_x264.dir/X264Encoder.cpp.i
-.PHONY : X264Encoder.cpp.i
+Player.cpp.i:
+	$(MAKE) -f CMakeFiles/e2e_player.dir/build.make CMakeFiles/e2e_player.dir/Player.cpp.i
+.PHONY : Player.cpp.i
 
-X264Encoder.s: X264Encoder.cpp.s
+Player.s: Player.cpp.s
 
-.PHONY : X264Encoder.s
+.PHONY : Player.s
 
 # target to generate assembly for a file
-X264Encoder.cpp.s:
-	$(MAKE) -f CMakeFiles/e2e_x264.dir/build.make CMakeFiles/e2e_x264.dir/X264Encoder.cpp.s
-.PHONY : X264Encoder.cpp.s
+Player.cpp.s:
+	$(MAKE) -f CMakeFiles/e2e_player.dir/build.make CMakeFiles/e2e_player.dir/Player.cpp.s
+.PHONY : Player.cpp.s
 
-hdr_decode.o: hdr_decode.cpp.o
+Video.o: Video.cpp.o
 
-.PHONY : hdr_decode.o
+.PHONY : Video.o
 
 # target to build an object file
-hdr_decode.cpp.o:
-	$(MAKE) -f CMakeFiles/e2e_x264.dir/build.make CMakeFiles/e2e_x264.dir/hdr_decode.cpp.o
-.PHONY : hdr_decode.cpp.o
+Video.cpp.o:
+	$(MAKE) -f CMakeFiles/e2e_player.dir/build.make CMakeFiles/e2e_player.dir/Video.cpp.o
+.PHONY : Video.cpp.o
 
-hdr_decode.i: hdr_decode.cpp.i
+Video.i: Video.cpp.i
 
-.PHONY : hdr_decode.i
-
-# target to preprocess a source file
-hdr_decode.cpp.i:
-	$(MAKE) -f CMakeFiles/e2e_x264.dir/build.make CMakeFiles/e2e_x264.dir/hdr_decode.cpp.i
-.PHONY : hdr_decode.cpp.i
-
-hdr_decode.s: hdr_decode.cpp.s
-
-.PHONY : hdr_decode.s
-
-# target to generate assembly for a file
-hdr_decode.cpp.s:
-	$(MAKE) -f CMakeFiles/e2e_x264.dir/build.make CMakeFiles/e2e_x264.dir/hdr_decode.cpp.s
-.PHONY : hdr_decode.cpp.s
-
-hdr_encode.o: hdr_encode.cpp.o
-
-.PHONY : hdr_encode.o
-
-# target to build an object file
-hdr_encode.cpp.o:
-	$(MAKE) -f CMakeFiles/e2e_x264.dir/build.make CMakeFiles/e2e_x264.dir/hdr_encode.cpp.o
-.PHONY : hdr_encode.cpp.o
-
-hdr_encode.i: hdr_encode.cpp.i
-
-.PHONY : hdr_encode.i
+.PHONY : Video.i
 
 # target to preprocess a source file
-hdr_encode.cpp.i:
-	$(MAKE) -f CMakeFiles/e2e_x264.dir/build.make CMakeFiles/e2e_x264.dir/hdr_encode.cpp.i
-.PHONY : hdr_encode.cpp.i
+Video.cpp.i:
+	$(MAKE) -f CMakeFiles/e2e_player.dir/build.make CMakeFiles/e2e_player.dir/Video.cpp.i
+.PHONY : Video.cpp.i
 
-hdr_encode.s: hdr_encode.cpp.s
+Video.s: Video.cpp.s
 
-.PHONY : hdr_encode.s
+.PHONY : Video.s
 
 # target to generate assembly for a file
-hdr_encode.cpp.s:
-	$(MAKE) -f CMakeFiles/e2e_x264.dir/build.make CMakeFiles/e2e_x264.dir/hdr_encode.cpp.s
-.PHONY : hdr_encode.cpp.s
+Video.cpp.s:
+	$(MAKE) -f CMakeFiles/e2e_player.dir/build.make CMakeFiles/e2e_player.dir/Video.cpp.s
+.PHONY : Video.cpp.s
 
 main.o: main.cpp.o
 
@@ -237,7 +183,7 @@ main.o: main.cpp.o
 
 # target to build an object file
 main.cpp.o:
-	$(MAKE) -f CMakeFiles/e2e_x264.dir/build.make CMakeFiles/e2e_x264.dir/main.cpp.o
+	$(MAKE) -f CMakeFiles/e2e_player.dir/build.make CMakeFiles/e2e_player.dir/main.cpp.o
 .PHONY : main.cpp.o
 
 main.i: main.cpp.i
@@ -246,7 +192,7 @@ main.i: main.cpp.i
 
 # target to preprocess a source file
 main.cpp.i:
-	$(MAKE) -f CMakeFiles/e2e_x264.dir/build.make CMakeFiles/e2e_x264.dir/main.cpp.i
+	$(MAKE) -f CMakeFiles/e2e_player.dir/build.make CMakeFiles/e2e_player.dir/main.cpp.i
 .PHONY : main.cpp.i
 
 main.s: main.cpp.s
@@ -255,7 +201,7 @@ main.s: main.cpp.s
 
 # target to generate assembly for a file
 main.cpp.s:
-	$(MAKE) -f CMakeFiles/e2e_x264.dir/build.make CMakeFiles/e2e_x264.dir/main.cpp.s
+	$(MAKE) -f CMakeFiles/e2e_player.dir/build.make CMakeFiles/e2e_player.dir/main.cpp.s
 .PHONY : main.cpp.s
 
 # Help Target
@@ -266,19 +212,13 @@ help:
 	@echo "... depend"
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
-	@echo "... e2e_x264"
-	@echo "... X264Decoder.o"
-	@echo "... X264Decoder.i"
-	@echo "... X264Decoder.s"
-	@echo "... X264Encoder.o"
-	@echo "... X264Encoder.i"
-	@echo "... X264Encoder.s"
-	@echo "... hdr_decode.o"
-	@echo "... hdr_decode.i"
-	@echo "... hdr_decode.s"
-	@echo "... hdr_encode.o"
-	@echo "... hdr_encode.i"
-	@echo "... hdr_encode.s"
+	@echo "... e2e_player"
+	@echo "... Player.o"
+	@echo "... Player.i"
+	@echo "... Player.s"
+	@echo "... Video.o"
+	@echo "... Video.i"
+	@echo "... Video.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

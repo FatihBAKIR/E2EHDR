@@ -54,45 +54,45 @@ RM = /Applications/CLion.app/Contents/bin/cmake/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/fatih/Bitirme/samples/e2e_x264
+CMAKE_SOURCE_DIR = /Users/fatih/Bitirme/samples/e2e_player
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/fatih/Bitirme/samples/e2e_x264/cmake-build-debug
+CMAKE_BINARY_DIR = /Users/fatih/Bitirme/samples/e2e_player/cmake-build-debug
 
 #=============================================================================
-# Target rules for target CMakeFiles/e2e_x264.dir
+# Target rules for target CMakeFiles/e2e_player.dir
 
 # All Build rule for target.
-CMakeFiles/e2e_x264.dir/all:
-	$(MAKE) -f CMakeFiles/e2e_x264.dir/build.make CMakeFiles/e2e_x264.dir/depend
-	$(MAKE) -f CMakeFiles/e2e_x264.dir/build.make CMakeFiles/e2e_x264.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/fatih/Bitirme/samples/e2e_x264/cmake-build-debug/CMakeFiles --progress-num=1,2,3,4,5,6 "Built target e2e_x264"
-.PHONY : CMakeFiles/e2e_x264.dir/all
+CMakeFiles/e2e_player.dir/all:
+	$(MAKE) -f CMakeFiles/e2e_player.dir/build.make CMakeFiles/e2e_player.dir/depend
+	$(MAKE) -f CMakeFiles/e2e_player.dir/build.make CMakeFiles/e2e_player.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/fatih/Bitirme/samples/e2e_player/cmake-build-debug/CMakeFiles --progress-num=1,2,3,4 "Built target e2e_player"
+.PHONY : CMakeFiles/e2e_player.dir/all
 
 # Include target in all.
-all: CMakeFiles/e2e_x264.dir/all
+all: CMakeFiles/e2e_player.dir/all
 
 .PHONY : all
 
 # Build rule for subdir invocation for target.
-CMakeFiles/e2e_x264.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/fatih/Bitirme/samples/e2e_x264/cmake-build-debug/CMakeFiles 6
-	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/e2e_x264.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/fatih/Bitirme/samples/e2e_x264/cmake-build-debug/CMakeFiles 0
-.PHONY : CMakeFiles/e2e_x264.dir/rule
+CMakeFiles/e2e_player.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/fatih/Bitirme/samples/e2e_player/cmake-build-debug/CMakeFiles 4
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/e2e_player.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/fatih/Bitirme/samples/e2e_player/cmake-build-debug/CMakeFiles 0
+.PHONY : CMakeFiles/e2e_player.dir/rule
 
 # Convenience name for target.
-e2e_x264: CMakeFiles/e2e_x264.dir/rule
+e2e_player: CMakeFiles/e2e_player.dir/rule
 
-.PHONY : e2e_x264
-
-# clean rule for target.
-CMakeFiles/e2e_x264.dir/clean:
-	$(MAKE) -f CMakeFiles/e2e_x264.dir/build.make CMakeFiles/e2e_x264.dir/clean
-.PHONY : CMakeFiles/e2e_x264.dir/clean
+.PHONY : e2e_player
 
 # clean rule for target.
-clean: CMakeFiles/e2e_x264.dir/clean
+CMakeFiles/e2e_player.dir/clean:
+	$(MAKE) -f CMakeFiles/e2e_player.dir/build.make CMakeFiles/e2e_player.dir/clean
+.PHONY : CMakeFiles/e2e_player.dir/clean
+
+# clean rule for target.
+clean: CMakeFiles/e2e_player.dir/clean
 
 .PHONY : clean
 

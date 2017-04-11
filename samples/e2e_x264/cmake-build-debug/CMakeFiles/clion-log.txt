@@ -7,8 +7,8 @@
 -- Found the following Boost libraries:
 --   system
 --   iostreams
+--   filesystem
 --   regex
--- Found JPEG: /usr/local/lib/libjpeg.dylib  
 -- Boost version: 1.61.0
 -- Found the following Boost libraries:
 --   system

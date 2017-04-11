@@ -6,10 +6,10 @@
 #include "Player.h"
 #include <hdr_decode.hpp>
 #include "Video.h"
-#include <nanogui/window.h>
 #include <imgui_wrapper.h>
 #include <gui.h>
 #include <imgui.h>
+#include "shared_frame_queue.hpp"
 
 Player::Player(const std::string& path) :
     display_window(1280, 720),
@@ -280,4 +280,19 @@ void Player::init_video(const std::string& path)
             decoder.decode();
         }
     });
+}
+
+void Player::init_ipc()
+{
+    auto fs = mq.receive();
+
+    e2e::HDRFrame f (std::make_unique<float[]>(fs.res.width() * fs.res.height() * 3),
+                    fs.res.width(), fs.res.height());
+
+    for (auto i = 0; i < fs.res.buffer().size(); ++i)
+    {
+        f.buffer()[i] = ((fs.res.buffer()[i] / 255.f) + fs.tmo.buffer()[i] / 255.f) * 0.5f;
+    }
+
+    frames.push(std::move(f));
 }

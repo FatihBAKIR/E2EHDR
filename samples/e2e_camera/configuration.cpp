@@ -41,7 +41,7 @@ undistort get_undistort(const nlohmann::json& config)
 
 void save_crf(const crf& res, const std::string& out)
 {
-    boost::filesystem::path data_dir{"C:\\Users\\Mustafa\\Desktop\\cam\\profiles"};
+    boost::filesystem::path data_dir{"/Users/fatih/cameras/profiles"};
 
     data_dir /= out;
     data_dir.extension() = "json";
@@ -57,7 +57,7 @@ void save_crf(const crf& res, const std::string& out)
 
 std::vector<std::tuple<std::string, crf>> find_profiles()
 {
-    boost::filesystem::path data_dir{"C:\\Users\\Mustafa\\Desktop\\cam\\profiles"};
+    boost::filesystem::path data_dir{"/Users/fatih/cameras/profiles"};
     std::vector<std::tuple<std::string, crf>> profs;
     for (auto& child : boost::make_iterator_range(boost::filesystem::directory_iterator(data_dir), {})) {
         if (boost::filesystem::is_regular_file(child)) {

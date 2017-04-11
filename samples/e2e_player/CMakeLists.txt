@@ -17,7 +17,7 @@ find_package(OpenCV REQUIRED)
 find_package(GLFW REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system thread filesystem iostreams)
 
-set(SOURCE_FILES Player.cpp Player.h main.cpp Video.cpp Video.h)
+set(SOURCE_FILES Player.cpp Player.h main.cpp Video.cpp Video.h shared_frame_queue.hpp)
 
 add_executable(e2e_player ${SOURCE_FILES})
 

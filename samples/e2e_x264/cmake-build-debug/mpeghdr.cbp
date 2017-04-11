@@ -88,10 +88,28 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/Users/fatih/Bitirme/samples/e2e_x264/X264Decoder.cpp">
+			<Option target="mpeghdr"/>
+		</Unit>
+		<Unit filename="/Users/fatih/Bitirme/samples/e2e_x264/X264Decoder.hpp">
+			<Option target="mpeghdr"/>
+		</Unit>
 		<Unit filename="/Users/fatih/Bitirme/samples/e2e_x264/X264Encoder.cpp">
 			<Option target="mpeghdr"/>
 		</Unit>
 		<Unit filename="/Users/fatih/Bitirme/samples/e2e_x264/X264Encoder.h">
+			<Option target="mpeghdr"/>
+		</Unit>
+		<Unit filename="/Users/fatih/Bitirme/samples/e2e_x264/hdr_decode.cpp">
+			<Option target="mpeghdr"/>
+		</Unit>
+		<Unit filename="/Users/fatih/Bitirme/samples/e2e_x264/hdr_decode.hpp">
+			<Option target="mpeghdr"/>
+		</Unit>
+		<Unit filename="/Users/fatih/Bitirme/samples/e2e_x264/hdr_encode.cpp">
+			<Option target="mpeghdr"/>
+		</Unit>
+		<Unit filename="/Users/fatih/Bitirme/samples/e2e_x264/hdr_encode.hpp">
 			<Option target="mpeghdr"/>
 		</Unit>
 		<Unit filename="/Users/fatih/Bitirme/samples/e2e_x264/main.cpp">
