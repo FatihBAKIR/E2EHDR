@@ -51,12 +51,15 @@ class Player
 
     void init_player(const std::string& path);
 
+    void draw_gui();
+
 public:
-    Player();
+    Player(const std::string& path);
     ~Player();
 
     void play();
     void pause();
+    void quit();
 
     bool get_playing() const {
         return is_playing.load();

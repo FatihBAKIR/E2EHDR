@@ -6,35 +6,16 @@
 #include "Player.h"
 #include <hdr_decode.hpp>
 #include "Video.h"
-/*#include <nanogui/window.h>
-#include <nanogui/widget.h>
-#include <nanogui/screen.h>*/
+#include <nanogui/window.h>
+#include <imgui_wrapper.h>
+#include <gui.h>
+#include <imgui.h>
 
-Player::Player() :
+Player::Player(const std::string& path) :
     display_window(1280, 720),
     project_window(1280, 720, nullptr, display_window.get_window())
 {
-    auto image2 = cv::imread("/Users/fatih/Downloads/belgium.hdr", -1);
-    /*using namespace nanogui;
-
-    Screen *screen = new Screen();
-    screen->initialize(display_window.get_window(), true);
-
-    auto image2 = cv::imread("/home/berna/Documents/dev/E2EHDR/samples/e2e_player/belgium.hdr", -1);
-    auto image1 = cv::imread("/home/berna/Documents/dev/E2EHDR/samples/e2e_player/belgium.hdr", -1);
-
-
-    Window window = new Window(screen->window(), "name");
-
-    nanogui::Widget *panel = new nanogui::Widget(window);
-    window->setPosition(Vector2i(15, 15));
-    window->setLayout(new GroupLayout());
-
-    panel->setLayout(new nanogui::BoxLayout(nanogui::BoxLayout::Horizontal, nanogui::BoxLayout::Middle, 0, 20));*/
-
-    // OTHER STUFF
-//    init_player("/Users/goksu/Downloads/office.hdr");
-    init_player("/Users/fatih/Bitirme/samples/e2e_x264/cmake-build-debug/output.h264");
+    init_player(path);
 
     pause();
 
@@ -45,6 +26,8 @@ Player::Player() :
     init_quads();
     init_worker();
 
+    e2e::GUI::getGUI().initialize(display_window, true);
+
     //display_window.go_fullscreen(glfwGetPrimaryMonitor());
     init_playback();
 }
@@ -53,32 +36,6 @@ void Player::init_player(const std::string& path)
 {
     init_video(path);
     return;
-
-    // IMAGE
-    auto image2 = cv::imread(path, -1);
-
-    auto size2 = image2.size().width * image2.size().height * 3;
-    auto data2 = std::make_unique<float[]>(size2);
-
-    std::copy((const float*)image2.ptr(), (const float*)image2.ptr() + size2, data2.get());
-    e2e::HDRFrame frame2(std::move(data2), image2.size().width, image2.size().height);
-
-    frames.push(e2e::duplicate(frame2));
-
-    // VIDEO
-    /*Video video(path);
-
-//    for (auto& frame : video.Frames()){
-    for (int i = 0; i < 2; i++){
-        auto& frame = video.Frames()[i];
-        auto size = frame.cols * frame.rows * 3;
-        auto data = std::make_unique<float[]>(size);
-
-        std::copy((const float*)frame.data, (const float*)frame.data + size, data.get());
-        e2e::HDRFrame hdrframe(std::move(data), frame.cols, frame.rows);
-
-        frames.push(e2e::duplicate(hdrframe));
-    }*/
 }
 
 void Player::init_playback()
@@ -96,15 +53,28 @@ void Player::pause()
     is_playing.store(false);
 }
 
+void Player::quit()
+{
+    display_window.ShouldClose(true);
+    project_window.ShouldClose(true);
+}
+
 void Player::play_loop()
 {
     while(!(display_window.ShouldClose() || project_window.ShouldClose())){
         project_window.StartDraw();
 
+
         if (is_playing.load()) {
-            auto frame = get_next_frame();
+            auto frame = std::move(Frames().front());
+            Frames().pop();
             frame_tex.createFloatBGR(frame.width(), frame.height(), frame.buffer().data());
             Frames().push(std::move(frame));
+        }
+
+        else {
+            float arr[] = {0, 0, 0};
+            frame_tex.createFloatBGR(1, 1, arr);
         }
 
         prj_quad.draw();
@@ -112,6 +82,9 @@ void Player::play_loop()
 
         display_window.StartDraw();
         lcd_quad.draw();
+
+        draw_gui();
+
         display_window.EndDraw();
 
         boost::this_thread::sleep_for(boost::chrono::milliseconds(40));
@@ -189,11 +162,93 @@ void Player::init_worker()
     });
 }
 
-e2e::HDRFrame Player::get_next_frame()
+void ShowExampleMenuFile(Player& p)
 {
-    auto frame = std::move(Frames().front());
-    Frames().pop();
-    return frame;
+    ImGui::MenuItem("(File)", NULL, false, false);
+    if (ImGui::MenuItem("New")) {}
+    if (ImGui::MenuItem("Open", "Ctrl+O")) {}
+    if (ImGui::BeginMenu("Open Recent"))
+    {
+        ImGui::MenuItem("fish_hat.c");
+        ImGui::MenuItem("fish_hat.inl");
+        ImGui::MenuItem("fish_hat.h");
+        if (ImGui::BeginMenu("More.."))
+        {
+            ImGui::MenuItem("Hello");
+            ImGui::MenuItem("Sailor");
+            ImGui::EndMenu();
+        }
+        ImGui::EndMenu();
+    }
+    if (ImGui::MenuItem("Save", "Ctrl+S")) {}
+    if (ImGui::MenuItem("Save As..")) {}
+
+    ImGui::Separator();
+
+    if (ImGui::BeginMenu("Options"))
+    {
+        static bool enabled = true;
+        ImGui::MenuItem("Enabled", "", &enabled);
+        ImGui::BeginChild("child", ImVec2(0, 60), true);
+        for (int i = 0; i < 10; i++)
+            ImGui::Text("Scrolling Text %d", i);
+        ImGui::EndChild();
+        static float f = 0.5f;
+        static int n = 0;
+        ImGui::SliderFloat("Value", &f, 0.0f, 1.0f);
+        ImGui::InputFloat("Input", &f, 0.1f);
+        ImGui::Combo("Combo", &n, "Yes\0No\0Maybe\0\0");
+        ImGui::EndMenu();
+    }
+
+    if (ImGui::MenuItem("Checked", NULL, true)) {}
+    if (ImGui::MenuItem("Quit", "Alt+F4")) {
+        p.quit();
+    }
+}
+
+void Player::draw_gui()
+{
+    e2e::GUI::getGUI().newFrame();
+    ImGui::Begin("");
+
+    if (ImGui::Button("Pause")){
+        pause();
+    }
+
+    if (ImGui::Button("Play")){
+        play();
+    }
+
+    ShowExampleMenuFile(*this);
+
+//    if (get_playing() && ImGui::Button("Pause")){
+//        pause();
+//    }
+//
+//    if (!get_playing() && ImGui::Button("Play")){
+//        play();
+//    }
+//
+//    if (ImGui::Button("Exit")){
+//        display_window.ShouldClose(true);
+//        project_window.ShouldClose(true);
+//    }
+//
+//    bool show_test_window = true;
+//    bool show_another_window = false;
+//    ImVec4 clear_color = ImColor(114, 144, 154);
+//
+//    static float f = 0.0f;
+//    ImGui::Text("Hello, world!");
+//    ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+////    ImGui::ColorEdit3("clear color", (float*)&clear_color);
+////    if (ImGui::Button("Test Window")) show_test_window ^= 1;
+////    if (ImGui::Button("Another Window")) show_another_window ^= 1;
+//    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
+    ImGui::End();
+    ImGui::Render();
 }
 
 void Player::init_video(const std::string& path)
