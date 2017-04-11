@@ -169,9 +169,9 @@ void ShowExampleMenuFile(Player& p)
     if (ImGui::MenuItem("Open", "Ctrl+O")) {}
     if (ImGui::BeginMenu("Open Recent"))
     {
-        ImGui::MenuItem("fish_hat.c");
-        ImGui::MenuItem("fish_hat.inl");
-        ImGui::MenuItem("fish_hat.h");
+        if (ImGui::MenuItem("output.h264")){ p.init_player("/Users/goksu/Desktop/output.h264"); }
+//        ImGui::MenuItem("fish_hat.inl");
+//        ImGui::MenuItem("fish_hat.h");
         if (ImGui::BeginMenu("More.."))
         {
             ImGui::MenuItem("Hello");

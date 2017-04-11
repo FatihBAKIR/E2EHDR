@@ -49,7 +49,6 @@ class Player
     void play_loop();
     e2e::HDRFrame get_next_frame();
 
-    void init_player(const std::string& path);
 
     void draw_gui();
 
@@ -60,6 +59,7 @@ public:
     void play();
     void pause();
     void quit();
+    void init_player(const std::string& path);
 
     bool get_playing() const {
         return is_playing.load();
