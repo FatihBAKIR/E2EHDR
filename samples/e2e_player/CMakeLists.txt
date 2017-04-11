@@ -42,6 +42,7 @@ target_include_directories(e2e_player PUBLIC nanogui/ext/eigen)
 #target_include_directories(e2e_player PUBLIC nanogui/ext/glad)
 
 target_link_libraries(e2e_player e2e_gl)
+
 target_link_libraries(e2e_player e2e_utils)
 target_link_libraries(e2e_player e2e_x264)
 

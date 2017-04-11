@@ -20,7 +20,7 @@ namespace
 		GLFW()
 		{
 			auto res = glfwInit();
-			if (res != GLFW_TRUE)
+			if (res != 1)
 			{
 				throw std::runtime_error("GLFW Initialization Failed!");
 			}
@@ -182,6 +182,7 @@ namespace e2e
 		glfwSetWindowShouldClose(m_window, set);
     }
 
+
     void Window::go_fullscreen(GLFWmonitor* mon)
     {
 
@@ -194,3 +195,4 @@ namespace e2e
 		glfwSetWindowMonitor(m_window, mon, 0, 0, m_width, m_height, GLFW_DONT_CARE);
     }
 }
+
