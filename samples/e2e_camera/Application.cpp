@@ -2,6 +2,7 @@
 // Created by Mehmet Fatih BAKIR on 13/12/2016.
 //
 
+#include "shared_frame_queue.hpp"
 #include <vector>
 #include <e2e_ff/ffmpeg_wrapper.h>
 #include <boost/thread.hpp>
@@ -60,6 +61,9 @@ class ApplicationImpl
 
 	e2e::GLSLProgram left_prev_shader;
 	e2e::GLSLProgram right_prev_shader;
+
+	e2e::shared_frames_queue mq = {true, 1280, 720};
+	bool is_player_available = false;
 
 	struct
 	{
@@ -292,6 +296,18 @@ void ApplicationImpl::Run()
 			draw_preview();
 
 			//merger.draw();
+
+            /*auto frames = merger.get_frames();
+
+            e2e::LDRFrame tmod{std::move(frames.tonemapped), 1280, 720};
+			e2e::LDRFrame resid{std::move(frames.residual), 1280, 720};
+
+			encoder.encode(tmod, resid);
+
+			if (is_player_available)
+			{
+				mq.push(tmod, resid);
+			}*/
 
 			er = glGetError();
 			//std::cout << "(" << er << ") " << glewGetErrorString(er) << '\n';
