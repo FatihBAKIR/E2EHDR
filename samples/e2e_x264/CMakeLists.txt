@@ -19,6 +19,7 @@ add_library(e2e_x264 ${SOURCE_FILES})
 target_include_directories(e2e_x264 PUBLIC ${X264_INCLUDE_DIR})
 target_include_directories(e2e_x264 PUBLIC ${FFMPEG_INCLUDE_DIRS})
 target_include_directories(e2e_x264 PUBLIC ../e2e_utils)
+target_include_directories(e2e_x264 PUBLIC ../../3rd_party/GSL/)
 target_include_directories(e2e_x264 PUBLIC ${Boost_INCLUDE_DIRS})
 
 target_link_libraries(e2e_x264 ${X264_LIBRARIES})
