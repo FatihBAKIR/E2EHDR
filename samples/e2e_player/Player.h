@@ -45,6 +45,8 @@ class Player
 
     void init_player(const std::string& path);
 
+    void draw_gui();
+
 public:
     Player();
     ~Player();
