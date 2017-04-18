@@ -21,12 +21,14 @@ target_link_libraries(e2e_camera e2e_utils)
 target_link_libraries(e2e_camera e2e_ffmpeg)
 target_link_libraries(e2e_camera e2e_control)
 target_link_libraries(e2e_camera e2e_x264)
+target_link_libraries(e2e_camera e2e_webcam)
 
 target_include_directories(e2e_camera PUBLIC ../e2e_gl)
 target_include_directories(e2e_camera PUBLIC ../e2e_utils)
 target_include_directories(e2e_camera PUBLIC ../e2e_ffmpeg)
 target_include_directories(e2e_camera PUBLIC ../e2e_control)
 target_include_directories(e2e_camera PUBLIC ../e2e_x264)
+target_include_directories(e2e_camera PUBLIC ../e2e_webcam)
 
 if (E2E_GPHOTO)
     target_link_libraries(e2e_camera e2e_gphoto)
@@ -121,3 +123,9 @@ find_package(x264 REQUIRED)
 target_include_directories(e2e_camera PUBLIC ${X264_INCLUDE_DIR})
 
 target_link_libraries(e2e_camera ${X264_LIBRARIES})
+
+# UVC LIBS
+
+find_package(UVC REQUIRED)
+target_include_directories(e2e_camera PUBLIC ${uvc_INCLUDE_DIRS})
+target_link_libraries(e2e_camera ${uvc_LIBRARIES})

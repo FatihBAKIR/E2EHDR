@@ -31,6 +31,7 @@
 #include <thread_pool.h>
 #include <boost/variant.hpp>
 #include <hdr_encode.hpp>
+#include <e2e_uvc/camera.hpp>
 
 using FrameT = camera_struct::FrameT;
 using json = nlohmann::json;
