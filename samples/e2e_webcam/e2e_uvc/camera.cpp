@@ -165,7 +165,14 @@ std::vector<e2e::uvc::camera_info> e2e::uvc::context::list_cameras()
         uvc_device_descriptor_t* d;
         uvc_get_device_descriptor(devs[0], &d);
 
-        cams.push_back({d->product, d->serialNumber});
+        if (!d->product)
+        {
+            cams.push_back({ std::to_string(d->idProduct), std::to_string(d->idVendor) });
+        }
+        else
+        {
+            cams.push_back({ d->product, d->serialNumber });
+        }
 
         uvc_free_device_descriptor(d);
         ++devs;

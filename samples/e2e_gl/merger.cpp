@@ -8,7 +8,7 @@
 //CPP
 #include <assert.h>
 #include <iostream>
-#include <SOIL.h>
+#include <SOIL/SOIL.h>
 
 namespace e2e
 {
@@ -28,6 +28,7 @@ namespace e2e
         , m_aggregation_choice(0)
         , m_threshold(1.1f)
         , m_window_size(7)
+        , m_color_debug(0)
         , m_outlier_detection(false)
         , m_outlier_correction(false)
         , m_median_filter(false)
@@ -104,27 +105,27 @@ namespace e2e
 
         //RECTIFICATION//
         m_framebuffer.renderToTexture(m_left_texture);
-        m_undistort_left_shader.use();
-        m_undistort_left_shader.setUniformFVar("scale", { m_scale_factor_x, m_scale_factor_y });
-        m_undistort_left_shader.setUniformFVar("translate", { m_position_x, m_position_y });
+        m_frame_pass_left_shader.use();
+        m_frame_pass_left_shader.setUniformFVar("scale", { m_scale_factor_x, m_scale_factor_y });
+        m_frame_pass_left_shader.setUniformFVar("translate", { m_position_x, m_position_y });
         glActiveTexture(GL_TEXTURE0);
-        m_undistort_left_shader.setUniformIVar("frame", { 0 });
+        m_frame_pass_left_shader.setUniformIVar("frame", { 0 });
         m_texture1->use();
         glActiveTexture(GL_TEXTURE1);
-        m_undistort_left_shader.setUniformIVar("other", { 1 });
+        m_frame_pass_left_shader.setUniformIVar("other", { 1 });
         m_texture2->use();
         render();
 
         m_framebuffer.renderToTexture(m_right_texture);
-        m_undistort_right_shader.use();
-        m_undistort_right_shader.setUniformFVar("scale", { m_scale_factor_x, m_scale_factor_y });
-        m_undistort_right_shader.setUniformFVar("translate", { m_position_x, m_position_y });
+        m_frame_pass_right_shader.use();
+        m_frame_pass_right_shader.setUniformFVar("scale", { m_scale_factor_x, m_scale_factor_y });
+        m_frame_pass_right_shader.setUniformFVar("translate", { m_position_x, m_position_y });
         glActiveTexture(GL_TEXTURE0);
-        m_undistort_right_shader.setUniformIVar("frame", { 0 });
+        m_frame_pass_right_shader.setUniformIVar("frame", { 0 });
         m_texture2->use();
 
         glActiveTexture(GL_TEXTURE1);
-        m_undistort_right_shader.setUniformIVar("other", { 1 });
+        m_frame_pass_right_shader.setUniformIVar("other", { 1 });
         m_texture1->use();
         render();
 
@@ -238,17 +239,6 @@ namespace e2e
             render();
         }
 
-        static int mode = 0;
-
-        if (w.get_key_down(GLFW_KEY_A))
-        {
-            mode = 1;
-        }
-        else
-        {
-            mode = 0;
-        }
-
         if (m_record)
         {
             m_framebuffer.renderToTexture2D(m_refinement_texture, m_residual_texture);
@@ -257,7 +247,7 @@ namespace e2e
             m_record_merge_shader.setUniformFVar("translate", { m_position_x, m_position_y });
             m_record_merge_shader.setUniformFVar("dx", { dx });
             m_record_merge_shader.setUniformFVar("dy", { dy });
-            m_record_merge_shader.setUniformIVar("mode", { mode });
+            m_record_merge_shader.setUniformIVar("color_debug", { m_color_debug });
 
             glActiveTexture(GL_TEXTURE0);
             m_record_merge_shader.setUniformIVar("left_exp", { 0 });
@@ -299,7 +289,7 @@ namespace e2e
             m_hdr_merge_shader.setUniformFVar("translate", { m_position_x, m_position_y });
             m_hdr_merge_shader.setUniformFVar("dx", { dx });
             m_hdr_merge_shader.setUniformFVar("dy", { dy });
-            m_hdr_merge_shader.setUniformIVar("mode", { mode });
+            m_hdr_merge_shader.setUniformIVar("color_debug", { m_color_debug });
 
             glActiveTexture(GL_TEXTURE0);
             m_hdr_merge_shader.setUniformIVar("left_exp", { 0 });
@@ -315,7 +305,7 @@ namespace e2e
             render();
         }
 
-        static int swap_counter = 0;
+        /*static int swap_counter = 0;
         if (swap_counter % 100 == 0)
         {
             //Copy refinement_texture to previous_texture
@@ -331,7 +321,7 @@ namespace e2e
             //Draw quad
             render();
         }
-        ++swap_counter;
+        ++swap_counter;*/
 
 
         //BACK TO DEFAULT VALUES
@@ -340,17 +330,14 @@ namespace e2e
         glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        m_temporal_stability_shader.use();
-        m_temporal_stability_shader.setUniformFVar("scale", { m_scale_factor_x, m_scale_factor_y });
-        m_temporal_stability_shader.setUniformFVar("translate", { m_position_x, m_position_y });
-        m_temporal_stability_shader.setUniformFVar("dx", { dx });
-        m_temporal_stability_shader.setUniformFVar("dy", { dy });
+        m_last_pass_shader.use();
+        m_last_pass_shader.setUniformFVar("scale", { m_scale_factor_x, m_scale_factor_y });
+        m_last_pass_shader.setUniformFVar("translate", { m_position_x, m_position_y });
+        m_last_pass_shader.setUniformFVar("dx", { dx });
+        m_last_pass_shader.setUniformFVar("dy", { dy });
 
         glActiveTexture(GL_TEXTURE0);
-        m_temporal_stability_shader.setUniformIVar("previous_frame", { 0 });
-        m_previous_texture.use();
-        glActiveTexture(GL_TEXTURE1);
-        m_temporal_stability_shader.setUniformIVar("new_frame", { 1 });
+        m_last_pass_shader.setUniformIVar("final_image", { 0 });
         m_refinement_texture.use();
 
         //Draw quad
@@ -359,21 +346,21 @@ namespace e2e
 
     void Merger::compileShaders()
     {
-        m_undistort_left_shader.clear();
-        m_undistort_left_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/undistort.vert");
-        m_undistort_left_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/undistort.frag");
-        m_undistort_left_shader.link();
+        m_frame_pass_left_shader.clear();
+        m_frame_pass_left_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/frame_pass.vert");
+        m_frame_pass_left_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/frame_pass.frag");
+        m_frame_pass_left_shader.link();
 
-        m_undistort_left_shader.use();
-        m_undistort_left_shader.setUniformIVar("is_left", { 1 });
+        m_frame_pass_left_shader.use();
+        m_frame_pass_left_shader.setUniformIVar("is_left", { 1 });
 
-        m_undistort_right_shader.clear();
-        m_undistort_right_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/undistort.vert");
-        m_undistort_right_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/undistort.frag");
-        m_undistort_right_shader.link();
+        m_frame_pass_right_shader.clear();
+        m_frame_pass_right_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/frame_pass.vert");
+        m_frame_pass_right_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/frame_pass.frag");
+        m_frame_pass_right_shader.link();
 
-        m_undistort_right_shader.use();
-        m_undistort_right_shader.setUniformIVar("is_left", { 0 });
+        m_frame_pass_right_shader.use();
+        m_frame_pass_right_shader.setUniformIVar("is_left", { 0 });
 
         int selection = m_cost_choice;
         m_cost_choice = -1;
@@ -412,10 +399,10 @@ namespace e2e
         m_copy_shader_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/texture_copy.frag");
         m_copy_shader_shader.link();
 
-        m_temporal_stability_shader.clear();
-        m_temporal_stability_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
-        m_temporal_stability_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/temporal_stability.frag");
-        m_temporal_stability_shader.link();
+        m_last_pass_shader.clear();
+        m_last_pass_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
+        m_last_pass_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/last_pass.frag");
+        m_last_pass_shader.link();
     }
 
     void Merger::set_textures(const Texture& left, const Texture& right)
@@ -448,12 +435,12 @@ namespace e2e
 
     GLSLProgram & Merger::get_undistort_left_shader()
     {
-        return m_undistort_left_shader;
+        return m_frame_pass_left_shader;
     }
 
     GLSLProgram & Merger::get_undistort_right_shader()
     {
-        return m_undistort_right_shader;
+        return m_frame_pass_right_shader;
     }
 
     void Merger::chooseCost(int selection)

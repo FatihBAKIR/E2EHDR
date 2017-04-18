@@ -63,7 +63,7 @@ class ApplicationImpl
 	e2e::GLSLProgram left_prev_shader;
 	e2e::GLSLProgram right_prev_shader;
 
-	e2e::shared_frames_queue mq = {true, 1280, 720};
+	//e2e::shared_frames_queue mq = {true, 1280, 720};
 	bool is_player_available = false;
 
 	struct
@@ -297,6 +297,7 @@ void ApplicationImpl::Run()
 			draw_preview();
 
 			merger.draw(gui.w);
+
 			//merger.draw();
 
             /*auto frames = merger.get_frames();

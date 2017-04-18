@@ -6,12 +6,14 @@ set(CMAKE_CXX_STANDARD 14)
 find_package(OpenCV REQUIRED)
 find_package(UVC REQUIRED)
 
-set(SOURCE_FILES main.cpp e2e_uvc/camera.cpp e2e_uvc/camera.hpp)
-add_executable(e2e_webcam ${SOURCE_FILES})
+set(SOURCE_FILES e2e_uvc/camera.cpp e2e_uvc/camera.hpp)
+#add_executable(e2e_webcam main.cpp ${SOURCE_FILES})
+add_library(e2e_webcam ${SOURCE_FILES})
 
 target_include_directories(e2e_webcam PUBLIC ${OpenCV_INCLUDE_DIRS})
 target_link_libraries(e2e_webcam ${OpenCV_LIBRARIES})
 
+target_include_directories(e2e_webcam PUBLIC ../../3rd_party/GSL)
 target_include_directories(e2e_webcam PUBLIC ${uvc_INCLUDE_DIRS})
 target_link_libraries(e2e_webcam ${uvc_LIBRARIES})
 
