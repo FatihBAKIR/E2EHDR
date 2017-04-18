@@ -9,6 +9,7 @@
 #include <imgui_wrapper.h>
 #include <gui.h>
 #include <imgui.h>
+#include <iostream>
 #include "shared_frame_queue.hpp"
 
 Player::Player(const std::string& path) :
@@ -25,10 +26,10 @@ Player::Player(const std::string& path) :
     init_shaders();
     init_quads();
     init_worker();
+    x =40;
 
     e2e::GUI::getGUI().initialize(display_window, true);
 
-    //display_window.go_fullscreen(glfwGetPrimaryMonitor());
     init_playback();
 }
 
@@ -61,15 +62,21 @@ void Player::quit()
 
 void Player::play_loop()
 {
+    int i = 0;
     while(!(display_window.ShouldClose() || project_window.ShouldClose())){
         project_window.StartDraw();
 
-
         if (is_playing.load()) {
-            auto frame = std::move(Frames().front());
-            Frames().pop();
-            frame_tex.createFloatBGR(frame.width(), frame.height(), frame.buffer().data());
-            Frames().push(std::move(frame));
+            if (i % 2 == 0){
+                auto frame = std::move(Frames().front());
+                Frames().pop();
+                frame_tex.createFloatBGR(frame.width(), frame.height(), frame.buffer().data());
+                Frames().push(std::move(frame));
+            }
+            else {
+                float arr[] = {0, 0, 0};
+                frame_tex.createFloatBGR(1, 1, arr);
+            }
         }
 
         else {
@@ -87,7 +94,8 @@ void Player::play_loop()
 
         display_window.EndDraw();
 
-        boost::this_thread::sleep_for(boost::chrono::milliseconds(40));
+        i++;
+        boost::this_thread::sleep_for(boost::chrono::milliseconds(x));
     }
 }
 
@@ -169,9 +177,9 @@ void ShowExampleMenuFile(Player& p)
     if (ImGui::MenuItem("Open", "Ctrl+O")) {}
     if (ImGui::BeginMenu("Open Recent"))
     {
-        ImGui::MenuItem("fish_hat.c");
-        ImGui::MenuItem("fish_hat.inl");
-        ImGui::MenuItem("fish_hat.h");
+        if (ImGui::MenuItem("output.h264")){ p.init_player("/Users/goksu/Desktop/output.h264"); }
+//        ImGui::MenuItem("fish_hat.inl");
+//        ImGui::MenuItem("fish_hat.h");
         if (ImGui::BeginMenu("More.."))
         {
             ImGui::MenuItem("Hello");
@@ -207,46 +215,50 @@ void ShowExampleMenuFile(Player& p)
     }
 }
 
+void ShowProgressBar(Player& p)
+{
+
+    static float progress=0; static float progressSign = 1.f;
+    std::cerr << p.get_playing() << "tessst" << std::endl;
+    if (p.get_playing()) {
+        progress += progressSign * .01f;
+        if (progress >= 1.f || progress <= 0.f) progressSign *= -1.f;
+    }
+    // No IDs needed for ProgressBars:
+    ImGui::ProgressBar(progress);
+
+    if (ImGui::Button("Pause")){
+        p.pause();
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Play")){
+        p.play();
+    }
+    ImGui::SameLine();
+
+    if (ImGui::Button("1x")){
+        p.x = 40;
+    }
+    ImGui::SameLine();
+
+    if (ImGui::Button("2x")){
+        p.x = (p.x)/2;
+    }
+}
+
+
 void Player::draw_gui()
 {
     e2e::GUI::getGUI().newFrame();
     ImGui::Begin("");
 
-    if (ImGui::Button("Pause")){
-        pause();
-    }
-
-    if (ImGui::Button("Play")){
-        play();
-    }
 
     ShowExampleMenuFile(*this);
 
-//    if (get_playing() && ImGui::Button("Pause")){
-//        pause();
-//    }
-//
-//    if (!get_playing() && ImGui::Button("Play")){
-//        play();
-//    }
-//
-//    if (ImGui::Button("Exit")){
-//        display_window.ShouldClose(true);
-//        project_window.ShouldClose(true);
-//    }
-//
-//    bool show_test_window = true;
-//    bool show_another_window = false;
-//    ImVec4 clear_color = ImColor(114, 144, 154);
-//
-//    static float f = 0.0f;
-//    ImGui::Text("Hello, world!");
-//    ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-////    ImGui::ColorEdit3("clear color", (float*)&clear_color);
-////    if (ImGui::Button("Test Window")) show_test_window ^= 1;
-////    if (ImGui::Button("Another Window")) show_another_window ^= 1;
-//    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+    ImGui::End();
 
+    ImGui::Begin("Progress Bar");
+    ShowProgressBar(*this);
     ImGui::End();
     ImGui::Render();
 }
