@@ -38,6 +38,8 @@ class Player
 
     boost::atomic<bool> is_playing;
 
+
+
     std::set<int> prev_pressed;
 
     void init_playback();
@@ -48,6 +50,7 @@ class Player
 
     void play_loop();
     e2e::HDRFrame get_next_frame();
+
 
 
     void draw_gui();
@@ -66,6 +69,7 @@ public:
     }
 
     auto& Frames() { return frames; }
+    unsigned int x;
 };
 
 
