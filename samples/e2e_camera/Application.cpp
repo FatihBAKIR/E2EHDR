@@ -32,9 +32,10 @@
 #include <boost/variant.hpp>
 #include <hdr_encode.hpp>
 #include <e2e_uvc/camera.hpp>
+#include "app_config.hpp"
 
-using FrameT = camera_struct::FrameT;
 using json = nlohmann::json;
+using namespace e2e::app;
 
 class ApplicationImpl
 {
@@ -54,11 +55,26 @@ class ApplicationImpl
 	GUI gui;
 	e2e::Merger merger{ 1280, 720, 32 };
 
+#if defined(E2E_FFMPEG_CAM)
 	camera_struct left_cam;
 	camera_struct right_cam;
 
 	camera_control left_cam_ctl;
 	camera_control right_cam_ctl;
+#elif defined(E2E_UVC_CAM)
+	e2e::uvc::context uvc_ctx;
+	e2e::uvc::camera left_camera;
+	e2e::uvc::camera right_camera;
+
+	e2e::uvc::stream left_cam;
+	e2e::uvc::stream right_cam;
+
+	e2e::uvc::camera& left_cam_ctl = left_camera;
+	e2e::uvc::camera& right_cam_ctl = right_camera;
+
+	nlohmann::json left_meta;
+	nlohmann::json right_meta;
+#endif
 
 	e2e::GLSLProgram left_prev_shader;
 	e2e::GLSLProgram right_prev_shader;
@@ -204,15 +220,29 @@ ApplicationImpl::GUI::GUI() : w(1280, 720)
 }
 
 ApplicationImpl::ApplicationImpl(const std::vector<std::string> &args) :
+#if defined(E2E_FFMPEG_CAM)
 	left_cam(load_camera_conf(args[0])),
 	right_cam(load_camera_conf(args[1])),
 	left_cam_ctl(left_cam.get_ip()),
 	right_cam_ctl(right_cam.get_ip()),
+#elif defined(E2E_UVC_CAM)
+    left_camera(uvc_ctx.open_camera(uvc_ctx.list_cameras()[0])),
+    right_camera(uvc_ctx.open_camera(uvc_ctx.list_cameras()[2])),
+    left_cam(left_camera, 1280, 720, 24),
+    right_cam(right_camera, 1280, 720, 24),
+    left_meta(load_camera_conf(args[0])),
+	right_meta(load_camera_conf(args[1])),
+#endif
 	tp(1),
 	encoder("output.h264", 1280, 720)
 {
+#if defined(E2E_FFMPEG_CAM)
 	left.exposure_index = (left_cam.get_config())["exp_code"];
 	right.exposure_index = (right_cam.get_config())["exp_code"];
+#elif defined(E2E_UVC_CAM)
+	//left.exposure_index = (left_camera.get_config())["exp_code"];
+	//right.exposure_index = (right_camera.get_config())["exp_code"];
+#endif
 
 	tp.push_job([&] {left_cam_ctl.set_exposure(left.exposure_index); });
 	tp.push_job([&] {right_cam_ctl.set_exposure(right.exposure_index); });
@@ -248,8 +278,13 @@ ApplicationImpl::ApplicationImpl(const std::vector<std::string> &args) :
 	profiles.profs = find_profiles();
 	profiles.update_names();
 
+#if defined(E2E_FFMPEG_CAM)
 	auto l_prof_iter = std::find(profiles.profile_names.begin(), profiles.profile_names.end(), left_cam.get_profile());
 	auto r_prof_iter = std::find(profiles.profile_names.begin(), profiles.profile_names.end(), right_cam.get_profile());
+#elif defined(E2E_UVC_CAM)
+	auto l_prof_iter = std::find(profiles.profile_names.begin(), profiles.profile_names.end(), left_meta["profile"]);
+	auto r_prof_iter = std::find(profiles.profile_names.begin(), profiles.profile_names.end(), right_meta["profile"]);
+#endif
 
 	left.profile_index = std::distance(profiles.profile_names.begin(), l_prof_iter);
 	right.profile_index = std::distance(profiles.profile_names.begin(), r_prof_iter);
@@ -274,7 +309,7 @@ void ApplicationImpl::Run()
 		named_profile("Display");
 
 		boost::optional<std::pair<FrameT, FrameT>> frames;
-		if (running && !left_cam.frame_queue.empty() && !right_cam.frame_queue.empty())
+		if (running && !left_cam.get_frame_queue().empty() && !right_cam.get_frame_queue().empty())
 		{
 			frames = get_frame_pair();
 			auto& left = std::get<0>(frames.get());
@@ -326,15 +361,17 @@ void ApplicationImpl::Run()
 
 		if (frames)
 		{
+#if defined(E2E_FFMPEG_CAM)
 			left_cam.recycle(std::move(std::get<0>(frames.get())));
 			right_cam.recycle(std::move(std::get<1>(frames.get())));
+#endif
 		}
 	}
 }
 
 std::pair<FrameT, FrameT> ApplicationImpl::get_frame_pair() {
-	auto& left_queue = left_cam.frame_queue;
-	auto& right_queue = right_cam.frame_queue;
+	auto& left_queue = left_cam.get_frame_queue();
+	auto& right_queue = right_cam.get_frame_queue();
 
 	auto left_frame = std::move(left_queue.front()); left_queue.pop();
 	auto right_frame = std::move(right_queue.front()); right_queue.pop();
@@ -359,7 +396,9 @@ std::pair<FrameT, FrameT> ApplicationImpl::get_frame_pair() {
 			// if the difference shrinks, drop left frame
 			if (std::abs(diff) > std::abs(di))
 			{
+#if defined(E2E_FFMPEG_CAM)
 				left_cam.recycle(std::move(left_frame));
+#endif
 				left_frame = std::move(left_queue.front()); left_queue.pop();
 				diff = di;
 			}
@@ -373,7 +412,9 @@ std::pair<FrameT, FrameT> ApplicationImpl::get_frame_pair() {
 			auto di = calc_diff(left_frame, right_queue.front());
 			if (std::abs(diff) > std::abs(di))
 			{
+#if defined(E2E_FFMPEG_CAM)
 				right_cam.recycle(std::move(right_frame));
+#endif
 				right_frame = std::move(right_queue.front()); right_queue.pop();
 				diff = di;
 			}
@@ -483,17 +524,19 @@ void ApplicationImpl::draw_gui()
 		}, (void*)crf.blue.data(), 256, 0, "", -10, 10, ImVec2(0, 80));
 	};
 
-	auto draw_camera = [&plot_crf, this](camera_struct& cam, CTL_data& ctl, auto& controller)
+	auto draw_camera = [&plot_crf, this](json& cam_meta, e2e::uvc::stream& cam, CTL_data& ctl, auto& controller)
 	{
-		if (ImGui::TreeNode(cam.get_name().c_str()))
+		const std::string& n = cam_meta["name"];
+		if (ImGui::TreeNode(n.c_str()))
 		{
-			ImGui::Text("Decoded Queue: %d", cam.frame_queue.size());
+			ImGui::Text("Decoded Queue: %d", cam.get_frame_queue().size());
 			CTL_data d = ctl;
 			ImGui::Combo("Response Profile", &ctl.profile_index, profiles.profile_names.data(), profiles.profile_names.size());
 
 			if (d.profile_index != ctl.profile_index)
 			{
-				cam.set_profile(profiles.get_name(ctl.profile_index));
+				//cam.set_profile(profiles.get_name(ctl.profile_index));
+				cam_meta["profile"] = profiles.get_name(ctl.profile_index);
 				reload_shaders();
 			}
 
@@ -519,16 +562,21 @@ void ApplicationImpl::draw_gui()
 			ImGui::Combo("Exposure", &ctl.exposure_index, test, 12);
 			if (d.exposure_index != ctl.exposure_index)
 			{
-				tp.push_job([&controller, &ctl] {controller.set_exposure(ctl.exposure_index); });
-				cam.update_exp(controller.get_exposure(d.exposure_index), d.exposure_index);
+				tp.push_job([&controller, &ctl] { controller.set_exposure(ctl.exposure_index); });
+				//cam.update_exp(controller.get_exposure(d.exposure_index), d.exposure_index);
 				reload_shaders();
 			}
 			ImGui::TreePop();
 		}
 	};
 
-	draw_camera(left_cam, left, left_cam_ctl);
-	draw_camera(right_cam, right, right_cam_ctl);
+#if defined(E2E_FFMPEG_CAM)
+	draw_camera(left_cam.get_config(), left, left_cam_ctl);
+	draw_camera(right_cam.get_config(), right, right_cam_ctl);
+#elif defined(E2E_UVC_CAM)
+    draw_camera(left_meta, left_cam, left, left_cam_ctl);
+	draw_camera(right_meta, right_cam, right, right_cam_ctl);
+#endif
 
 	ImGui::End();
 
@@ -550,8 +598,14 @@ void ApplicationImpl::draw_gui()
 			profiles.profs = find_profiles();
 			profiles.update_names();
 
-			auto l_prof_iter = std::find(profiles.profile_names.begin(), profiles.profile_names.end(), left_cam.get_profile());
-			auto r_prof_iter = std::find(profiles.profile_names.begin(), profiles.profile_names.end(), right_cam.get_profile());
+
+        #if defined(E2E_FFMPEG_CAM)
+            auto l_prof_iter = std::find(profiles.profile_names.begin(), profiles.profile_names.end(), left_cam.get_profile());
+            auto r_prof_iter = std::find(profiles.profile_names.begin(), profiles.profile_names.end(), right_cam.get_profile());
+        #elif defined(E2E_UVC_CAM)
+            auto l_prof_iter = std::find(profiles.profile_names.begin(), profiles.profile_names.end(), left_meta["profile"]);
+            auto r_prof_iter = std::find(profiles.profile_names.begin(), profiles.profile_names.end(), right_meta["profile"]);
+        #endif
 
 			left.profile_index = std::distance(profiles.profile_names.begin(), l_prof_iter);
 			right.profile_index = std::distance(profiles.profile_names.begin(), r_prof_iter);
@@ -667,8 +721,8 @@ void ApplicationImpl::pause()
 {
 	left_cam.stop();
 	right_cam.stop();
-	left_cam.frame_queue.clear(); // safe since the producer threads are dead at this point
-	right_cam.frame_queue.clear();
+	left_cam.get_frame_queue().clear(); // safe since the producer threads are dead at this point
+	right_cam.get_frame_queue().clear();
 	running = false;
 }
 
@@ -711,8 +765,8 @@ void ApplicationImpl::recover_routine(const FrameT &left, const FrameT &right) {
 		done.left_crf = e2e::app::recover_crf(state->left_frames, state->times);
 		done.right_crf = e2e::app::recover_crf(state->right_frames, state->times);
 
-		left_cam_ctl.set_exposure(left_cam.get_exposure());
-		right_cam_ctl.set_exposure(right_cam.get_exposure());
+		left_cam_ctl.set_exposure(left_camera.get_exposure());
+		right_cam_ctl.set_exposure(right_camera.get_exposure());
 
 		crf_state = std::move(done);
 	}

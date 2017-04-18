@@ -56,7 +56,7 @@ namespace app
         return {red, green, blue};
     }
 
-    crf recover_crf(const std::vector<camera_struct::FrameT>& ims, const std::vector<float> &times) {
+    crf recover_crf(const std::vector<e2e::app::FrameT>& ims, const std::vector<float> &times) {
         std::string tmp_dir = "/tmp/";
 
         std::vector<std::string> paths;
