@@ -5,6 +5,7 @@
 
 //OTHER
 #include <boost/core/noncopyable.hpp>
+#include <memory>
 
 class Texture
 {
@@ -23,7 +24,7 @@ public:
 
 	void use() const;
 	void useArray() const;
-    void* getTextureImage();
+    std::unique_ptr<unsigned char> getTextureImage() const;
 
 	GLuint get_texture_id() const { return m_texture_id; }
 	GLuint get_width() const { return m_width; }

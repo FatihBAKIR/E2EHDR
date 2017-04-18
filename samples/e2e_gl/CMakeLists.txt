@@ -37,6 +37,7 @@ target_link_libraries(e2e_gl imgui)
 target_include_directories(e2e_gl PUBLIC ${OPENGL_INCLUDE_DIR})
 target_include_directories(e2e_gl PUBLIC ${OpenCV_INCLUDE_DIRS})
 target_include_directories(e2e_gl PUBLIC ${GLFW_INCLUDE_DIR})
+
 target_include_directories(e2e_gl PUBLIC ${Boost_INCLUDE_DIRS})
 target_include_directories(e2e_gl PUBLIC "../../3rd_party/imgui")
 target_include_directories(e2e_gl PUBLIC "include")

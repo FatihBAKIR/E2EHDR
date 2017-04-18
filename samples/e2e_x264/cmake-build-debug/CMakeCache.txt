@@ -35,6 +35,12 @@ Boost_DATE_TIME_LIBRARY_RELEASE:FILEPATH=/usr/local/lib/libboost_date_time-mt.dy
 //The directory containing a CMake configuration file for Boost.
 Boost_DIR:PATH=Boost_DIR-NOTFOUND
 
+//Boost filesystem library (debug)
+Boost_FILESYSTEM_LIBRARY_DEBUG:FILEPATH=/usr/local/lib/libboost_filesystem-mt.dylib
+
+//Boost filesystem library (release)
+Boost_FILESYSTEM_LIBRARY_RELEASE:FILEPATH=/usr/local/lib/libboost_filesystem-mt.dylib
+
 //Path to a file.
 Boost_INCLUDE_DIR:PATH=/usr/local/include
 
@@ -189,7 +195,7 @@ CMAKE_OSX_DEPLOYMENT_TARGET:STRING=
 CMAKE_OSX_SYSROOT:STRING=
 
 //Value Computed by CMake
-CMAKE_PROJECT_NAME:STATIC=mpeghdr
+CMAKE_PROJECT_NAME:STATIC=e2e_x264
 
 //Path to a program.
 CMAKE_RANLIB:FILEPATH=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ranlib
@@ -295,10 +301,13 @@ X264_INCLUDE_DIR:PATH=/usr/local/Cellar/x264/r2699/include
 X264_LIBRARIES:FILEPATH=/usr/local/Cellar/x264/r2699/lib/libx264.dylib
 
 //Value Computed by CMake
-mpeghdr_BINARY_DIR:STATIC=/Users/fatih/Bitirme/samples/e2e_x264/cmake-build-debug
+e2e_x264_BINARY_DIR:STATIC=/Users/fatih/Bitirme/samples/e2e_x264/cmake-build-debug
+
+//Dependencies for the target
+e2e_x264_LIB_DEPENDS:STATIC=general;/usr/local/Cellar/x264/r2699/lib/libx264.dylib;general;/usr/local/lib/libavformat.dylib;general;/usr/local/lib/libavdevice.dylib;general;/usr/local/lib/libavcodec.dylib;general;/usr/local/lib/libavutil.dylib;general;/usr/local/lib/libswscale.dylib;general;/usr/local/lib/libboost_system-mt.dylib;general;/usr/local/lib/libboost_iostreams-mt.dylib;general;/usr/local/lib/libboost_filesystem-mt.dylib;general;/usr/local/lib/libboost_regex-mt.dylib;general;e2e_utils;general;/usr/local/lib/libjpeg.dylib;general;/usr/local/lib/libboost_system-mt.dylib;general;/usr/local/lib/libboost_thread-mt.dylib;general;/usr/local/lib/libboost_chrono-mt.dylib;general;/usr/local/lib/libboost_date_time-mt.dylib;general;/usr/local/lib/libboost_atomic-mt.dylib;general;opencv_calib3d;general;opencv_core;general;opencv_features2d;general;opencv_flann;general;opencv_highgui;general;opencv_imgcodecs;general;opencv_imgproc;general;opencv_ml;general;opencv_objdetect;general;opencv_photo;general;opencv_shape;general;opencv_stitching;general;opencv_superres;general;opencv_video;general;opencv_videoio;general;opencv_videostab;general;opencv_aruco;general;opencv_bgsegm;general;opencv_bioinspired;general;opencv_ccalib;general;opencv_datasets;general;opencv_dnn;general;opencv_dpm;general;opencv_face;general;opencv_fuzzy;general;opencv_line_descriptor;general;opencv_optflow;general;opencv_plot;general;opencv_reg;general;opencv_rgbd;general;opencv_saliency;general;opencv_stereo;general;opencv_structured_light;general;opencv_surface_matching;general;opencv_text;general;opencv_tracking;general;opencv_xfeatures2d;general;opencv_ximgproc;general;opencv_xobjdetect;general;opencv_xphoto;
 
 //Value Computed by CMake
-mpeghdr_SOURCE_DIR:STATIC=/Users/fatih/Bitirme/samples/e2e_x264
+e2e_x264_SOURCE_DIR:STATIC=/Users/fatih/Bitirme/samples/e2e_x264
 
 
 ########################
@@ -319,6 +328,10 @@ Boost_DATE_TIME_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
 Boost_DATE_TIME_LIBRARY_RELEASE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: Boost_DIR
 Boost_DIR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_FILESYSTEM_LIBRARY_DEBUG
+Boost_FILESYSTEM_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_FILESYSTEM_LIBRARY_RELEASE
+Boost_FILESYSTEM_LIBRARY_RELEASE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: Boost_INCLUDE_DIR
 Boost_INCLUDE_DIR-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: Boost_IOSTREAMS_LIBRARY_DEBUG
@@ -348,9 +361,9 @@ CMAKE_CACHEFILE_DIR:INTERNAL=/Users/fatih/Bitirme/samples/e2e_x264/cmake-build-d
 //Major version of cmake used to create the current loaded cache
 CMAKE_CACHE_MAJOR_VERSION:INTERNAL=3
 //Minor version of cmake used to create the current loaded cache
-CMAKE_CACHE_MINOR_VERSION:INTERNAL=6
+CMAKE_CACHE_MINOR_VERSION:INTERNAL=7
 //Patch version of cmake used to create the current loaded cache
-CMAKE_CACHE_PATCH_VERSION:INTERNAL=3
+CMAKE_CACHE_PATCH_VERSION:INTERNAL=1
 //ADVANCED property for variable: CMAKE_COLOR_MAKEFILE
 CMAKE_COLOR_MAKEFILE-ADVANCED:INTERNAL=1
 //Path to CMake executable.
@@ -447,7 +460,7 @@ CMAKE_OBJDUMP-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_RANLIB
 CMAKE_RANLIB-ADVANCED:INTERNAL=1
 //Path to CMake installation.
-CMAKE_ROOT:INTERNAL=/Applications/CLion.app/Contents/bin/cmake/share/cmake-3.6
+CMAKE_ROOT:INTERNAL=/Applications/CLion.app/Contents/bin/cmake/share/cmake-3.7
 //ADVANCED property for variable: CMAKE_SHARED_LINKER_FLAGS
 CMAKE_SHARED_LINKER_FLAGS-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_SHARED_LINKER_FLAGS_DEBUG
@@ -527,7 +540,7 @@ PKG_CONFIG_EXECUTABLE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: ProcessorCount_cmd_sysctl
 ProcessorCount_cmd_sysctl-ADVANCED:INTERNAL=1
 //Components requested for this build tree.
-_Boost_COMPONENTS_SEARCHED:INTERNAL=atomic;chrono;date_time;iostreams;regex;system;thread
+_Boost_COMPONENTS_SEARCHED:INTERNAL=atomic;chrono;date_time;filesystem;iostreams;regex;system;thread
 //Last used Boost_INCLUDE_DIR value.
 _Boost_INCLUDE_DIR_LAST:INTERNAL=/usr/local/include
 //Last used Boost_LIBRARY_DIR_DEBUG value.

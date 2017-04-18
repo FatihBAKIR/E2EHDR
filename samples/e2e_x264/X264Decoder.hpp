@@ -8,6 +8,8 @@
 #include <util.h>
 #include <vector>
 #include <deque>
+#include <function>
+#include <cstring>
 
 extern "C" {
 #include <libavcodec/avcodec.h>

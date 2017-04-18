@@ -2,7 +2,6 @@
 
 in vec2 tex_coord;
 out vec4 color;
-out vec4 resid_color;
 
 uniform float dx;
 uniform float dy;
@@ -83,6 +82,5 @@ void main()
 	cols = pow(cols, vec4(1.0 / 2.2)); // gamma correction
 	cols.a = 1;
 	
-	resid_color = hdr_cols / cols;
 	color = cols;
 }

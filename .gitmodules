@@ -22,3 +22,6 @@ url=git@github.com:FatihBAKIR/imgui.git
 [submodule "samples/e2e_player/nanogui"]
 	path = samples/e2e_player/nanogui
 	url = git@github.com:wjakob/nanogui.git
+[submodule "3rd_party/libuvc"]
+	path = 3rd_party/libuvc
+	url = https://github.com/ktossell/libuvc

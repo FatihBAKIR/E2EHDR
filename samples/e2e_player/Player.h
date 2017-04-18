@@ -16,6 +16,8 @@
 #include <texture.h>
 #include <glsl_program.h>
 
+#include "shared_frame_queue.hpp"
+
 class Player
 {
     boost::thread work_thread;
@@ -42,11 +44,14 @@ class Player
 
     std::set<int> prev_pressed;
 
+    e2e::shared_frames_queue mq = {false, 1280, 720};
+
     void init_playback();
     void init_quads();
     void init_shaders();
     void init_worker();
     void init_video(const std::string& path);
+    void init_ipc();
 
     void play_loop();
     e2e::HDRFrame get_next_frame();

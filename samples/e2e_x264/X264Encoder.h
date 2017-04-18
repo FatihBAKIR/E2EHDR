@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <string>
 #include <gsl/span>
+#include <function>
+#include <cstring>
 
 extern "C"
 {
