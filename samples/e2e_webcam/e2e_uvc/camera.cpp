@@ -116,16 +116,9 @@ namespace e2e {
             }
         }
 
-        void stream::start(int exp)
+        void stream::start()
         {
-            if (uvc_set_ae_mode(priv->cam->priv->devh, 1) < 0)
-            {
-                std::cerr << "couldn't set ae mode\n";
-            }
-            if (uvc_set_exposure_abs(priv->cam->priv->devh, exp) < 0)
-            {
-                std::cerr << "couldn't set exposure\n";
-            }
+
 
             auto res = uvc_start_streaming(priv->cam->priv->devh, &priv->ctrl, [](uvc_frame_t* f, void* opaque) {
                 reinterpret_cast<decltype(this)>(opaque)->priv->handle_frame(f);
@@ -151,6 +144,25 @@ namespace e2e {
         e2e::spsc_queue<e2e::LDRFrame>& stream::get_frame_queue()
         {
             return priv->frames;
+        }
+
+        void camera::set_exposure(int exp)
+        {
+            if (uvc_set_ae_mode(priv->devh, 1) < 0)
+            {
+                std::cerr << "couldn't set ae mode\n";
+            }
+            if (uvc_set_exposure_abs(priv->devh, exp) < 0)
+            {
+                std::cerr << "couldn't set exposure\n";
+            }
+        }
+
+        int camera::get_exposure() const
+        {
+            uint32_t exp;
+            uvc_get_exposure_abs(priv->devh, &exp, uvc_req_code::UVC_GET_CUR);
+            return exp;
         }
     }
 }

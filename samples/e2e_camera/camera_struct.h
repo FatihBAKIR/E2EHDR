@@ -40,7 +40,7 @@ public:
     const std::string& get_name() const;
     const std::string& get_ip() const;
 
-    const auto& get_config() const { return config; }
+    const nlohmann::json& get_config() const { return config; }
 
     camera_struct(camera_struct&) = delete;
     camera_struct(camera_struct&&) = delete;

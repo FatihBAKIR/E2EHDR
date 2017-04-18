@@ -28,7 +28,7 @@ namespace e2e {
             stream(const camera& cam, int w, int h, int fps);
             ~stream();
 
-            void start(int exp);
+            void start();
             void stop();
 
             e2e::spsc_queue<e2e::LDRFrame>& get_frame_queue();
@@ -52,6 +52,9 @@ namespace e2e {
         public:
             camera(const camera&) = delete;
             camera(camera&&);
+            void set_exposure(int exp);
+            int get_exposure() const;
+
             ~camera();
         };
 
@@ -68,7 +71,6 @@ namespace e2e {
             std::vector<camera_info> list_cameras();
             camera open_camera(const camera_info&);
         };
-
 
 
     }

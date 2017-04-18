@@ -51,9 +51,6 @@ void cb(uvc_frame_t* frame, void* ptr)
 
 void test()
 {
-    e2e::uvc::context c;
-    c.list_cameras();
-
     uvc_context_t* ctx;
     uvc_device_t* dev;
     uvc_device_handle_t* devh;
@@ -171,8 +168,8 @@ int main()
     e2e::uvc::stream s0(cam0, 1280, 720, 24);
     e2e::uvc::stream s1(cam1, 1280, 720, 24);
 
-    s0.start(50);
-    s1.start(250);
+    s0.start(30);
+    s1.start(50);
 
     auto& f0 = s0.get_frame_queue();
     auto& f1 = s1.get_frame_queue();
