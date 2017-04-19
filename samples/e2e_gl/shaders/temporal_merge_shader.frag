@@ -8,7 +8,6 @@ uniform float dy;
 uniform sampler2D disparity_map;
 uniform sampler2D left_exp;
 uniform sampler2D right_exp;
-uniform int color_debug;
 
 struct camera_params
 {
@@ -41,14 +40,7 @@ vec4 createHDR(vec2 resultUV)
 	//other frame
 	if (w_left < 0.9f)
 	{
-		if (!color_debug)
-		{
-			return vec4(ldr_left, 1.0f);
-		}
-		else
-		{
-			return vec4(1.0f, 0.0f, 0.0f, 1.0f);
-		}
+		return vec4(ldr_left, 1.0f);
 	}
 
     // frame with higher exposure:
@@ -56,14 +48,7 @@ vec4 createHDR(vec2 resultUV)
     vec3  ldr_right      = sample_right.rgb;
     float w_right        = sample_right.a;
 	
-	if (!color_debug)
-	{
-		return vec4(ldr_right, 1.0f);
-	}
-	else
-	{
-		return vec4(0.0f, 1.0f, 0.0f, 1.0f);
-	}
+	return vec4(ldr_right, 1.0f);
 
     hdr.rgb       += (ldr_right) * w_right;
     weightSum     += w_right;

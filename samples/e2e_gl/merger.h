@@ -66,8 +66,8 @@ namespace e2e
         const Texture* m_texture2;
         texRecord m_tex_record;
 
-        GLSLProgram m_frame_pass_left_shader;
-        GLSLProgram m_frame_pass_right_shader;
+        GLSLProgram m_undistort_left_shader;
+        GLSLProgram m_undistort_right_shader;
         GLSLProgram m_cost_shader;
         GLSLProgram m_aggregate_shader;
         GLSLProgram m_outlier_detection_shader;
@@ -75,7 +75,7 @@ namespace e2e
         GLSLProgram m_median_shader;
         GLSLProgram m_record_merge_shader;
         GLSLProgram m_copy_shader_shader;
-        GLSLProgram m_last_pass_shader;
+        GLSLProgram m_temporal_stability_shader;
         GLSLProgram m_hdr_merge_shader;
 
         GLfloat m_position_x;
@@ -88,7 +88,6 @@ namespace e2e
         int m_aggregation_choice;
         float m_threshold;
         int m_window_size;
-        int m_color_debug;
 
         bool m_outlier_detection;
         bool m_outlier_correction;

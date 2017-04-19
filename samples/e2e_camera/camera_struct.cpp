@@ -3,7 +3,6 @@
 //
 
 #include "camera_struct.h"
-#include <e2e_ff/ffmpeg_wrapper.h>
 
 template <class T, class Fun>
 auto apply(T&& elem, Fun f)
@@ -30,7 +29,7 @@ auto pipeline(InputQueueT& in, OutputQueueT& out, Rest... funs)
                     auto elem = std::move(in.front());
                     in.pop();
 
-                    auto res = apply(std::move(elem), funs...);
+                    auto res = apply(elem, funs...);
                     if (res)
                     {
                         out.emplace(std::move(res.get()));
@@ -41,7 +40,7 @@ auto pipeline(InputQueueT& in, OutputQueueT& out, Rest... funs)
 
 void camera_struct::start() {
     pull_thread = boost::thread([this]{ camera.start_capture(); });
-    auto handler = [this](e2e::ff::Camera::FrameData&& p) { return handle_packet(std::forward<decltype(p)>(p)); };
+    auto handler = [this](auto&& p) { return handle_packet(std::forward<decltype(p)>(p)); };
     decode_thread = pipeline(camera.packet_queue, frame_queue, handler);
 }
 
