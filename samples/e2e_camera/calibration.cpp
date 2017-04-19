@@ -56,14 +56,14 @@ namespace app
         return {red, green, blue};
     }
 
-    crf recover_crf(const std::vector<e2e::app::FrameT>& ims, const std::vector<float> &times) {
+    crf recover_crf(const std::vector<e2e::app::FrameT>& ims, const std::vector<std::chrono::milliseconds> &times) {
         std::string tmp_dir = "/tmp/";
 
         std::vector<std::string> paths;
         for (int i = 0; i < ims.size(); ++i)
         {
             const auto& f = ims[i];
-            float time = times[i];
+            float time = times[i].count() / 1000.f;
 
             using namespace std::string_literals;
             auto tstring = std::to_string(1.0f / time);

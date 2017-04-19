@@ -6,23 +6,24 @@
 #include <iostream>
 #include <camera_struct.h>
 
-e2e::GLSLProgram make_preview_shader(const camera_struct& cam, const crf& response)
+e2e::GLSLProgram make_preview_shader(const nlohmann::json& meta)
 {
     e2e::GLSLProgram hdr;
     hdr.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/hdr.vert");
     hdr.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/preview.frag");
     hdr.link();
 
-    auto copy_camera = [&hdr](const auto& cam, const crf& crf, const std::string& pref)
+    auto copy_camera = [&hdr](const nlohmann::json& cmeta, const std::string& pref)
     {
-        auto undis = cam.get_undistort();
+        const auto& undis = e2e::app::extract_undistort(cmeta);
+        const auto& crf = e2e::app::extract_crf(cmeta);
 
         std::cout << "copying response\n";
         hdr.setUniformArray(pref + ".response.red",  crf.red);
         hdr.setUniformArray(pref + ".response.green", crf.green);
         hdr.setUniformArray(pref + ".response.blue", crf.blue);
 
-        hdr.setUniformFVar(pref + ".exposure", { cam.get_exposure() });
+        hdr.setUniformFVar(pref + ".exposure", { e2e::app::extract_exposure(cmeta) });
 
         hdr.setUniformFVar(pref + ".undis.focal_length", {undis.focal[0], undis.focal[1]});
         hdr.setUniformFVar(pref + ".undis.optical_center", {undis.optical[0], undis.optical[1]});
@@ -30,7 +31,7 @@ e2e::GLSLProgram make_preview_shader(const camera_struct& cam, const crf& respon
         hdr.setUniformFVar(pref + ".undis.image_size",  {undis.im_size[0], undis.im_size[1]});
     };
 
-    copy_camera(cam, response, "camera");
+    copy_camera(meta, "camera");
     return hdr;
 }
 

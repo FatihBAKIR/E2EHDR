@@ -36,6 +36,7 @@
 
 using json = nlohmann::json;
 using namespace e2e::app;
+using namespace std::chrono_literals;
 
 class ApplicationImpl
 {
@@ -79,7 +80,7 @@ class ApplicationImpl
 	e2e::GLSLProgram left_prev_shader;
 	e2e::GLSLProgram right_prev_shader;
 
-	e2e::shared_frames_queue mq = {true, 1280, 720};
+	//e2e::shared_frames_queue mq = {true, 1280, 720};
 	bool is_player_available = false;
 
 	struct
@@ -139,9 +140,9 @@ class ApplicationImpl
 	{
 		std::vector<FrameT> left_frames;
 		std::vector<FrameT> right_frames;
-		std::vector<float> times;
+		std::vector<std::chrono::milliseconds> times;
 
-		float cur_exposure = 0;
+		std::chrono::milliseconds cur_exposure = 0ms;
 		std::chrono::high_resolution_clock::time_point last_take;
 	};
 
@@ -153,6 +154,21 @@ class ApplicationImpl
 
 	using rec_state = boost::variant<WaitingRec, InRecovery, DoneRecovery>;
 	rec_state crf_state;
+
+    std::chrono::milliseconds cvt[12] = {
+			1000ms,
+			500ms,
+			250ms,
+			125ms,
+			67ms,
+			33ms,
+			20ms,
+			17ms,
+			10ms,
+			4ms,
+			2ms,
+			1ms
+	};
 
 	struct CTL_data
 	{
@@ -227,7 +243,7 @@ ApplicationImpl::ApplicationImpl(const std::vector<std::string> &args) :
 	right_cam_ctl(right_cam.get_ip()),
 #elif defined(E2E_UVC_CAM)
     left_camera(uvc_ctx.open_camera(uvc_ctx.list_cameras()[0])),
-    right_camera(uvc_ctx.open_camera(uvc_ctx.list_cameras()[2])),
+    right_camera(uvc_ctx.open_camera(uvc_ctx.list_cameras()[1])),
     left_cam(left_camera, 1280, 720, 24),
     right_cam(right_camera, 1280, 720, 24),
     left_meta(load_camera_conf(args[0])),
@@ -240,12 +256,18 @@ ApplicationImpl::ApplicationImpl(const std::vector<std::string> &args) :
 	left.exposure_index = (left_cam.get_config())["exp_code"];
 	right.exposure_index = (right_cam.get_config())["exp_code"];
 #elif defined(E2E_UVC_CAM)
-	//left.exposure_index = (left_camera.get_config())["exp_code"];
-	//right.exposure_index = (right_camera.get_config())["exp_code"];
+	left.exposure_index = left_meta["exp_code"];
+	right.exposure_index = right_meta["exp_code"];
 #endif
 
-	tp.push_job([&] {left_cam_ctl.set_exposure(left.exposure_index); });
-	tp.push_job([&] {right_cam_ctl.set_exposure(right.exposure_index); });
+	left_cam_ctl.set_iso(25);
+	right_cam_ctl.set_iso(25);
+
+	left_cam_ctl.set_wb_temp(4500);
+	right_cam_ctl.set_wb_temp(4000);
+
+	tp.push_job([&] {left_cam_ctl.set_shutter_speed(cvt[left.exposure_index]); });
+	tp.push_job([&] {right_cam_ctl.set_shutter_speed(cvt[right.exposure_index]); });
 
 	add_keybinding(GLFW_KEY_R, [this] {
 		reload_shaders();
@@ -331,7 +353,7 @@ void ApplicationImpl::Run()
 			//std::cout << "(" << er << ") " << glewGetErrorString(er) << '\n';
 			draw_preview();
 
-			merger.draw(gui.w);
+			//merger.draw(gui.w);
 			//merger.draw();
 
             /*auto frames = merger.get_frames();
@@ -449,16 +471,16 @@ void ApplicationImpl::snapshot() {
 void ApplicationImpl::reload_shaders() {
 	std::cout << "reloading shaders...\n";
 
-	left_prev_shader = make_preview_shader(left_cam, profiles.get_response(left.profile_index));
-	right_prev_shader = make_preview_shader(right_cam, profiles.get_response(right.profile_index));
+	left_prev_shader = make_preview_shader(left_meta);
+	right_prev_shader = make_preview_shader(right_meta);
 
 	gui.left_quad.set_program(left_prev_shader);
 	gui.right_quad.set_program(right_prev_shader);
 
-	make_merge_shader(merger.get_merge_shader(), left_cam, right_cam);
+	/*make_merge_shader(merger.get_merge_shader(), left_cam, right_cam);
 
 	make_undistort_shader(merger.get_undistort_left_shader(), left_cam, profiles.get_response(left.profile_index));
-	make_undistort_shader(merger.get_undistort_right_shader(), right_cam, profiles.get_response(right.profile_index));
+	make_undistort_shader(merger.get_undistort_right_shader(), right_cam, profiles.get_response(right.profile_index));*/
 }
 
 void ApplicationImpl::draw_gui()
@@ -561,7 +583,7 @@ void ApplicationImpl::draw_gui()
 			ImGui::Combo("Exposure", &ctl.exposure_index, test, 12);
 			if (d.exposure_index != ctl.exposure_index)
 			{
-				tp.push_job([&controller, &ctl] { controller.set_exposure(ctl.exposure_index); });
+				tp.push_job([&controller, &ctl, this] { controller.set_shutter_speed(cvt[ctl.exposure_index]); });
 				//cam.update_exp(controller.get_exposure(d.exposure_index), d.exposure_index);
 				reload_shaders();
 			}
@@ -635,7 +657,7 @@ void ApplicationImpl::draw_gui()
 	//e2e::gui::displayStereoControl(recompile_shaders, cost_choice, agg_choice, detection, correction, median, threshold, window_size);
 	e2e::gui::displayTonemapControl(base_lum, max_lum);
     e2e::gui::displayRecord(record);
-	merger.chooseCost(cost_choice);
+	/*merger.chooseCost(cost_choice);
 	merger.chooseAggregation(agg_choice);
 	merger.set_outlier_detection(detection, threshold, window_size);
 	merger.set_outlier_correction(correction);
@@ -648,7 +670,7 @@ void ApplicationImpl::draw_gui()
 	}
 
 	merger.get_merge_shader().setUniformFVar("base", { base_lum });
-	merger.get_merge_shader().setUniformFVar("maxLum", { max_lum });
+	merger.get_merge_shader().setUniformFVar("maxLum", { max_lum });*/
 
 	ImGui::Render();
 }
@@ -708,9 +730,9 @@ void ApplicationImpl::start_crf_recovery() {
 	crf_state = InRecovery{};
 	auto state = boost::get<InRecovery>(&crf_state);
 
-	state->cur_exposure = 1 / 100.0f;
-	left_cam_ctl.set_exposure(state->cur_exposure);
-	right_cam_ctl.set_exposure(state->cur_exposure);
+	state->cur_exposure = 10ms;
+	left_cam_ctl.set_shutter_speed(state->cur_exposure);
+	right_cam_ctl.set_shutter_speed(state->cur_exposure);
 	state->last_take = std::chrono::high_resolution_clock::now();
 
 	start();
@@ -749,8 +771,8 @@ void ApplicationImpl::recover_routine(const FrameT &left, const FrameT &right) {
 	pause();
 
 	tp.push_job([this, state] {
-		left_cam_ctl.set_exposure(state->cur_exposure);
-		right_cam_ctl.set_exposure(state->cur_exposure);
+		left_cam_ctl.set_shutter_speed(state->cur_exposure);
+		right_cam_ctl.set_shutter_speed(state->cur_exposure);
 		state->last_take = std::chrono::high_resolution_clock::now();
 		start();
 	});
@@ -764,8 +786,8 @@ void ApplicationImpl::recover_routine(const FrameT &left, const FrameT &right) {
 		done.left_crf = e2e::app::recover_crf(state->left_frames, state->times);
 		done.right_crf = e2e::app::recover_crf(state->right_frames, state->times);
 
-		left_cam_ctl.set_exposure(left_camera.get_exposure());
-		right_cam_ctl.set_exposure(right_camera.get_exposure());
+		left_cam_ctl.set_shutter_speed(std::chrono::milliseconds((long)(e2e::app::extract_exposure(left_meta) * 1000)));
+		right_cam_ctl.set_shutter_speed(std::chrono::milliseconds((long)(e2e::app::extract_exposure(right_meta) * 1000)));
 
 		crf_state = std::move(done);
 	}

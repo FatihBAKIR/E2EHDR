@@ -14,7 +14,7 @@ namespace e2e
 namespace app
 {
     void set_exif(const std::string& path, float time);
-    crf recover_crf(const std::vector<e2e::app::FrameT>& ims, const std::vector<float>& times);
+    crf recover_crf(const std::vector<e2e::app::FrameT>& ims, const std::vector<std::chrono::milliseconds>& times);
     crf parse_response(const std::string& path);
 }
 }

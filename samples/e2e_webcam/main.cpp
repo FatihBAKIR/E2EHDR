@@ -159,17 +159,32 @@ int main()
 {
     //test();
 
+    using namespace std::chrono_literals;
     e2e::uvc::context ctx;
     auto cams = ctx.list_cameras();
 
     auto cam0 = ctx.open_camera(cams[0]);
     auto cam1 = ctx.open_camera(cams[1]);
 
+    cam0.set_wb_temp(4500);
+    cam1.set_wb_temp(4000);
+
+    cam0.set_shutter_speed(5ms);
+    cam1.set_shutter_speed(5ms);
+
+    cam0.dump();
+    cam1.dump();
+    cam0.set_iso(10);
+    cam1.set_iso(10);
+
+    std::cout << cam0.get_iso() <<'\n';
+    std::cout << cam1.get_iso() <<'\n';
+
     e2e::uvc::stream s0(cam0, 1280, 720, 24);
     e2e::uvc::stream s1(cam1, 1280, 720, 24);
 
-    s0.start(30);
-    s1.start(50);
+    s0.start();
+    s1.start();
 
     auto& f0 = s0.get_frame_queue();
     auto& f1 = s1.get_frame_queue();

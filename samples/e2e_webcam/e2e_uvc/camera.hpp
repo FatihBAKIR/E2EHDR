@@ -49,11 +49,21 @@ namespace e2e {
 
             camera(const context&, const camera_info&);
 
+            void set_exposure(int exp);
+            int get_exposure() const;
         public:
             camera(const camera&) = delete;
             camera(camera&&);
-            void set_exposure(int exp);
-            int get_exposure() const;
+
+            void set_shutter_speed(std::chrono::milliseconds);
+            std::chrono::milliseconds get_shutter_speed() const;
+
+            void set_wb_temp(uint16_t temp);
+
+            void set_iso(uint16_t iso);
+            uint16_t get_iso() const;
+
+            void dump() const;
 
             ~camera();
         };

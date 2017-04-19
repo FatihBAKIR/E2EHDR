@@ -71,6 +71,8 @@ namespace e2e {
             {
                 throw "can't open device";
             }
+
+            uvc_set_backlight_compensation(priv->devh, 0);
         }
 
         camera::~camera()
@@ -118,8 +120,6 @@ namespace e2e {
 
         void stream::start()
         {
-
-
             auto res = uvc_start_streaming(priv->cam->priv->devh, &priv->ctrl, [](uvc_frame_t* f, void* opaque) {
                 reinterpret_cast<decltype(this)>(opaque)->priv->handle_frame(f);
             }, this, 0);
@@ -163,6 +163,47 @@ namespace e2e {
             uint32_t exp;
             uvc_get_exposure_abs(priv->devh, &exp, uvc_req_code::UVC_GET_CUR);
             return exp;
+        }
+
+        void camera::set_shutter_speed(std::chrono::milliseconds arg)
+        {
+            long ms = std::chrono::duration_cast<std::chrono::milliseconds>(arg).count();
+            int val = ms * 10;
+            set_exposure(val);
+        }
+
+        std::chrono::milliseconds camera::get_shutter_speed() const
+        {
+            auto v = get_exposure();
+            return std::chrono::milliseconds(v / 10);
+        }
+
+        uint16_t camera::get_iso() const
+        {
+            uint16_t gain;
+            uvc_get_gain(priv->devh, &gain, uvc_req_code::UVC_GET_CUR);
+            return gain;
+        }
+
+        void camera::set_iso(uint16_t iso)
+        {
+            uvc_set_gain(priv->devh, iso);
+        }
+
+        void camera::dump() const
+        {
+            uint16_t max_iso, min_iso, def_iso;
+            uvc_get_gain(priv->devh, &min_iso, uvc_req_code::UVC_GET_MIN);
+            uvc_get_gain(priv->devh, &max_iso, uvc_req_code::UVC_GET_MAX);
+            uvc_get_gain(priv->devh, &def_iso, uvc_req_code::UVC_GET_DEF);
+
+            std::cout << "(" << min_iso << ", " << max_iso  << ", " << def_iso << ")\n";
+        }
+
+        void camera::set_wb_temp(uint16_t temp)
+        {
+            uvc_set_white_balance_temperature_auto(priv->devh, 0);
+            uvc_set_white_balance_temperature(priv->devh, temp);
         }
     }
 }
