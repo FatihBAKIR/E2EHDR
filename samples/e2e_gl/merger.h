@@ -45,6 +45,7 @@ namespace e2e
         void set_outlier_detection(bool outlier_detection, float threshold, int window_size);
         void set_outlier_correction(bool outlier_correction);
         void set_median_filter(bool median_filter);
+        void set_display_disparity(bool display_disparity);
 
     private:
         int m_window_width;
@@ -95,6 +96,7 @@ namespace e2e
         bool m_outlier_correction;
         bool m_median_filter;
         bool m_record;
+        bool m_display_disparity;
 
     private:
         void render();

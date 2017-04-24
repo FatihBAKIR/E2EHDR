@@ -50,7 +50,8 @@ namespace e2e
             ImGui::End();
         }
 
-        void displayStereoControl(bool& recompile_shaders, int& cost_choice, int& agg_choice, bool& detection, bool& correction, bool& median, float& threshold, int& window_size)
+        void displayStereoControl(bool& recompile_shaders, int& cost_choice, int& agg_choice, bool& detection,
+                                  bool& correction, bool& median, float& threshold, int& window_size, bool& show_disparity)
         {
             ImGuiWindowFlags window_flags = 0;
             window_flags |= ImGuiWindowFlags_NoResize;
@@ -82,6 +83,8 @@ namespace e2e
             ImGui::Checkbox("Outlier Correction", &correction);
             ImGui::Separator();
             ImGui::Checkbox("Median Filter", &median);
+            ImGui::Separator();
+            ImGui::Checkbox("Display Disparity", &show_disparity);
 
             ImGui::End();
         }

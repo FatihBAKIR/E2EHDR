@@ -33,6 +33,7 @@ namespace e2e
         , m_outlier_correction(false)
         , m_median_filter(false)
         , m_record(false)
+        , m_display_disparity(false)
     {
         GLfloat vertices[] =
         {
@@ -105,6 +106,7 @@ namespace e2e
 
         //RECTIFICATION//
         m_framebuffer.renderToTexture(m_left_texture);
+        m_frame_pass_left_shader.use();
         m_frame_pass_left_shader.setUniformIVar("is_left", { 1 });
         m_frame_pass_left_shader.setUniformFVar("scale", { m_scale_factor_x, m_scale_factor_y });
         m_frame_pass_left_shader.setUniformFVar("translate", { m_position_x, m_position_y });
@@ -118,6 +120,7 @@ namespace e2e
 
         m_framebuffer.renderToTexture(m_right_texture);
         m_frame_pass_right_shader.use();
+        m_frame_pass_right_shader.setUniformIVar("is_left", { 0 });
         m_frame_pass_right_shader.setUniformFVar("scale", { m_scale_factor_x, m_scale_factor_y });
         m_frame_pass_right_shader.setUniformFVar("translate", { m_position_x, m_position_y });
         glActiveTexture(GL_TEXTURE0);
@@ -239,70 +242,73 @@ namespace e2e
             render();
         }
 
-        if (m_record)
+        if (!m_display_disparity)
         {
-            m_framebuffer.renderToTexture2D(m_refinement_texture, m_residual_texture);
-            m_record_merge_shader.use();
-            m_record_merge_shader.setUniformFVar("scale", { m_scale_factor_x, m_scale_factor_y });
-            m_record_merge_shader.setUniformFVar("translate", { m_position_x, m_position_y });
-            m_record_merge_shader.setUniformFVar("dx", { dx });
-            m_record_merge_shader.setUniformFVar("dy", { dy });
-            m_record_merge_shader.setUniformIVar("color_debug", { m_color_debug });
+            if (m_record)
+            {
+                m_framebuffer.renderToTexture2D(m_refinement_texture, m_residual_texture);
+                m_record_merge_shader.use();
+                m_record_merge_shader.setUniformFVar("scale", { m_scale_factor_x, m_scale_factor_y });
+                m_record_merge_shader.setUniformFVar("translate", { m_position_x, m_position_y });
+                m_record_merge_shader.setUniformFVar("dx", { dx });
+                m_record_merge_shader.setUniformFVar("dy", { dy });
+                m_record_merge_shader.setUniformIVar("color_debug", { m_color_debug });
 
-            glActiveTexture(GL_TEXTURE0);
-            m_record_merge_shader.setUniformIVar("left_exp", { 0 });
-            m_left_texture.use();
-            glActiveTexture(GL_TEXTURE1);
-            m_record_merge_shader.setUniformIVar("right_exp", { 1 });
-            m_right_texture.use();
-            glActiveTexture(GL_TEXTURE2);
-            m_record_merge_shader.setUniformIVar("disparity_map", { 2 });
-            m_refinement_texture.use();
+                glActiveTexture(GL_TEXTURE0);
+                m_record_merge_shader.setUniformIVar("left_exp", { 0 });
+                m_left_texture.use();
+                glActiveTexture(GL_TEXTURE1);
+                m_record_merge_shader.setUniformIVar("right_exp", { 1 });
+                m_right_texture.use();
+                glActiveTexture(GL_TEXTURE2);
+                m_record_merge_shader.setUniformIVar("disparity_map", { 2 });
+                m_refinement_texture.use();
 
-            //Draw quad
-            render();
+                //Draw quad
+                render();
 
-            m_tex_record.tonemapped_texture = m_refinement_texture.getTextureImage();
-            m_tex_record.residual_texture = m_residual_texture.getTextureImage();
+                m_tex_record.tonemapped_texture = m_refinement_texture.getTextureImage();
+                m_tex_record.residual_texture = m_residual_texture.getTextureImage();
 
-            /*int save_result = SOIL_save_image
-            (
-                "C://Users//Mustafa//Desktop//m_refinement_texture.bmp",
-                SOIL_SAVE_TYPE_BMP,
-                m_refinement_texture.get_width(), m_refinement_texture.get_height(), 3,
-                m_tex_record.tonemapped_texture.get()
-            );
+                /*int save_result = SOIL_save_image
+                (
+                    "C://Users//Mustafa//Desktop//m_refinement_texture.bmp",
+                    SOIL_SAVE_TYPE_BMP,
+                    m_refinement_texture.get_width(), m_refinement_texture.get_height(), 3,
+                    m_tex_record.tonemapped_texture.get()
+                );
 
-            save_result = SOIL_save_image
-            (
-                "C://Users//Mustafa//Desktop//m_residual_texture.bmp",
-                SOIL_SAVE_TYPE_BMP,
-                m_residual_texture.get_width(), m_residual_texture.get_height(), 3,
-                m_tex_record.residual_texture.get()
-            );*/
-        }
-        else
-        {
-            m_framebuffer.renderToTexture(m_refinement_texture);
-            m_hdr_merge_shader.use();
-            m_hdr_merge_shader.setUniformFVar("scale", { m_scale_factor_x, m_scale_factor_y });
-            m_hdr_merge_shader.setUniformFVar("translate", { m_position_x, m_position_y });
-            m_hdr_merge_shader.setUniformFVar("dx", { dx });
-            m_hdr_merge_shader.setUniformFVar("dy", { dy });
-            m_hdr_merge_shader.setUniformIVar("color_debug", { m_color_debug });
+                save_result = SOIL_save_image
+                (
+                    "C://Users//Mustafa//Desktop//m_residual_texture.bmp",
+                    SOIL_SAVE_TYPE_BMP,
+                    m_residual_texture.get_width(), m_residual_texture.get_height(), 3,
+                    m_tex_record.residual_texture.get()
+                );*/
+            }
+            else
+            {
+                m_framebuffer.renderToTexture(m_refinement_texture);
+                m_hdr_merge_shader.use();
+                m_hdr_merge_shader.setUniformFVar("scale", { m_scale_factor_x, m_scale_factor_y });
+                m_hdr_merge_shader.setUniformFVar("translate", { m_position_x, m_position_y });
+                m_hdr_merge_shader.setUniformFVar("dx", { dx });
+                m_hdr_merge_shader.setUniformFVar("dy", { dy });
+                m_hdr_merge_shader.setUniformIVar("color_debug", { m_color_debug });
 
-            glActiveTexture(GL_TEXTURE0);
-            m_hdr_merge_shader.setUniformIVar("left_exp", { 0 });
-            m_left_texture.use();
-            glActiveTexture(GL_TEXTURE1);
-            m_hdr_merge_shader.setUniformIVar("right_exp", { 1 });
-            m_right_texture.use();
-            glActiveTexture(GL_TEXTURE2);
-            m_hdr_merge_shader.setUniformIVar("disparity_map", { 2 });
-            m_refinement_texture.use();
+                glActiveTexture(GL_TEXTURE0);
+                m_hdr_merge_shader.setUniformIVar("left_exp", { 0 });
+                m_left_texture.use();
+                glActiveTexture(GL_TEXTURE1);
+                m_hdr_merge_shader.setUniformIVar("right_exp", { 1 });
+                m_right_texture.use();
+                glActiveTexture(GL_TEXTURE2);
+                m_hdr_merge_shader.setUniformIVar("disparity_map", { 2 });
+                m_refinement_texture.use();
 
-            //Draw quad
-            render();
+                //Draw quad
+                render();
+            }
         }
 
         /*static int swap_counter = 0;
@@ -542,6 +548,11 @@ namespace e2e
     void Merger::set_median_filter(bool median_filter)
     {
         m_median_filter = median_filter;
+    }
+
+    void Merger::set_display_disparity(bool display_disparity)
+    {
+        m_display_disparity = display_disparity;
     }
 
     void Merger::render()
