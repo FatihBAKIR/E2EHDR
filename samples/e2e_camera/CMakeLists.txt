@@ -59,7 +59,7 @@ target_link_libraries(e2e_camera ${OPENGL_LIBRARIES})
 target_link_libraries(e2e_camera ${GLEW_LIBRARIES})
 target_link_libraries(e2e_camera ${GLFW_LIBRARIES})
 target_link_libraries(e2e_camera ${Boost_LIBRARIES})
-target_link_libraries(e2e_camera imgui)
+target_link_libraries(e2e_camera imgui X11 dl z x264 mp3lame ass fdk-aac m swresample)
 
 target_include_directories(e2e_camera PUBLIC ${OPENGL_INCLUDE_DIR})
 target_include_directories(e2e_camera PUBLIC ${GLEW_INCLUDE_DIR})

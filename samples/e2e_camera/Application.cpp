@@ -54,7 +54,7 @@ class ApplicationImpl
 	};
 
 	GUI gui;
-	e2e::Merger merger{ 1280, 720, 32 };
+	e2e::Merger merger{ 1280, 720, 40 };
 
 #if defined(E2E_FFMPEG_CAM)
 	camera_struct left_cam;
@@ -85,7 +85,7 @@ class ApplicationImpl
 
 	struct
 	{
-		std::vector<std::tuple<std::string, crf>> profs;
+		std::vector<std::pair<std::string, crf>> profs;
 		std::vector<const char*> profile_names; // does not own
 		void update_names()
 		{
@@ -260,14 +260,16 @@ ApplicationImpl::ApplicationImpl(const std::vector<std::string> &args) :
 	right.exposure_index = right_meta["exp_code"];
 #endif
 
-	left_cam_ctl.set_iso(25);
-	right_cam_ctl.set_iso(25);
+	left_cam_ctl.set_iso(35);
+	right_cam_ctl.set_iso(35);
 
-	left_cam_ctl.set_wb_temp(4500);
-	right_cam_ctl.set_wb_temp(4000);
+	/*left_cam_ctl.set_wb_temp(4000);
+	right_cam_ctl.set_wb_temp(4000);*/
+    left_cam_ctl.set_auto_wb(true);
+    right_cam_ctl.set_auto_wb(true);
 
-	tp.push_job([&] {left_cam_ctl.set_shutter_speed(cvt[left.exposure_index]); });
-	tp.push_job([&] {right_cam_ctl.set_shutter_speed(cvt[right.exposure_index]); });
+    left_cam_ctl.set_shutter_speed(cvt[left.exposure_index]);
+    right_cam_ctl.set_shutter_speed(cvt[right.exposure_index]);
 
 	add_keybinding(GLFW_KEY_R, [this] {
 		reload_shaders();
@@ -353,8 +355,7 @@ void ApplicationImpl::Run()
 			//std::cout << "(" << er << ") " << glewGetErrorString(er) << '\n';
 			draw_preview();
 
-			//merger.draw(gui.w);
-			//merger.draw();
+			merger.draw(gui.w);
 
             /*auto frames = merger.get_frames();
 
@@ -477,10 +478,10 @@ void ApplicationImpl::reload_shaders() {
 	gui.left_quad.set_program(left_prev_shader);
 	gui.right_quad.set_program(right_prev_shader);
 
-	/*make_merge_shader(merger.get_merge_shader(), left_cam, right_cam);
+	make_merge_shader(merger.get_merge_shader(), left_meta, right_meta);
 
-	make_undistort_shader(merger.get_undistort_left_shader(), left_cam, profiles.get_response(left.profile_index));
-	make_undistort_shader(merger.get_undistort_right_shader(), right_cam, profiles.get_response(right.profile_index));*/
+    make_undistort_shader(merger.get_undistort_left_shader(), left_meta);
+    make_undistort_shader(merger.get_undistort_right_shader(), right_meta);
 }
 
 void ApplicationImpl::draw_gui()
@@ -657,12 +658,21 @@ void ApplicationImpl::draw_gui()
 	//e2e::gui::displayStereoControl(recompile_shaders, cost_choice, agg_choice, detection, correction, median, threshold, window_size);
 	e2e::gui::displayTonemapControl(base_lum, max_lum);
     e2e::gui::displayRecord(record);
-	/*merger.chooseCost(cost_choice);
+	merger.chooseCost(cost_choice);
 	merger.chooseAggregation(agg_choice);
 	merger.set_outlier_detection(detection, threshold, window_size);
 	merger.set_outlier_correction(correction);
 	merger.set_median_filter(median);
     merger.set_record(record);
+
+    if (gui.w.get_key_down(GLFW_KEY_A))
+    {
+        merger.set_color_debug((1));
+    }
+    else
+    {
+        merger.set_color_debug((0));
+    }
 
 	if (recompile_shaders)
 	{
@@ -670,7 +680,7 @@ void ApplicationImpl::draw_gui()
 	}
 
 	merger.get_merge_shader().setUniformFVar("base", { base_lum });
-	merger.get_merge_shader().setUniformFVar("maxLum", { max_lum });*/
+	merger.get_merge_shader().setUniformFVar("maxLum", { max_lum });
 
 	ImGui::Render();
 }
@@ -680,10 +690,12 @@ void ApplicationImpl::draw_preview()
 	left_prev_shader.setUniformFVar("prev.exposure", { preview.display_exposure });
 	left_prev_shader.setUniformIVar("prev.undistort", { preview.undistort });
 	left_prev_shader.setUniformIVar("prev.apply_crf", { preview.apply_crf });
+    left_prev_shader.setUniformIVar("is_left", {1});
 
 	right_prev_shader.setUniformFVar("prev.exposure", { preview.display_exposure });
 	right_prev_shader.setUniformIVar("prev.undistort", { preview.undistort });
 	right_prev_shader.setUniformIVar("prev.apply_crf", { preview.apply_crf });
+    right_prev_shader.setUniformIVar("is_left", {0});
 
 	gui.left_quad.draw();
 	gui.right_quad.draw();
@@ -730,7 +742,7 @@ void ApplicationImpl::start_crf_recovery() {
 	crf_state = InRecovery{};
 	auto state = boost::get<InRecovery>(&crf_state);
 
-	state->cur_exposure = 10ms;
+	state->cur_exposure = 5ms;
 	left_cam_ctl.set_shutter_speed(state->cur_exposure);
 	right_cam_ctl.set_shutter_speed(state->cur_exposure);
 	state->last_take = std::chrono::high_resolution_clock::now();
@@ -758,7 +770,7 @@ void ApplicationImpl::recover_routine(const FrameT &left, const FrameT &right) {
 	if (state == nullptr) return;
 
 	auto now = std::chrono::high_resolution_clock::now();
-	if (now - state->last_take < std::chrono::milliseconds(2000))
+	if (now - state->last_take < std::chrono::milliseconds(1000))
 	{
 		return;
 	}
@@ -767,30 +779,29 @@ void ApplicationImpl::recover_routine(const FrameT &left, const FrameT &right) {
 	state->right_frames.push_back(e2e::duplicate(right));
 	state->times.push_back(state->cur_exposure);
 	state->cur_exposure *= 2;
-
-	pause();
-
-	tp.push_job([this, state] {
-		left_cam_ctl.set_shutter_speed(state->cur_exposure);
-		right_cam_ctl.set_shutter_speed(state->cur_exposure);
-		state->last_take = std::chrono::high_resolution_clock::now();
-		start();
-	});
+    pause();
 
 	if (state->left_frames.size() == 6)
 	{
-		pause();
-
 		DoneRecovery done;
 
 		done.left_crf = e2e::app::recover_crf(state->left_frames, state->times);
 		done.right_crf = e2e::app::recover_crf(state->right_frames, state->times);
 
-		left_cam_ctl.set_shutter_speed(std::chrono::milliseconds((long)(e2e::app::extract_exposure(left_meta) * 1000)));
-		right_cam_ctl.set_shutter_speed(std::chrono::milliseconds((long)(e2e::app::extract_exposure(right_meta) * 1000)));
+        left_cam_ctl.set_shutter_speed(cvt[this->left.exposure_index]);
+        right_cam_ctl.set_shutter_speed(cvt[this->right.exposure_index]);
 
 		crf_state = std::move(done);
 	}
+    else
+    {
+        tp.push_job([this, state] {
+            left_cam_ctl.set_shutter_speed(state->cur_exposure);
+            right_cam_ctl.set_shutter_speed(state->cur_exposure);
+            state->last_take = std::chrono::high_resolution_clock::now();
+            start();
+        });
+    }
 }
 
 /// forwarders

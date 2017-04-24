@@ -163,19 +163,24 @@ int main()
     e2e::uvc::context ctx;
     auto cams = ctx.list_cameras();
 
+    for (auto c : cams)
+    {
+        std::cout << c.name << '\n';
+    }
+
     auto cam0 = ctx.open_camera(cams[0]);
     auto cam1 = ctx.open_camera(cams[1]);
 
-    cam0.set_wb_temp(4500);
-    cam1.set_wb_temp(4000);
+    /*cam0.set_wb_temp(4000);
+    cam1.set_wb_temp(4000);*/
+    /*cam0.set_auto_wb(true);
+    cam1.set_auto_wb(true);
 
-    cam0.set_shutter_speed(5ms);
-    cam1.set_shutter_speed(5ms);
+    cam0.set_shutter_speed(30ms);
+    cam1.set_shutter_speed(30ms);
 
-    cam0.dump();
-    cam1.dump();
-    cam0.set_iso(10);
-    cam1.set_iso(10);
+    cam0.set_iso(20);
+    cam1.set_iso(50);*/
 
     std::cout << cam0.get_iso() <<'\n';
     std::cout << cam1.get_iso() <<'\n';

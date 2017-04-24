@@ -7,6 +7,7 @@
 #include <iostream>
 #include <spsc/spsc_queue.h>
 #include <Frame.h>
+#include <stdexcept>
 
 namespace e2e {
     namespace uvc {
@@ -41,7 +42,6 @@ namespace e2e {
                 f.data_bytes = fr.buffer().size_bytes();
                 f.library_owns_data = 0;
 
-                std::cerr << frame->frame_format << ", " << UVC_FRAME_FORMAT_MJPEG << '\n';
                 auto ret = uvc_mjpeg2rgb(frame, &f);
                 if (ret < 0)
                 {
@@ -59,17 +59,18 @@ namespace e2e {
             priv = new camera_impl;
             priv->ctx = &ctx;
 
-            auto res = uvc_find_device(priv->ctx->priv->ctx, &priv->dev, 0, 0, info.serial_num.c_str());
+            priv->dev = reinterpret_cast<uvc_device_t*>(info.dev);
+            /*auto res = uvc_find_device(priv->ctx->priv->ctx, &priv->dev, 0x046d, 0, 0);
             if (res < 0)
             {
                 throw "can't create device";
-            }
+            }*/
 
-            res = uvc_open(priv->dev, &priv->devh);
+            auto res = uvc_open(priv->dev, &priv->devh);
 
             if (res < 0)
             {
-                throw "can't open device";
+                throw std::runtime_error("can't open device");
             }
 
             uvc_set_backlight_compensation(priv->devh, 0);
@@ -114,7 +115,7 @@ namespace e2e {
 
             if (res < 0)
             {
-                throw "can't create stream";
+                throw std::runtime_error("can't create stream");
             }
         }
 
@@ -126,7 +127,7 @@ namespace e2e {
 
             if (res < 0)
             {
-                throw "can't start stream";
+                throw std::runtime_error("can't start stream");
             }
         }
 
@@ -152,9 +153,9 @@ namespace e2e {
             {
                 std::cerr << "couldn't set ae mode\n";
             }
-            if (uvc_set_exposure_abs(priv->devh, exp) < 0)
+            while (uvc_set_exposure_abs(priv->devh, exp) < 0)
             {
-                std::cerr << "couldn't set exposure\n";
+                std::cerr << "couldn't set exposure" << exp << "\n";
             }
         }
 
@@ -200,6 +201,11 @@ namespace e2e {
             std::cout << "(" << min_iso << ", " << max_iso  << ", " << def_iso << ")\n";
         }
 
+        void camera::set_auto_wb(bool s)
+        {
+            uvc_set_white_balance_temperature_auto(priv->devh, s);
+        }
+
         void camera::set_wb_temp(uint16_t temp)
         {
             uvc_set_white_balance_temperature_auto(priv->devh, 0);
@@ -220,11 +226,11 @@ std::vector<e2e::uvc::camera_info> e2e::uvc::context::list_cameras()
 
         if (!d->product)
         {
-            cams.push_back({ std::to_string(d->idProduct), std::to_string(d->idVendor) });
+            cams.push_back({ devs[0], std::to_string(d->idProduct), std::to_string(d->idVendor) });
         }
         else
         {
-            cams.push_back({ d->product, d->serialNumber });
+            cams.push_back({ devs[0], d->product, d->serialNumber });
         }
 
         uvc_free_device_descriptor(d);

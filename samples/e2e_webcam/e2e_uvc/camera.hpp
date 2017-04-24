@@ -15,6 +15,7 @@ namespace e2e {
         struct context_impl;
         struct camera_impl;
         struct stream_impl;
+        struct info_impl;
         class camera;
         class context;
 
@@ -36,6 +37,7 @@ namespace e2e {
 
         struct camera_info
         {
+            void* dev;
             std::string name;
             std::string serial_num;
         };
@@ -58,6 +60,7 @@ namespace e2e {
             void set_shutter_speed(std::chrono::milliseconds);
             std::chrono::milliseconds get_shutter_speed() const;
 
+            void set_auto_wb(bool s);
             void set_wb_temp(uint16_t temp);
 
             void set_iso(uint16_t iso);

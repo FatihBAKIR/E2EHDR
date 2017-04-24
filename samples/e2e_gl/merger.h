@@ -31,6 +31,7 @@ namespace e2e
         void set_textures(const Texture& left, const Texture& right);
         void set_position(float x, float y);
         void set_scale_factor(float x, float y);
+        void set_color_debug(int color_debug);
         texRecord& get_tex_record();
         GLSLProgram& get_cost_shader();
         GLSLProgram& get_undistort_left_shader();

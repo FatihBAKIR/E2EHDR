@@ -105,7 +105,7 @@ namespace e2e
 
         //RECTIFICATION//
         m_framebuffer.renderToTexture(m_left_texture);
-        m_frame_pass_left_shader.use();
+        m_frame_pass_left_shader.setUniformIVar("is_left", { 1 });
         m_frame_pass_left_shader.setUniformFVar("scale", { m_scale_factor_x, m_scale_factor_y });
         m_frame_pass_left_shader.setUniformFVar("translate", { m_position_x, m_position_y });
         glActiveTexture(GL_TEXTURE0);
@@ -351,9 +351,6 @@ namespace e2e
         m_frame_pass_left_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/frame_pass.frag");
         m_frame_pass_left_shader.link();
 
-        m_frame_pass_left_shader.use();
-        m_frame_pass_left_shader.setUniformIVar("is_left", { 1 });
-
         m_frame_pass_right_shader.clear();
         m_frame_pass_right_shader.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/frame_pass.vert");
         m_frame_pass_right_shader.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/frame_pass.frag");
@@ -421,6 +418,11 @@ namespace e2e
     {
         m_scale_factor_x = x;
         m_scale_factor_y = y;
+    }
+
+    void Merger::set_color_debug(int color_debug)
+    {
+        m_color_debug = color_debug;
     }
 
     texRecord& Merger::get_tex_record()

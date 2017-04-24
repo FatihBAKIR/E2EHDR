@@ -11,5 +11,6 @@ struct crf;
 
 e2e::GLSLProgram make_preview_shader(const nlohmann::json& meta);
 //e2e::GLSLProgram make_preview_shader(const camera_struct& cam, const crf& response);
-void make_merge_shader(e2e::GLSLProgram& hdr, const camera_struct& cam1, const camera_struct& cam2);
-void make_undistort_shader(e2e::GLSLProgram& hdr, const camera_struct& cam1, const crf& response1);
+void make_merge_shader(e2e::GLSLProgram& hdr, const nlohmann::json& meta_left, const nlohmann::json& meta_right);
+//void make_merge_shader(e2e::GLSLProgram& hdr, const camera_struct& cam1, const camera_struct& cam2);
+void make_undistort_shader(e2e::GLSLProgram& hdr, const nlohmann::json& meta);

@@ -31,7 +31,7 @@ nlohmann::json load_camera_conf(const std::string&);
 crf load_crf(const std::string& file);
 void save_crf(const crf& res, const std::string& out);
 undistort get_undistort(const nlohmann::json& config);
-std::vector<std::tuple<std::string, crf>> find_profiles();
+std::vector<std::pair<std::string, crf>> find_profiles();
 
 namespace e2e
 {
