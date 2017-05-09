@@ -13,8 +13,6 @@ void main()
     float x = position.x * scale.x + translate.x;
     float y = position.y * scale.y + translate.y;
 
-    y = - y;
-
-    gl_Position = vec4(x, y, 0.0f, 1.0f);
+    gl_Position = vec4(-x, y, 0.0f, 1.0f);
     tex_coord = texture_coordinate;
 }

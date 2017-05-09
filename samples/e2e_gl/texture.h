@@ -21,10 +21,12 @@ public:
 	void createArray(int width, int height, int layer, unsigned char* image);
 	void createFloat(int width, int height, float* data = nullptr);
 	void createFloatBGR(int width, int height, float* data);
+    void createHalf(int width, int height, float* data = nullptr);
 
 	void use() const;
 	void useArray() const;
     std::unique_ptr<unsigned char> getTextureImage() const;
+    void getTextureImage(uint16_t* bits) const;
 
 	GLuint get_texture_id() const { return m_texture_id; }
 	GLuint get_width() const { return m_width; }

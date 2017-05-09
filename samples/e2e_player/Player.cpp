@@ -18,7 +18,7 @@ Player::Player(const std::string& path) :
 {
     init_player(path);
 
-    pause();
+    //pause();
 
     float arr[] = {0.2, 0.4, 0.3};
     frame_tex.createFloatBGR(1, 1, arr);
@@ -28,6 +28,12 @@ Player::Player(const std::string& path) :
     init_worker();
     x =40;
 
+    prj_quad.set_vertices( {-1.05999994, 1.23499978, 0, 1, -1.07999992, -0.865000129, 0, 0, 1.02499998, -0.910000086, 1, 0, 1.05499995, 1.17999983, 1, 1});
+
+    int num;
+    //display_window.go_fullscreen(glfwGetMonitors(&num)[1]);
+    //project_window.go_fullscreen(glfwGetMonitors(&num)[2]);
+
     e2e::GUI::getGUI().initialize(display_window, true);
 
     init_playback();
@@ -35,7 +41,16 @@ Player::Player(const std::string& path) :
 
 void Player::init_player(const std::string& path)
 {
-    init_video(path);
+    auto image2 = cv::imread(path, -1);
+
+    auto size2 = image2.size().width * image2.size().height * 3;
+    auto data2 = std::make_unique<float[]>(size2);
+
+    std::copy((const float*)image2.ptr(), (const float*)image2.ptr() + size2, data2.get());
+    e2e::HDRFrame frame2(std::move(data2), image2.size().width, image2.size().height);
+
+    frames.push(e2e::duplicate(frame2));
+    //init_video(path);
     return;
 }
 
@@ -64,10 +79,9 @@ void Player::play_loop()
 {
     int i = 0;
     while(!(display_window.ShouldClose() || project_window.ShouldClose())){
-        project_window.StartDraw();
 
         if (is_playing.load()) {
-            if (i % 2 == 0){
+            if (true || i % 2 == 0){
                 auto frame = std::move(Frames().front());
                 Frames().pop();
                 frame_tex.createFloatBGR(frame.width(), frame.height(), frame.buffer().data());
@@ -77,6 +91,7 @@ void Player::play_loop()
                 float arr[] = {0, 0, 0};
                 frame_tex.createFloatBGR(1, 1, arr);
             }
+
         }
 
         else {
@@ -84,17 +99,38 @@ void Player::play_loop()
             frame_tex.createFloatBGR(1, 1, arr);
         }
 
+        project_window.StartDraw();
         prj_quad.draw();
         project_window.EndDraw();
 
         display_window.StartDraw();
         lcd_quad.draw();
-
-        draw_gui();
-
+        //draw_gui();
         display_window.EndDraw();
 
         i++;
+
+        if (display_window.get_key_down(GLFW_KEY_DOWN) || project_window.get_key_down(GLFW_KEY_DOWN))
+            prj_quad.updateVertex(corner_id, 0, 0.005f);
+        if (display_window.get_key_down(GLFW_KEY_UP) || project_window.get_key_down(GLFW_KEY_UP))
+            prj_quad.updateVertex(corner_id, 0, -0.005f);
+        if (display_window.get_key_down(GLFW_KEY_RIGHT) || project_window.get_key_down(GLFW_KEY_RIGHT))
+            prj_quad.updateVertex(corner_id, -0.005f, 0);
+        if (display_window.get_key_down(GLFW_KEY_LEFT) || project_window.get_key_down(GLFW_KEY_LEFT))
+            prj_quad.updateVertex(corner_id, 0.005f, 0);
+
+        if (display_window.get_key_down(GLFW_KEY_1) || project_window.get_key_down(GLFW_KEY_1))
+            corner_id = 2;
+
+        if (display_window.get_key_down(GLFW_KEY_2) || project_window.get_key_down(GLFW_KEY_2))
+            corner_id = 1;
+
+        if (display_window.get_key_down(GLFW_KEY_3) || project_window.get_key_down(GLFW_KEY_3))
+            corner_id = 0;
+
+        if (display_window.get_key_down(GLFW_KEY_4) || project_window.get_key_down(GLFW_KEY_4))
+            corner_id = 3;
+
         boost::this_thread::sleep_for(boost::chrono::milliseconds(x));
     }
 }
@@ -103,14 +139,16 @@ void Player::init_shaders()
 {
     prj_shader.attachShader(e2e::GLSLProgram::ShaderType::VERTEX_SHADER,
                                    "../../e2e_gl/shaders/projector.vert");
+    /*prj_shader.attachShader(e2e::GLSLProgram::ShaderType::FRAGMENT_SHADER,
+                                   "../../e2e_gl/shaders/projector.frag");*/
     prj_shader.attachShader(e2e::GLSLProgram::ShaderType::FRAGMENT_SHADER,
-                                   "../../e2e_gl/shaders/projector.frag");
+                            "../shaders/checkerboard.frag");
 
 
     lcd_shader.attachShader(e2e::GLSLProgram::ShaderType::VERTEX_SHADER,
                              "../../e2e_gl/shaders/LCD.vert");
     lcd_shader.attachShader(e2e::GLSLProgram::ShaderType::FRAGMENT_SHADER,
-                             "../../e2e_gl/shaders/LCD.frag");
+                             "../shaders/checkerboard_lcd.frag");
 
 
     lcd_shader.link();
@@ -119,18 +157,23 @@ void Player::init_shaders()
 
 void Player::init_quads()
 {
+    display_window.StartDraw();
     lcd_quad.set_scale_factor(1, 1);
     lcd_quad.set_position(0, 0);
     lcd_quad.create();
     lcd_quad.set_texture(frame_tex);
+    lcd_quad.set_program(lcd_shader);
 
+    display_window.EndDraw();
+
+    project_window.StartDraw();
     prj_quad.set_scale_factor(1, 1);
     prj_quad.set_position(0, 0);
     prj_quad.create();
     prj_quad.set_texture(frame_tex);
-
-    lcd_quad.set_program(lcd_shader);
     prj_quad.set_program(prj_shader);
+
+    project_window.EndDraw();
 }
 
 Player::~Player()

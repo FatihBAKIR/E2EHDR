@@ -40,7 +40,7 @@ class Player
 
     boost::atomic<bool> is_playing;
 
-
+    int corner_id = 0;
 
     std::set<int> prev_pressed;
 

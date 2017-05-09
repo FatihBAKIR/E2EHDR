@@ -138,6 +138,31 @@ void Texture::createFloatBGR(int width, int height, float* data)
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+void Texture::createHalf(int width, int height, float* data)
+{
+    if (m_texture_id)
+    {
+        glDeleteTextures(1, &m_texture_id);
+        m_texture_id = 0;
+    }
+
+    m_width = width;
+    m_height = height;
+
+    glGenTextures(1, &m_texture_id);
+
+    glBindTexture(GL_TEXTURE_2D, m_texture_id);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_BGR, GL_HALF_FLOAT, data);
+
+    //Settings
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 void Texture::use() const
 {
 	assert(m_texture_id);
@@ -157,6 +182,11 @@ std::unique_ptr<unsigned char> Texture::getTextureImage() const
     glGetTextureImage(m_texture_id, 0, GL_RGB, GL_UNSIGNED_BYTE, size, pixels.get());
 
     return pixels;
+}
+
+void Texture::getTextureImage(uint16_t* bits) const
+{
+    glGetTextureImage(m_texture_id, 0, GL_RGB, GL_HALF_FLOAT, m_width * m_height * 3, bits);
 }
 
 void Texture::create_mipmaps() const

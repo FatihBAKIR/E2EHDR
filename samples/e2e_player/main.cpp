@@ -11,6 +11,6 @@ using namespace e2e;
 
 int main()
 {
-    Player p("/Users/goksu/Desktop/output.h264");
+    Player p("/home/musti/Downloads/memorial.hdr");
 }
 

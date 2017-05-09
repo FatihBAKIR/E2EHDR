@@ -227,13 +227,6 @@ if(GLFW_INCLUDE_DIR)
         parseVersion(GLFW/glfw3.h GLFW_VERSION_REVISION)
  
     endif()
-
-    if(${GLFW_VERSION_MAJOR} OR ${GLFW_VERSION_MINOR} OR ${GLFW_VERSION_REVISION})
-        set(GLFW_VERSION "${GLFW_VERSION_MAJOR}.${GLFW_VERSION_MINOR}.${GLFW_VERSION_REVISION}")
-        set(GLFW_VERSION_STRING "${GLFW_VERSION}")
-        mark_as_advanced(GLFW_VERSION)
-    endif()
-    
 endif(GLFW_INCLUDE_DIR)
 
 include(FindPackageHandleStandardArgs)

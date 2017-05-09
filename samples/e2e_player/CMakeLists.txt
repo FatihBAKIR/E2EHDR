@@ -58,4 +58,4 @@ target_include_directories(e2e_player PUBLIC ${FFMPEG_INCLUDE_DIRS})
 target_link_libraries(e2e_player ${X264_LIBRARIES})
 target_link_libraries(e2e_player ${FFMPEG_LIBRARIES})
 
-target_link_libraries(e2e_player e2e_utils)
+target_link_libraries(e2e_player e2e_utils imgui X11 dl z x264 mp3lame ass fdk-aac m swresample glfw boost_iostreams)

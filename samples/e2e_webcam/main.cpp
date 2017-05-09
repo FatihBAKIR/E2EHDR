@@ -169,7 +169,7 @@ int main()
     }
 
     auto cam0 = ctx.open_camera(cams[0]);
-    auto cam1 = ctx.open_camera(cams[1]);
+    auto cam1 = ctx.open_camera(cams[2]);
 
     /*cam0.set_wb_temp(4000);
     cam1.set_wb_temp(4000);*/

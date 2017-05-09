@@ -30,29 +30,39 @@ namespace e2e
 
 	void Quad::create()
 	{
-		GLfloat vertices[] = {
-			//NDC coordinates for the quad.
-			//Positions     //Texture coordinates
-			-1.0f,  1.0f,   0.0f, 1.0f,
-			-1.0f, -1.0f,   0.0f, 0.0f,
-			1.0f , -1.0f,   1.0f, 0.0f,
-
-			-1.0f,  1.0f,   0.0f, 1.0f,
-			1.0f , -1.0f,   1.0f, 0.0f,
-			1.0f ,  1.0f,   1.0f, 1.0f
-		};
-
+        GLuint faces[] = {
+            0, 1, 2,
+            0, 2, 3
+        };
 		glGenVertexArrays(1, &m_vertex_array);
 		glGenBuffers(1, &m_vertex_buffer);
+        glGenBuffers(1, &m_index_buffer);
+
 		glBindVertexArray(m_vertex_array);
+
 		glBindBuffer(GL_ARRAY_BUFFER, m_vertex_buffer);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_index_buffer);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(faces), faces, GL_STATIC_DRAW);
+
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)0);
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
 		glBindVertexArray(0);
 	}
+
+	//0, 1, 2, 3 -> top-left, top-right, bottom-left, bottom-right
+	void Quad::updateVertex(int corner, float dx, float dy)
+	{
+        vertices[corner * 4] += dx;
+        vertices[corner * 4 + 1] += dy;
+
+        glBindBuffer(GL_ARRAY_BUFFER, m_vertex_buffer);
+        glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    }
 
 	void Quad::draw() const
 	{
@@ -67,7 +77,7 @@ namespace e2e
 		assert(m_texture);
 		m_texture->use();
 
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glBindVertexArray(0);

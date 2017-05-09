@@ -190,8 +190,8 @@ namespace e2e
         m_monitor = mon;
 			mode = glfwGetVideoMode(mon);
 
-        m_width = mode->width;
-		m_height = mode->height;
+        //m_width = mode->width;
+		//m_height = mode->height;
 		glfwSetWindowMonitor(m_window, mon, 0, 0, m_width, m_height, GLFW_DONT_CARE);
     }
 }

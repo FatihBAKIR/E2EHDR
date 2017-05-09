@@ -8,7 +8,7 @@
 #include <util.h>
 #include <vector>
 #include <deque>
-#include <function>
+#include <functional>
 #include <cstring>
 
 extern "C" {

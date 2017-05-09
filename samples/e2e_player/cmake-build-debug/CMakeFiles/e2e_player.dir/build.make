@@ -34,19 +34,19 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /Applications/CLion.app/Contents/bin/cmake/bin/cmake
+CMAKE_COMMAND = /opt/clion/bin/cmake/bin/cmake
 
 # The command to remove a file.
-RM = /Applications/CLion.app/Contents/bin/cmake/bin/cmake -E remove -f
+RM = /opt/clion/bin/cmake/bin/cmake -E remove -f
 
 # Escaping for special characters.
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/fatih/Bitirme/samples/e2e_player
+CMAKE_SOURCE_DIR = /home/musti/E2EHDR/samples/e2e_player
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/fatih/Bitirme/samples/e2e_player/cmake-build-debug
+CMAKE_BINARY_DIR = /home/musti/E2EHDR/samples/e2e_player/cmake-build-debug
 
 # Include any dependencies generated for this target.
 include CMakeFiles/e2e_player.dir/depend.make
@@ -59,16 +59,16 @@ include CMakeFiles/e2e_player.dir/flags.make
 
 CMakeFiles/e2e_player.dir/Player.cpp.o: CMakeFiles/e2e_player.dir/flags.make
 CMakeFiles/e2e_player.dir/Player.cpp.o: ../Player.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/fatih/Bitirme/samples/e2e_player/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/e2e_player.dir/Player.cpp.o"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/e2e_player.dir/Player.cpp.o -c /Users/fatih/Bitirme/samples/e2e_player/Player.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/musti/E2EHDR/samples/e2e_player/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/e2e_player.dir/Player.cpp.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/e2e_player.dir/Player.cpp.o -c /home/musti/E2EHDR/samples/e2e_player/Player.cpp
 
 CMakeFiles/e2e_player.dir/Player.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/e2e_player.dir/Player.cpp.i"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/fatih/Bitirme/samples/e2e_player/Player.cpp > CMakeFiles/e2e_player.dir/Player.cpp.i
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/musti/E2EHDR/samples/e2e_player/Player.cpp > CMakeFiles/e2e_player.dir/Player.cpp.i
 
 CMakeFiles/e2e_player.dir/Player.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/e2e_player.dir/Player.cpp.s"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/fatih/Bitirme/samples/e2e_player/Player.cpp -o CMakeFiles/e2e_player.dir/Player.cpp.s
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/musti/E2EHDR/samples/e2e_player/Player.cpp -o CMakeFiles/e2e_player.dir/Player.cpp.s
 
 CMakeFiles/e2e_player.dir/Player.cpp.o.requires:
 
@@ -83,16 +83,16 @@ CMakeFiles/e2e_player.dir/Player.cpp.o.provides.build: CMakeFiles/e2e_player.dir
 
 CMakeFiles/e2e_player.dir/main.cpp.o: CMakeFiles/e2e_player.dir/flags.make
 CMakeFiles/e2e_player.dir/main.cpp.o: ../main.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/fatih/Bitirme/samples/e2e_player/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/e2e_player.dir/main.cpp.o"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/e2e_player.dir/main.cpp.o -c /Users/fatih/Bitirme/samples/e2e_player/main.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/musti/E2EHDR/samples/e2e_player/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/e2e_player.dir/main.cpp.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/e2e_player.dir/main.cpp.o -c /home/musti/E2EHDR/samples/e2e_player/main.cpp
 
 CMakeFiles/e2e_player.dir/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/e2e_player.dir/main.cpp.i"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/fatih/Bitirme/samples/e2e_player/main.cpp > CMakeFiles/e2e_player.dir/main.cpp.i
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/musti/E2EHDR/samples/e2e_player/main.cpp > CMakeFiles/e2e_player.dir/main.cpp.i
 
 CMakeFiles/e2e_player.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/e2e_player.dir/main.cpp.s"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/fatih/Bitirme/samples/e2e_player/main.cpp -o CMakeFiles/e2e_player.dir/main.cpp.s
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/musti/E2EHDR/samples/e2e_player/main.cpp -o CMakeFiles/e2e_player.dir/main.cpp.s
 
 CMakeFiles/e2e_player.dir/main.cpp.o.requires:
 
@@ -107,16 +107,16 @@ CMakeFiles/e2e_player.dir/main.cpp.o.provides.build: CMakeFiles/e2e_player.dir/m
 
 CMakeFiles/e2e_player.dir/Video.cpp.o: CMakeFiles/e2e_player.dir/flags.make
 CMakeFiles/e2e_player.dir/Video.cpp.o: ../Video.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/fatih/Bitirme/samples/e2e_player/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/e2e_player.dir/Video.cpp.o"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/e2e_player.dir/Video.cpp.o -c /Users/fatih/Bitirme/samples/e2e_player/Video.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/musti/E2EHDR/samples/e2e_player/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/e2e_player.dir/Video.cpp.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/e2e_player.dir/Video.cpp.o -c /home/musti/E2EHDR/samples/e2e_player/Video.cpp
 
 CMakeFiles/e2e_player.dir/Video.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/e2e_player.dir/Video.cpp.i"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/fatih/Bitirme/samples/e2e_player/Video.cpp > CMakeFiles/e2e_player.dir/Video.cpp.i
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/musti/E2EHDR/samples/e2e_player/Video.cpp > CMakeFiles/e2e_player.dir/Video.cpp.i
 
 CMakeFiles/e2e_player.dir/Video.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/e2e_player.dir/Video.cpp.s"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/fatih/Bitirme/samples/e2e_player/Video.cpp -o CMakeFiles/e2e_player.dir/Video.cpp.s
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/musti/E2EHDR/samples/e2e_player/Video.cpp -o CMakeFiles/e2e_player.dir/Video.cpp.s
 
 CMakeFiles/e2e_player.dir/Video.cpp.o.requires:
 
@@ -142,69 +142,47 @@ e2e_player: CMakeFiles/e2e_player.dir/Player.cpp.o
 e2e_player: CMakeFiles/e2e_player.dir/main.cpp.o
 e2e_player: CMakeFiles/e2e_player.dir/Video.cpp.o
 e2e_player: CMakeFiles/e2e_player.dir/build.make
-e2e_player: /usr/local/lib/libopencv_stitching.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_superres.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_videostab.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_aruco.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_bgsegm.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_bioinspired.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_ccalib.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_dnn.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_dpm.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_fuzzy.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_line_descriptor.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_optflow.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_plot.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_reg.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_saliency.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_stereo.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_structured_light.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_surface_matching.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_tracking.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_xfeatures2d.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_ximgproc.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_xobjdetect.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_xphoto.3.1.0.dylib
-e2e_player: /usr/local/lib/libglfw3.dylib
-e2e_player: /usr/local/lib/libboost_system-mt.dylib
-e2e_player: /usr/local/lib/libboost_thread-mt.dylib
-e2e_player: /usr/local/lib/libboost_filesystem-mt.dylib
-e2e_player: /usr/local/lib/libboost_iostreams-mt.dylib
-e2e_player: /usr/local/lib/libboost_chrono-mt.dylib
-e2e_player: /usr/local/lib/libboost_date_time-mt.dylib
-e2e_player: /usr/local/lib/libboost_atomic-mt.dylib
-e2e_player: /usr/local/lib/libboost_regex-mt.dylib
-e2e_player: /usr/local/Cellar/x264/r2699/lib/libx264.dylib
-e2e_player: /usr/local/lib/libavformat.dylib
-e2e_player: /usr/local/lib/libavdevice.dylib
-e2e_player: /usr/local/lib/libavcodec.dylib
-e2e_player: /usr/local/lib/libavutil.dylib
-e2e_player: /usr/local/lib/libswscale.dylib
-e2e_player: /usr/local/Cellar/x264/r2699/lib/libx264.dylib
-e2e_player: /usr/local/lib/libavformat.dylib
-e2e_player: /usr/local/lib/libavdevice.dylib
-e2e_player: /usr/local/lib/libavcodec.dylib
-e2e_player: /usr/local/lib/libavutil.dylib
-e2e_player: /usr/local/lib/libswscale.dylib
-e2e_player: /usr/local/lib/libopencv_shape.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_rgbd.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_calib3d.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_video.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_datasets.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_face.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_text.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_features2d.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_flann.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_objdetect.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_ml.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_highgui.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_photo.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_videoio.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_imgcodecs.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_imgproc.3.1.0.dylib
-e2e_player: /usr/local/lib/libopencv_core.3.1.0.dylib
+e2e_player: /usr/lib/x86_64-linux-gnu/libGLU.so
+e2e_player: /usr/lib/x86_64-linux-gnu/libGL.so
+e2e_player: /usr/local/lib/libopencv_shape.so.3.2.0
+e2e_player: /usr/local/lib/libopencv_stitching.so.3.2.0
+e2e_player: /usr/local/lib/libopencv_superres.so.3.2.0
+e2e_player: /usr/local/lib/libopencv_videostab.so.3.2.0
+e2e_player: /usr/local/lib/libglfw.so
+e2e_player: /usr/lib/x86_64-linux-gnu/libXrandr.so
+e2e_player: /usr/lib/x86_64-linux-gnu/libXxf86vm.so
+e2e_player: /usr/lib/x86_64-linux-gnu/libXcursor.so
+e2e_player: /usr/lib/x86_64-linux-gnu/libXinerama.so
+e2e_player: /usr/local/lib/libboost_system.so
+e2e_player: /usr/local/lib/libboost_thread.so
+e2e_player: /usr/local/lib/libboost_filesystem.so
+e2e_player: /usr/local/lib/libboost_iostreams.so
+e2e_player: /usr/lib/x86_64-linux-gnu/libx264.so
+e2e_player: /usr/local/lib/libavformat.a
+e2e_player: /usr/local/lib/libavdevice.a
+e2e_player: /usr/local/lib/libavcodec.a
+e2e_player: /usr/local/lib/libavutil.a
+e2e_player: /usr/local/lib/libswscale.a
+e2e_player: /usr/lib/x86_64-linux-gnu/libx264.so
+e2e_player: /usr/local/lib/libavformat.a
+e2e_player: /usr/local/lib/libavdevice.a
+e2e_player: /usr/local/lib/libavcodec.a
+e2e_player: /usr/local/lib/libavutil.a
+e2e_player: /usr/local/lib/libswscale.a
+e2e_player: /usr/local/lib/libopencv_objdetect.so.3.2.0
+e2e_player: /usr/local/lib/libopencv_calib3d.so.3.2.0
+e2e_player: /usr/local/lib/libopencv_features2d.so.3.2.0
+e2e_player: /usr/local/lib/libopencv_flann.so.3.2.0
+e2e_player: /usr/local/lib/libopencv_highgui.so.3.2.0
+e2e_player: /usr/local/lib/libopencv_ml.so.3.2.0
+e2e_player: /usr/local/lib/libopencv_photo.so.3.2.0
+e2e_player: /usr/local/lib/libopencv_video.so.3.2.0
+e2e_player: /usr/local/lib/libopencv_videoio.so.3.2.0
+e2e_player: /usr/local/lib/libopencv_imgcodecs.so.3.2.0
+e2e_player: /usr/local/lib/libopencv_imgproc.so.3.2.0
+e2e_player: /usr/local/lib/libopencv_core.so.3.2.0
 e2e_player: CMakeFiles/e2e_player.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/fatih/Bitirme/samples/e2e_player/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable e2e_player"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/musti/E2EHDR/samples/e2e_player/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable e2e_player"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/e2e_player.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -223,6 +201,6 @@ CMakeFiles/e2e_player.dir/clean:
 .PHONY : CMakeFiles/e2e_player.dir/clean
 
 CMakeFiles/e2e_player.dir/depend:
-	cd /Users/fatih/Bitirme/samples/e2e_player/cmake-build-debug && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /Users/fatih/Bitirme/samples/e2e_player /Users/fatih/Bitirme/samples/e2e_player /Users/fatih/Bitirme/samples/e2e_player/cmake-build-debug /Users/fatih/Bitirme/samples/e2e_player/cmake-build-debug /Users/fatih/Bitirme/samples/e2e_player/cmake-build-debug/CMakeFiles/e2e_player.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/musti/E2EHDR/samples/e2e_player/cmake-build-debug && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/musti/E2EHDR/samples/e2e_player /home/musti/E2EHDR/samples/e2e_player /home/musti/E2EHDR/samples/e2e_player/cmake-build-debug /home/musti/E2EHDR/samples/e2e_player/cmake-build-debug /home/musti/E2EHDR/samples/e2e_player/cmake-build-debug/CMakeFiles/e2e_player.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/e2e_player.dir/depend
 
