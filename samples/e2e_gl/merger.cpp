@@ -66,11 +66,14 @@ namespace e2e
         m_previous_texture.create(image_width, image_height, nullptr);
         m_left_texture.createFloat(image_width, image_height);
         m_right_texture.createFloat(image_width, image_height);
+        m_record_texture.createHalf(image_width, image_height);
 
         glFinish();
 
         //SHADERS
         compileShaders();
+
+        m_record_bits = new uint16_t[image_width*image_height*3];
     }
 
     Merger::~Merger()
@@ -86,6 +89,8 @@ namespace e2e
             glDeleteVertexArrays(1, &m_vertex_array);
             m_vertex_array = 0;
         }
+
+        delete []m_record_bits;
     }
 
     void Merger::draw(Window& w)
@@ -246,7 +251,7 @@ namespace e2e
         {
             if (m_record)
             {
-                m_framebuffer.renderToTexture2D(m_refinement_texture, m_residual_texture);
+                m_framebuffer.renderToTexture(m_record_texture);
                 m_record_merge_shader.use();
                 m_record_merge_shader.setUniformFVar("scale", { m_scale_factor_x, m_scale_factor_y });
                 m_record_merge_shader.setUniformFVar("translate", { m_position_x, m_position_y });
@@ -267,8 +272,9 @@ namespace e2e
                 //Draw quad
                 render();
 
-                m_tex_record.tonemapped_texture = m_refinement_texture.getTextureImage();
-                m_tex_record.residual_texture = m_residual_texture.getTextureImage();
+                m_record_texture.getTextureImage(m_record_bits);
+                /*m_tex_record.tonemapped_texture = m_refinement_texture.getTextureImage();
+                m_tex_record.residual_texture = m_residual_texture.getTextureImage();*/
 
                 /*int save_result = SOIL_save_image
                 (

@@ -2,7 +2,7 @@
 
 in vec2 tex_coord;
 out vec4 color;
-out vec4 resid_color;
+//out vec4 resid_color;
 
 uniform float dx;
 uniform float dy;
@@ -91,14 +91,16 @@ void main()
 {
     vec2 resultUV = tex_coord;
     resultUV.y = 1 - resultUV.y;
+	color = createHDR(resultUV);
+
+	/*
 	vec4 cols = createHDR(resultUV);
 	vec4 hdr_cols = cols;
-	
 	cols *= pow(2.0, base);
 	
 	cols = pow(cols, vec4(1.0 / 2.2)); // gamma correction
 	cols.a = 1;
 	
 	color = cols;
-	resid_color = hdr_cols / cols;
+	resid_color = hdr_cols / cols;*/
 }

@@ -54,7 +54,7 @@ class ApplicationImpl
 	};
 
 	GUI gui;
-	e2e::Merger merger{ 1280, 720, 40 };
+	e2e::Merger merger{ 1280, 720, 16 };
 
 #if defined(E2E_FFMPEG_CAM)
 	camera_struct left_cam;
@@ -155,6 +155,10 @@ class ApplicationImpl
 	using rec_state = boost::variant<WaitingRec, InRecovery, DoneRecovery>;
 	rec_state crf_state;
 
+
+    float align_x = 0;
+    float align_y = 0;
+
     std::chrono::milliseconds cvt[12] = {
 			1000ms,
 			500ms,
@@ -243,7 +247,7 @@ ApplicationImpl::ApplicationImpl(const std::vector<std::string> &args) :
 	right_cam_ctl(right_cam.get_ip()),
 #elif defined(E2E_UVC_CAM)
     left_camera(uvc_ctx.open_camera(uvc_ctx.list_cameras()[0])),
-    right_camera(uvc_ctx.open_camera(uvc_ctx.list_cameras()[1])),
+    right_camera(uvc_ctx.open_camera(uvc_ctx.list_cameras()[2])),
     left_cam(left_camera, 1280, 720, 24),
     right_cam(right_camera, 1280, 720, 24),
     left_meta(load_camera_conf(args[0])),
@@ -260,8 +264,8 @@ ApplicationImpl::ApplicationImpl(const std::vector<std::string> &args) :
 	right.exposure_index = right_meta["exp_code"];
 #endif
 
-	left_cam_ctl.set_iso(35);
-	right_cam_ctl.set_iso(35);
+	left_cam_ctl.set_iso(4);
+	right_cam_ctl.set_iso(4);
 
 	/*left_cam_ctl.set_wb_temp(4000);
 	right_cam_ctl.set_wb_temp(4000);*/
@@ -298,7 +302,23 @@ ApplicationImpl::ApplicationImpl(const std::vector<std::string> &args) :
 		}
 	});
 
-	// load profiles
+    add_keybinding(GLFW_KEY_RIGHT, [this]{
+        align_x += 0.002;
+    });
+
+    add_keybinding(GLFW_KEY_LEFT, [this]{
+        align_x -= 0.002;
+    });
+
+    add_keybinding(GLFW_KEY_UP, [this]{
+        align_y += 0.002;
+    });
+
+    add_keybinding(GLFW_KEY_DOWN, [this]{
+        align_y -= 0.002;
+    });
+
+    // load profiles
 	profiles.profs = find_profiles();
 	profiles.update_names();
 
@@ -355,7 +375,10 @@ void ApplicationImpl::Run()
 			//std::cout << "(" << er << ") " << glewGetErrorString(er) << '\n';
 			draw_preview();
 
-			merger.draw(gui.w);
+            merger.get_undistort_left_shader().setUniformFVar("global_align", { align_x, align_y });
+            merger.get_undistort_right_shader().setUniformFVar("global_align", { align_x, align_y });
+
+            merger.draw(gui.w);
 
             /*auto frames = merger.get_frames();
 
@@ -650,20 +673,25 @@ void ApplicationImpl::draw_gui()
 	static bool correction = false;
 	static bool median = false;
 	static float threshold = 1.10;
-	static float base_lum = 0.05f;
+	static float base_lum = -3.05f;
 	static float max_lum = 150.0f;
 	static int window_size = 7;
     static bool record = false;
+    static bool show_disparity = false;
+
+
 
 	//e2e::gui::displayStereoControl(recompile_shaders, cost_choice, agg_choice, detection, correction, median, threshold, window_size);
 	e2e::gui::displayTonemapControl(base_lum, max_lum);
     e2e::gui::displayRecord(record);
+    e2e::gui::displayStereoControl(recompile_shaders, cost_choice, agg_choice, detection, correction, median, threshold, window_size, show_disparity);
 	merger.chooseCost(cost_choice);
 	merger.chooseAggregation(agg_choice);
 	merger.set_outlier_detection(detection, threshold, window_size);
 	merger.set_outlier_correction(correction);
 	merger.set_median_filter(median);
     merger.set_record(record);
+    merger.set_display_disparity(show_disparity);
 
     if (gui.w.get_key_down(GLFW_KEY_A))
     {

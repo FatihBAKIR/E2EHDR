@@ -32,6 +32,8 @@ namespace e2e
         void set_position(float x, float y);
         void set_scale_factor(float x, float y);
         void set_color_debug(int color_debug);
+
+        uint16_t* get_record_bits();
         texRecord& get_tex_record();
         GLSLProgram& get_cost_shader();
         GLSLProgram& get_undistort_left_shader();
@@ -67,6 +69,8 @@ namespace e2e
         const Texture* m_texture1;
         const Texture* m_texture2;
         texRecord m_tex_record;
+        Texture m_record_texture;
+        uint16_t* m_record_bits;
 
         GLSLProgram m_frame_pass_left_shader;
         GLSLProgram m_frame_pass_right_shader;
