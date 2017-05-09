@@ -56,6 +56,24 @@ namespace x264
         });
     }
 
+    void hdr_encode::encode(gsl::span<uint8_t> tonemapped, gsl::span<uint8_t> residual, int w, int h)
+    {
+        re_encoder.encode((char*) residual.data(), std::array<uint8_t, 0>{},
+        [&](uint8_t* side_data, int side_size)
+        {
+            gsl::span<const uint8_t> side_ = {side_data, side_size};
+            if (re_buffer.size())
+            {
+                std::copy(side_data, side_data + side_size, std::back_inserter(re_buffer));
+                side_ = re_buffer;
+            }
+            tm_encoder.encode((char*) tonemapped.data(), side_,
+            [&](uint8_t* data, int size) {});
+            re_buffer.clear();
+        });
+
+    }
+
 }
 }
 

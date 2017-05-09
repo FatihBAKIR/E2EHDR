@@ -13,8 +13,8 @@ link_directories(../libs/)
 set(CMAKE_CXX_STANDARD 14)
 
 set(SOURCE_FILES X264Encoder.cpp X264Encoder.h X264Decoder.cpp X264Decoder.hpp hdr_encode.cpp hdr_encode.hpp hdr_decode.cpp hdr_decode.hpp)
-add_executable(e2e_x264 ${SOURCE_FILES} main.cpp)
-#add_library(e2e_x264 ${SOURCE_FILES})
+#add_executable(e2e_x264 ${SOURCE_FILES} main.cpp)
+add_library(e2e_x264 ${SOURCE_FILES})
 
 target_include_directories(e2e_x264 PUBLIC ${X264_INCLUDE_DIR})
 target_include_directories(e2e_x264 PUBLIC ${FFMPEG_INCLUDE_DIRS})

@@ -368,6 +368,12 @@ void ApplicationImpl::Run()
 				mq.push(tmod, resid);
 			}*/
 
+            gsl::span<uint16_t> framebuf = { merger.get_record_bits(), 1280 * 720 * 3 };
+            gsl::span<uint8_t> tmod = { (uint8_t*)framebuf.data(), framebuf.size() / 2 };
+			gsl::span<uint8_t> resid = { (uint8_t*)framebuf.data() + framebuf.size() / 2, framebuf.size() / 2 };
+
+			encoder.encode(tmod, resid, 1280, 720);
+
 			er = glGetError();
 			//std::cout << "(" << er << ") " << glewGetErrorString(er) << '\n';
 			assert(er == GL_NONE);

@@ -4,6 +4,11 @@
 
 #include "hdr_decode.hpp"
 #include <Frame.h>
+#include <iostream>
+extern "C"
+{
+#include <libavformat/avformat.h>
+}
 
 namespace e2e {
     namespace x264 {
