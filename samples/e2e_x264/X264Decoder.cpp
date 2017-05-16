@@ -50,13 +50,13 @@ void X264Decoder::decode()
 {
     uint8_t* d = nullptr;
     int s = 0;
-    auto len = av_parser_parse2(parser, codec_context, &d, &s, &buffer[buffer_ptr], buffer.size() - buffer_ptr, 0, 0, AV_NOPTS_VALUE);
+    auto len = av_parser_parse2(parser, codec_context, &d, &s, &buffer[buffer_ptr],
+            buffer.size() - buffer_ptr, 0, 0, AV_NOPTS_VALUE);
 
     if (s == 0)
     {
         return;
     }
-
 
     decode_frame(&buffer[buffer_ptr], s);
     buffer_ptr += len;

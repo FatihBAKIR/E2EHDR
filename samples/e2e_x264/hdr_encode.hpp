@@ -23,6 +23,7 @@ namespace x264
     public:
         hdr_encode(const std::string& output, int w, int h);
         void encode(const e2e::LDRFrame& tonemapped, const e2e::LDRFrame& residual);
+        void encode(gsl::span<uint8_t> tonemapped, gsl::span<uint8_t> residual, int w, int h);
     };
 }
 }
