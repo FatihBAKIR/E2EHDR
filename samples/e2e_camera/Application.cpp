@@ -393,8 +393,8 @@ void ApplicationImpl::Run()
 			}*/
 
             gsl::span<uint16_t> framebuf = { merger.get_record_bits(), 1280 * 720 * 3 };
-            gsl::span<uint8_t> tmod = { (uint8_t*)framebuf.data(), framebuf.size() / 2 };
-			gsl::span<uint8_t> resid = { (uint8_t*)framebuf.data() + framebuf.size() / 2, framebuf.size() / 2 };
+            gsl::span<uint8_t> tmod = { (uint8_t*)framebuf.data(), framebuf.size() };
+			gsl::span<uint8_t> resid = { (uint8_t*)framebuf.data() + framebuf.size(), framebuf.size() };
 
 			encoder.encode(tmod, resid, 1280, 720);
 
