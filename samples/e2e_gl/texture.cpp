@@ -186,7 +186,7 @@ std::unique_ptr<unsigned char> Texture::getTextureImage() const
 
 void Texture::getTextureImage(uint16_t* bits) const
 {
-    glGetTextureImage(m_texture_id, 0, GL_RGB, GL_HALF_FLOAT, m_width * m_height * 3, bits);
+    glGetTextureImage(m_texture_id, 0, GL_RGB, GL_HALF_FLOAT, m_width * m_height * 3 * sizeof(uint16_t), bits);
 }
 
 void Texture::create_mipmaps() const
