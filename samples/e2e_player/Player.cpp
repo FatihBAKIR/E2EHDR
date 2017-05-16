@@ -310,12 +310,13 @@ void Player::draw_gui()
 void Player::init_video(const std::string& path)
 {
     vid_thread = boost::thread([this, path]{
-        e2e::x264::hdr_decode decoder(path, 1280, 720);
-
         auto j = 0;
+
+        /*e2e::x264::hdr_decode decoder(path, 1280, 720);
+
         decoder.set_handler([&](e2e::x264::decode_result&& res){
             /*e2e::HDRFrame f (std::make_unique<float[]>(res.residual.width() * res.residual.height() * 3),
-                    res.residual.width(), res.residual.height());*/
+                    res.residual.width(), res.residual.height());
 
             auto buf = std::make_unique<uint16_t[]>(res.residual.width() * res.residual.height() * 3);
 
@@ -335,13 +336,21 @@ void Player::init_video(const std::string& path)
 
             frames.push(std::move(f));
             decoder.return_result(std::move(res));
-        });
+        });*/
+
+        auto decode = [&]{
+            std::ifstream input("test" + std::to_string(j) + ".bin", std::ios::binary);
+
+            auto f = e2e::HalfFrame(std::make_unique<uint16_t[]>(1280 * 720 * 3), 1280, 720);
+            input.read((char*)f.buffer().data(), f.buffer().size_bytes());
+            frames.push(std::move(f));
+        };
 
         while (!boost::this_thread::interruption_requested() && j < 100)
         {
             while (frames.size() == frames.capacity()) continue;
 
-            decoder.decode();
+            //decoder.decode();
         }
     });
 }
