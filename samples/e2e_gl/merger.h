@@ -2,6 +2,7 @@
 
 //GL
 #include "include/glad/glad.h"
+#include <spsc/spsc_queue.h>
 
 //FRAMEWORK
 #include "framebuffer.h"
@@ -33,7 +34,8 @@ namespace e2e
         void set_scale_factor(float x, float y);
         void set_color_debug(int color_debug);
 
-        uint16_t* get_record_bits();
+        std::unique_ptr<uint16_t[]> get_record_bits();
+        void return_buffer(std::unique_ptr<uint16_t[]>&&);
         texRecord& get_tex_record();
         GLSLProgram& get_cost_shader();
         GLSLProgram& get_undistort_left_shader();
@@ -71,6 +73,8 @@ namespace e2e
         texRecord m_tex_record;
         Texture m_record_texture;
         uint16_t* m_record_bits;
+        e2e::spsc_queue<std::unique_ptr<uint16_t[]>> m_frame_queue;
+        e2e::spsc_queue<std::unique_ptr<uint16_t[]>> m_record_queue;
 
         GLSLProgram m_frame_pass_left_shader;
         GLSLProgram m_frame_pass_right_shader;
