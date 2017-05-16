@@ -1,3 +1,3 @@
-/Users/fatih/Bitirme/samples/e2e_x264/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/Users/fatih/Bitirme/samples/e2e_x264/cmake-build-debug/CMakeFiles/edit_cache.dir
-/Users/fatih/Bitirme/samples/e2e_x264/cmake-build-debug/CMakeFiles/e2e_x264.dir
+/home/musti/E2EHDR/samples/e2e_x264/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/musti/E2EHDR/samples/e2e_x264/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/musti/E2EHDR/samples/e2e_x264/cmake-build-debug/CMakeFiles/e2e_x264.dir

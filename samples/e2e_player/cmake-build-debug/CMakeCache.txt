@@ -241,6 +241,9 @@ FFMPEG_LIBSWSCALE_LIBRARIES:FILEPATH=/usr/local/lib/libswscale.a
 //Location of FFMPEG
 FFMPEG_ROOT:PATH=
 
+//The directory containing a CMake configuration file for FFmpeg.
+FFmpeg_DIR:PATH=FFmpeg_DIR-NOTFOUND
+
 //The directory where GLFW/glfw3.h resides
 GLFW_INCLUDE_DIR:PATH=/usr/local/include
 
