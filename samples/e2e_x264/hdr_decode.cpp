@@ -23,8 +23,10 @@ namespace e2e {
 
         namespace bio = boost::iostreams;
 
-        hdr_decode::hdr_decode(const std::string& path)
+        hdr_decode::hdr_decode(const std::string& path, short w, short h)
         {
+            m_width = w;
+            m_height = h;
             file = bio::mapped_file(path, bio::mapped_file::readonly);
             tm_decoder.got_data((const uint8_t*) file.const_data(), file.size());
 
@@ -50,7 +52,7 @@ namespace e2e {
                     }
                 }
 
-                next.tonemapped = frame_t{std::move(img), 128, 128};
+                next.tonemapped = frame_t{std::move(img), m_width, m_height};
 
                 re_decoder.got_data(sei.first, std::distance(sei.first, sei.second));
                 re_decoder.decode();
@@ -58,7 +60,7 @@ namespace e2e {
 
             re_decoder.set_frame_cb([&](AVPacket* pk, X264Decoder::data_ptr img)
             {
-                next.residual = frame_t{std::move(img), 128, 128};
+                next.residual = frame_t{std::move(img), m_width, m_height};
                 handler(std::move(next));
             });
         }

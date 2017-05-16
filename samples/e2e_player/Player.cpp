@@ -41,7 +41,7 @@ Player::Player(const std::string& path) :
 
 void Player::init_player(const std::string& path)
 {
-    auto image2 = cv::imread(path, -1);
+    /*auto image2 = cv::imread(path, -1);
 
     auto size2 = image2.size().width * image2.size().height * 3;
     auto data2 = std::make_unique<float[]>(size2);
@@ -49,8 +49,8 @@ void Player::init_player(const std::string& path)
     std::copy((const float*)image2.ptr(), (const float*)image2.ptr() + size2, data2.get());
     e2e::HDRFrame frame2(std::move(data2), image2.size().width, image2.size().height);
 
-    frames.push(e2e::duplicate(frame2));
-    //init_video(path);
+    frames.push(e2e::duplicate(frame2));*/
+    init_video(path);
     return;
 }
 
@@ -84,7 +84,7 @@ void Player::play_loop()
             if (true || i % 2 == 0){
                 auto frame = std::move(Frames().front());
                 Frames().pop();
-                frame_tex.createFloatBGR(frame.width(), frame.height(), frame.buffer().data());
+                frame_tex.createHalf(frame.width(), frame.height(), frame.buffer().data());
                 Frames().push(std::move(frame));
             }
             else {
@@ -107,6 +107,7 @@ void Player::play_loop()
         lcd_quad.draw();
         //draw_gui();
         display_window.EndDraw();
+
 
         i++;
 
@@ -139,16 +140,16 @@ void Player::init_shaders()
 {
     prj_shader.attachShader(e2e::GLSLProgram::ShaderType::VERTEX_SHADER,
                                    "../../e2e_gl/shaders/projector.vert");
-    /*prj_shader.attachShader(e2e::GLSLProgram::ShaderType::FRAGMENT_SHADER,
-                                   "../../e2e_gl/shaders/projector.frag");*/
     prj_shader.attachShader(e2e::GLSLProgram::ShaderType::FRAGMENT_SHADER,
-                            "../shaders/checkerboard.frag");
+                                   "../../e2e_gl/shaders/projector.frag");
+    /*prj_shader.attachShader(e2e::GLSLProgram::ShaderType::FRAGMENT_SHADER,
+                            "../shaders/checkerboard.frag");*/
 
 
     lcd_shader.attachShader(e2e::GLSLProgram::ShaderType::VERTEX_SHADER,
                              "../../e2e_gl/shaders/LCD.vert");
     lcd_shader.attachShader(e2e::GLSLProgram::ShaderType::FRAGMENT_SHADER,
-                             "../shaders/checkerboard_lcd.frag");
+                             "../../e2e_gl/shaders/LCD.frag");
 
 
     lcd_shader.link();
@@ -309,23 +310,31 @@ void Player::draw_gui()
 void Player::init_video(const std::string& path)
 {
     vid_thread = boost::thread([this, path]{
-        e2e::x264::hdr_decode decoder(path);
+        e2e::x264::hdr_decode decoder(path, 1280, 720);
 
         auto j = 0;
         decoder.set_handler([&](e2e::x264::decode_result&& res){
-            e2e::HDRFrame f (std::make_unique<float[]>(res.residual.width() * res.residual.height() * 3),
-                    res.residual.width(), res.residual.height());
+            /*e2e::HDRFrame f (std::make_unique<float[]>(res.residual.width() * res.residual.height() * 3),
+                    res.residual.width(), res.residual.height());*/
 
-            for (auto i = 0; i < res.residual.buffer().size(); ++i)
-            {
-                f.buffer()[i] = ((res.residual.buffer()[i] / 255.f) + res.tonemapped.buffer()[i] / 255.f) * 0.5f;
-            }
+            auto buf = std::make_unique<uint16_t[]>(res.residual.width() * res.residual.height() * 3);
+
+            gsl::span<uint16_t> first_half = {reinterpret_cast<uint16_t*>(res.tonemapped.buffer().data()),
+                                              res.tonemapped.buffer().size() / 2 };
+
+            gsl::span<uint16_t> second_half = {reinterpret_cast<uint16_t*>(res.residual.buffer().data()),
+                                              res.residual.buffer().size() / 2 };
+
+            std::copy(first_half.begin(), first_half.end(), buf.get());
+            std::copy(second_half.begin(), second_half.end(), buf.get() + first_half.size());
 
             ++j;
             std::cerr << j << '\n';
 
+            auto f = e2e::HalfFrame(std::move(buf), res.residual.width(), res.residual.height());
+
             frames.push(std::move(f));
-            //decoder.return_result(std::move(res));
+            decoder.return_result(std::move(res));
         });
 
         while (!boost::this_thread::interruption_requested() && j < 100)
@@ -349,5 +358,5 @@ void Player::init_ipc()
         f.buffer()[i] = ((fs.res.buffer()[i] / 255.f) + fs.tmo.buffer()[i] / 255.f) * 0.5f;
     }
 
-    frames.push(std::move(f));
+    //frames.push(std::move(f));
 }

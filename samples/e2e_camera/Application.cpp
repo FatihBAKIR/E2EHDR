@@ -32,6 +32,7 @@
 #include <boost/variant.hpp>
 #include <hdr_encode.hpp>
 #include <e2e_uvc/camera.hpp>
+#include <fstream>
 #include "app_config.hpp"
 
 using json = nlohmann::json;
@@ -393,6 +394,7 @@ void ApplicationImpl::Run()
 				mq.push(tmod, resid);
 			}*/
 
+            static int fc = 0;
             if (record)
             {
                 tp.push_job([&]{
@@ -402,7 +404,11 @@ void ApplicationImpl::Run()
                     gsl::span<uint8_t> tmod = { (uint8_t*)framebuf.data(), framebuf.size() };
                     gsl::span<uint8_t> resid = { (uint8_t*)framebuf.data() + framebuf.size(), framebuf.size() };
 
-                    encoder.encode(tmod, resid, 1280, 720);
+                    encoder.encode(tmod, resid);
+
+                    std::ofstream output("test" + std::to_string(fc++) + ".bin", std::ios::binary);
+                    output.write((const char*)framebuf.data(), framebuf.size_bytes());
+
                     merger.return_buffer(std::move(buf));
                 });
             }

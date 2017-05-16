@@ -25,7 +25,7 @@ class Player
 
     e2e::Window display_window;
     e2e::Window project_window;
-    e2e::spsc_queue<e2e::HDRFrame, e2e::constant_storage<e2e::HDRFrame, 128>> frames;
+    e2e::spsc_queue<e2e::HalfFrame, e2e::constant_storage<e2e::HalfFrame, 128>> frames;
 
     e2e::Quad lcd_quad;
     e2e::Quad prj_quad;
