@@ -138,7 +138,7 @@ void Texture::createFloatBGR(int width, int height, float* data)
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Texture::createHalf(int width, int height, float* data)
+void Texture::createHalf(int width, int height, uint16_t* data)
 {
     if (m_texture_id)
     {
@@ -152,7 +152,7 @@ void Texture::createHalf(int width, int height, float* data)
     glGenTextures(1, &m_texture_id);
 
     glBindTexture(GL_TEXTURE_2D, m_texture_id);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_BGR, GL_HALF_FLOAT, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_HALF_FLOAT, data);
 
     //Settings
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
