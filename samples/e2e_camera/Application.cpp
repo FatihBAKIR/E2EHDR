@@ -155,6 +155,7 @@ class ApplicationImpl
 	using rec_state = boost::variant<WaitingRec, InRecovery, DoneRecovery>;
 	rec_state crf_state;
 
+    bool record = false;
 
     float align_x = 0;
     float align_y = 0;
@@ -247,7 +248,7 @@ ApplicationImpl::ApplicationImpl(const std::vector<std::string> &args) :
 	right_cam_ctl(right_cam.get_ip()),
 #elif defined(E2E_UVC_CAM)
     left_camera(uvc_ctx.open_camera(uvc_ctx.list_cameras()[0])),
-    right_camera(uvc_ctx.open_camera(uvc_ctx.list_cameras()[2])),
+    right_camera(uvc_ctx.open_camera(uvc_ctx.list_cameras()[1])),
     left_cam(left_camera, 1280, 720, 24),
     right_cam(right_camera, 1280, 720, 24),
     left_meta(load_camera_conf(args[0])),
@@ -392,11 +393,15 @@ void ApplicationImpl::Run()
 				mq.push(tmod, resid);
 			}*/
 
-            gsl::span<uint16_t> framebuf = { merger.get_record_bits(), 1280 * 720 * 3 };
-            gsl::span<uint8_t> tmod = { (uint8_t*)framebuf.data(), framebuf.size() / 2 };
-			gsl::span<uint8_t> resid = { (uint8_t*)framebuf.data() + framebuf.size() / 2, framebuf.size() / 2 };
 
-			encoder.encode(tmod, resid, 1280, 720);
+            if (record)
+            {
+                gsl::span<uint16_t> framebuf = { merger.get_record_bits(), 1280 * 720 * 3 };
+                gsl::span<uint8_t> tmod = { (uint8_t*)framebuf.data(), framebuf.size() / 2 };
+                gsl::span<uint8_t> resid = { (uint8_t*)framebuf.data() + framebuf.size() / 2, framebuf.size() / 2 };
+
+                encoder.encode(tmod, resid, 1280, 720);
+            }
 
 			er = glGetError();
 			//std::cout << "(" << er << ") " << glewGetErrorString(er) << '\n';
@@ -682,7 +687,6 @@ void ApplicationImpl::draw_gui()
 	static float base_lum = -3.05f;
 	static float max_lum = 150.0f;
 	static int window_size = 7;
-    static bool record = false;
     static bool show_disparity = false;
 
 
