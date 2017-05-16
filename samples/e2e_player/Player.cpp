@@ -18,7 +18,7 @@ Player::Player(const std::string& path) :
 {
     init_player(path);
 
-    //pause();
+    pause();
 
     float arr[] = {0.2, 0.4, 0.3};
     frame_tex.createFloatBGR(1, 1, arr);
@@ -26,7 +26,7 @@ Player::Player(const std::string& path) :
     init_shaders();
     init_quads();
     init_worker();
-    x =40;
+    x = 40;
 
     prj_quad.set_vertices( {-1.05999994, 1.23499978, 0, 1, -1.07999992, -0.865000129, 0, 0, 1.02499998, -0.910000086, 1, 0, 1.05499995, 1.17999983, 1, 1});
 
@@ -139,17 +139,17 @@ void Player::play_loop()
 void Player::init_shaders()
 {
     prj_shader.attachShader(e2e::GLSLProgram::ShaderType::VERTEX_SHADER,
-                                   "../../e2e_gl/shaders/projector.vert");
+                                   "../shaders/projector.vert");
     prj_shader.attachShader(e2e::GLSLProgram::ShaderType::FRAGMENT_SHADER,
-                                   "../../e2e_gl/shaders/projector.frag");
+                                   "../shaders/projector.frag");
     /*prj_shader.attachShader(e2e::GLSLProgram::ShaderType::FRAGMENT_SHADER,
                             "../shaders/checkerboard.frag");*/
 
 
     lcd_shader.attachShader(e2e::GLSLProgram::ShaderType::VERTEX_SHADER,
-                             "../../e2e_gl/shaders/LCD.vert");
+                             "../shaders/LCD.vert");
     lcd_shader.attachShader(e2e::GLSLProgram::ShaderType::FRAGMENT_SHADER,
-                             "../../e2e_gl/shaders/LCD.frag");
+                             "../shaders/LCD.frag");
 
 
     lcd_shader.link();
@@ -341,17 +341,23 @@ void Player::init_video(const std::string& path)
         auto decode = [&]{
             std::ifstream input("test" + std::to_string(j) + ".bin", std::ios::binary);
 
+            j++;
             auto f = e2e::HalfFrame(std::make_unique<uint16_t[]>(1280 * 720 * 3), 1280, 720);
             input.read((char*)f.buffer().data(), f.buffer().size_bytes());
             frames.push(std::move(f));
         };
 
-        while (!boost::this_thread::interruption_requested() && j < 100)
+        while (!boost::this_thread::interruption_requested() && j < 379)
         {
             while (frames.size() == frames.capacity()) continue;
 
+            decode();
             //decoder.decode();
         }
+
+        play();
+
+        std::cerr << "done\n";
     });
 }
 

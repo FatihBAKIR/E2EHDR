@@ -48,6 +48,13 @@ namespace e2e
             1.0f ,  1.0f,   1.0f, 1.0f
         };
 
+        for (int j=0; j<64; ++j)
+        {
+            std::unique_ptr<uint16_t[]> frame(
+                    new uint16_t[m_image_width*m_image_height*sizeof(uint16_t)*3]);
+            m_frame_queue.push(std::move(frame));
+        }
+
         glGenVertexArrays(1, &m_vertex_array);
         glGenBuffers(1, &m_vertex_buffer);
         glBindVertexArray(m_vertex_array);
@@ -272,7 +279,11 @@ namespace e2e
                 //Draw quad
                 render();
 
-                m_record_texture.getTextureImage(m_record_bits);
+                auto front_frame = std::move(m_frame_queue.front());
+                m_record_texture.getTextureImage(front_frame.get());
+                m_frame_queue.pop();
+                m_record_queue.push(std::move(front_frame));
+
                 /*m_tex_record.tonemapped_texture = m_refinement_texture.getTextureImage();
                 m_tex_record.residual_texture = m_residual_texture.getTextureImage();*/
 
@@ -437,6 +448,14 @@ namespace e2e
         m_color_debug = color_debug;
     }
 
+    std::unique_ptr<uint16_t[]> Merger::get_record_bits()
+    {
+        auto front_frame = std::move(m_record_queue.front());
+        m_record_queue.pop();
+
+        return front_frame;
+    }
+
     texRecord& Merger::get_tex_record()
     {
         return m_tex_record;
@@ -587,5 +606,9 @@ namespace e2e
         {
             return m_hdr_merge_shader;
         }
+    }
+
+    void Merger::return_buffer(std::unique_ptr<uint16_t[]> && buf) {
+        m_frame_queue.push(std::move(buf));
     }
 }

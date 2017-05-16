@@ -11,6 +11,6 @@ using namespace e2e;
 
 int main()
 {
-    Player p("/home/musti/Downloads/memorial.hdr");
+    Player p("/home/musti/E2EHDR/samples/e2e_camera/cmake-build-debug/output.h264");
 }
 
