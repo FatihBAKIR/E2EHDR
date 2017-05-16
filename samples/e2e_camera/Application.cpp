@@ -396,7 +396,7 @@ void ApplicationImpl::Run()
             gsl::span<uint8_t> tmod = { (uint8_t*)framebuf.data(), framebuf.size() };
 			gsl::span<uint8_t> resid = { (uint8_t*)framebuf.data() + framebuf.size(), framebuf.size() };
 
-			encoder.encode(tmod, resid, 1280, 720);
+			encoder.encode(tmod, resid);
 
 			er = glGetError();
 			//std::cout << "(" << er << ") " << glewGetErrorString(er) << '\n';

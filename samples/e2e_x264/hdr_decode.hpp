@@ -30,8 +30,10 @@ namespace x264
 
         decode_result next;
 
+        short m_width, m_height;
+
     public:
-        hdr_decode(const std::string& path);
+        hdr_decode(const std::string& path, short w, short h);
         hdr_decode(const hdr_decode&) = delete;
         hdr_decode(hdr_decode&&) = delete;
 
