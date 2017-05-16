@@ -21,7 +21,7 @@ public:
 	void createArray(int width, int height, int layer, unsigned char* image);
 	void createFloat(int width, int height, float* data = nullptr);
 	void createFloatBGR(int width, int height, float* data);
-    void createHalf(int width, int height, float* data = nullptr);
+    void createHalf(int width, int height, uint16_t* data = nullptr);
 
 	void use() const;
 	void useArray() const;
