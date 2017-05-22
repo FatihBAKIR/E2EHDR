@@ -11,6 +11,19 @@ using namespace e2e;
 
 int main()
 {
-    Player p("/home/musti/E2EHDR/samples/e2e_camera/cmake-build-debug/output.h264");
+    std::atomic<Player*> player;
+    player.store(nullptr);
+
+    auto t = boost::thread([&]{
+        while (player.load() == nullptr);
+        player.load()->set_ldr_mode(false);
+        player.load()->load_media(image{}, "/Users/fatih/Downloads/office.hdr");
+        player.load()->play();
+    });
+
+    Player p(1280, 720);
+    p.init_player([&]{
+        player.store(&p);
+    });
 }
 

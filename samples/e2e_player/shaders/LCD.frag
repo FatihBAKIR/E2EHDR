@@ -4,6 +4,8 @@ in vec2 tex_coord;
 out vec4 color;
 
 uniform sampler2D texture0;
+uniform vec2 im_scale;
+uniform int ldr_mode;
 
 vec4 blur13(sampler2D image, vec2 uv, vec2 resolution)
 {
@@ -32,14 +34,36 @@ vec4 blur13(sampler2D image, vec2 uv, vec2 resolution)
     return color;
 }
 
+float inv_lerp(float edge0, float edge1, float x)
+{
+    return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+}
+
 void main()
 {
-	vec4 clr = texture(texture0, tex_coord);
+    float u = inv_lerp(0.5 - im_scale.x / 2, 0.5 + im_scale.x / 2, tex_coord.x);
+    float v = inv_lerp(0.5 - im_scale.y / 2, 0.5 + im_scale.y / 2, tex_coord.y);
+
+    vec2 x = vec2(u, v);
+
+    if (x.x == 0 || x.x == 1 || x.y == 0 || x.y == 1)
+    {
+        color = vec4(0.0, 0.0, 0.0, 1.0);
+        return;
+    }
+
+	vec4 clr = texture(texture0, x);
+
+    if (ldr_mode == 1)
+    {
+        color = clr;
+        return;
+    }
 
 	clr *= pow(2.0, -3.0f);
 
     vec2 uv = vec2(gl_FragCoord.xy / vec2(2000, 1312));
-    float asd = blur13(texture0, tex_coord, vec2(2000, 1312)).r;
+    float asd = blur13(texture0, x, vec2(2000, 1312)).r;
 
 	color = vec4(clr.r / asd, clr.g / asd, clr.b / asd, 1.0);
 }
