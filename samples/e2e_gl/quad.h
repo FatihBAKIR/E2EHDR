@@ -34,6 +34,8 @@ namespace e2e
             std::copy(std::begin(arr), std::end(arr), std::begin(vertices));
         }
 
+        void print_vertices() const;
+
     private:
         GLuint m_vertex_array;
         GLuint m_vertex_buffer;

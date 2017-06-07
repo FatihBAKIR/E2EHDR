@@ -1,4 +1,5 @@
 //FRAMEWORK
+#include <iostream>
 #include "quad.h"
 #include "glsl_program.h"
 
@@ -27,6 +28,16 @@ namespace e2e
 			m_vertex_array = 0;
 		}
 	}
+
+	void Quad::print_vertices() const
+        {
+            std::cout << "{";
+            for (auto f : vertices)
+            {
+                std::cout << f << ", ";
+            }
+            std::cout << "}\n";
+        }
 
 	void Quad::create()
 	{

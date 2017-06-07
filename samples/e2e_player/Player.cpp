@@ -22,9 +22,8 @@ void Player::init_player(std::function<void()> preplay)
 {
     x = 40;
 
-    prj_quad.set_vertices(
-            {-1.05999994, 1.23499978, 0, 1, -1.07999992, -0.865000129, 0, 0, 1.02499998, -0.910000086, 1, 0, 1.05499995,
-             1.17999983, 1, 1});
+    prj_quad.set_vertices({-1.13, 0.965, 0, 1, -1.11, -1.275, 0, 0, 0.99, -1.12, 1, 0, 0.99, 0.91, 1, 1, }
+    );
     pause();
     display_window = new e2e::Window(m_width, m_height);
     project_window = new e2e::Window(m_width, m_height, nullptr, display_window->get_window());
@@ -38,8 +37,8 @@ void Player::init_player(std::function<void()> preplay)
     init_worker();
 
     int num;
-    //display_window->go_fullscreen(glfwGetMonitors(&num)[1]);
-    //project_window->go_fullscreen(glfwGetMonitors(&num)[2]);
+    display_window->go_fullscreen(glfwGetMonitors(&num)[1]);
+    project_window->go_fullscreen(glfwGetMonitors(&num)[2]);
 
     preplay();
     init_playback();
@@ -130,6 +129,12 @@ void Player::play_loop()
 
         if (display_window->get_key_down(GLFW_KEY_4) || project_window->get_key_down(GLFW_KEY_4))
             corner_id = 3;
+
+        if (display_window->get_key_down(GLFW_KEY_S) || project_window->get_key_down(GLFW_KEY_S))
+	{
+	    prj_quad.print_vertices();
+	}
+
 
         boost::this_thread::sleep_for(boost::chrono::milliseconds(x));
     }

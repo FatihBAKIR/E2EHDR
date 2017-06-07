@@ -17,7 +17,7 @@ int main()
     auto t = boost::thread([&]{
         while (player.load() == nullptr);
         player.load()->set_ldr_mode(false);
-        player.load()->load_media(image{}, "/Users/fatih/Downloads/office.hdr");
+        player.load()->load_media(image{}, "/home/musti/Downloads/memorial.hdr");
         player.load()->play();
     });
 
