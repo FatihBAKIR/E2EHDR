@@ -17,11 +17,13 @@ find_package(OpenCV REQUIRED)
 find_package(GLFW REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system thread filesystem iostreams)
 
-set(SOURCE_FILES Player.cpp Player.h main.cpp Video.cpp Video.h shared_frame_queue.hpp)
 
-add_executable(e2e_player ${SOURCE_FILES})
+set(SOURCE_FILES Player.cpp Player.h Video.cpp Video.h shared_frame_queue.hpp)
 
-target_compile_definitions(e2e_player PRIVATE GLFW_INCLUDE_NONE=1)
+add_library(e2e_player ${SOURCE_FILES})
+add_executable(player_app main.cpp)
+
+target_compile_definitions(e2e_player PUBLIC GLFW_INCLUDE_NONE=1)
 
 target_link_libraries(e2e_player ${OPENGL_LIBRARIES})
 target_link_libraries(e2e_player ${OpenCV_LIBRARIES})
@@ -59,3 +61,4 @@ target_link_libraries(e2e_player ${X264_LIBRARIES})
 target_link_libraries(e2e_player ${FFMPEG_LIBRARIES})
 
 target_link_libraries(e2e_player e2e_utils imgui X11 dl z x264 mp3lame ass fdk-aac m swresample glfw boost_iostreams)
+target_link_libraries(player_app PUBLIC e2e_player)
