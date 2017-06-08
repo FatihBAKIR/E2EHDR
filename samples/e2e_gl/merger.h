@@ -51,6 +51,12 @@ namespace e2e
         void set_median_filter(bool median_filter);
         void set_display_disparity(bool display_disparity);
 
+        void set_avg_texs(const Texture* a, const Texture* right)
+        {
+            m_left_avg = a;
+            m_right_avg = right;
+        }
+
     private:
         int m_window_width;
         int m_window_height;
@@ -68,6 +74,10 @@ namespace e2e
         Texture m_previous_texture;
         Texture m_left_texture;
         Texture m_right_texture;
+
+        const Texture* m_left_avg;
+        const Texture* m_right_avg;
+
         const Texture* m_texture1;
         const Texture* m_texture2;
         texRecord m_tex_record;

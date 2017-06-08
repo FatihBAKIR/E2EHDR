@@ -128,6 +128,7 @@ namespace e2e
         glActiveTexture(GL_TEXTURE1);
         m_frame_pass_left_shader.setUniformIVar("other", { 1 });
         m_texture2->use();
+
         render();
 
         m_framebuffer.renderToTexture(m_right_texture);
@@ -138,10 +139,15 @@ namespace e2e
         glActiveTexture(GL_TEXTURE0);
         m_frame_pass_right_shader.setUniformIVar("frame", { 0 });
         m_texture2->use();
-
         glActiveTexture(GL_TEXTURE1);
         m_frame_pass_right_shader.setUniformIVar("other", { 1 });
         m_texture1->use();
+        glActiveTexture(GL_TEXTURE2);
+        m_frame_pass_right_shader.setUniformIVar("left_avg", { 2 });
+        m_left_avg->use();
+        glActiveTexture(GL_TEXTURE3);
+        m_frame_pass_right_shader.setUniformIVar("right_avg", { 3 });
+        m_right_avg->use();
         render();
 
         //COST COMPUTATION//

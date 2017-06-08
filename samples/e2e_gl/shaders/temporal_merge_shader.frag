@@ -8,6 +8,7 @@ uniform float dy;
 uniform sampler2D disparity_map;
 uniform sampler2D left_exp;
 uniform sampler2D right_exp;
+uniform int color_debug;
 
 struct camera_params
 {
@@ -19,8 +20,8 @@ uniform camera_params right;
 
 vec2 applyDisparity(vec2 point) 
 {
-	float  offset = texture(disparity_map, vec2(point.x, 1 - point.y)).r * 31;
-    return vec2(point.x - offset*dx, point.y);
+	float  offset = texture(disparity_map, vec2(point.x, 1 - point.y)).r * 63;
+    return vec2(point.x, point.y + offset*dy);
 }
 
 vec4 createHDR(vec2 resultUV)
@@ -33,31 +34,44 @@ vec4 createHDR(vec2 resultUV)
     vec3  ldr_left      = sample_left.rgb;
     float w_left        = sample_left.a;
 
-    hdr.rgb       += (ldr_left) * w_left;
-    weightSum     += w_left;
-	
-	//If it is well exposed then do not consider
-	//other frame
-	if (w_left < 0.9f)
-	{
-		return vec4(ldr_left, 1.0f);
-	}
-
     // frame with higher exposure:
-    vec4 sample_right      = texture(right_exp, applyDisparity(resultUV));
+    vec4 sample_right    = texture(right_exp, applyDisparity(resultUV));
     vec3  ldr_right      = sample_right.rgb;
     float w_right        = sample_right.a;
-	
-	return vec4(ldr_right, 1.0f);
 
-    hdr.rgb       += (ldr_right) * w_right;
-    weightSum     += w_right;
+	//If it is well exposed then do not consider
+	//other frame
+	if (w_left >= 0.1f && w_right < 0.9f)
+	{
+	    if (color_debug==0)
+		{
+			return vec4(ldr_left, 1.0f);
+		}
+		else
+		{
+			return vec4(1.0f, 0.0f, 0.0f, 1.0f);
+		}
+	}
 
-    // overall value:
-    hdr.rgb /= weightSum + 1e-6;
-    hdr.a    = 1;
+    hdr.rgb       += (ldr_left) * w_left;
+    weightSum     += w_left;
 
-    return hdr; // returns the rgba value.
+	if (color_debug==0)
+	{
+        hdr.rgb       += (ldr_right) * w_right;
+        weightSum     += w_right;
+
+        // overall value:
+        hdr.rgb /= weightSum + 1e-6;
+        hdr.a    = 1;
+
+        return hdr; // returns the rgba value.
+	}
+	else
+	{
+		return vec4(0.0f, 1.0f, 0.0f, 1.0f);
+	}
+
 }
 
 uniform float base;

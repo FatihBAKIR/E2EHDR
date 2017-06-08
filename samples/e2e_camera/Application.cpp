@@ -39,6 +39,9 @@ using json = nlohmann::json;
 using namespace e2e::app;
 using namespace std::chrono_literals;
 
+constexpr auto CameraId1 = 0;
+constexpr auto CameraId2 = 1;
+
 class ApplicationImpl
 {
 	struct GUI
@@ -55,7 +58,7 @@ class ApplicationImpl
 	};
 
 	GUI gui;
-	e2e::Merger merger{ 1280, 720, 16 };
+	e2e::Merger merger{ 1280, 720, 64 };
 
 #if defined(E2E_FFMPEG_CAM)
 	camera_struct left_cam;
@@ -116,6 +119,7 @@ class ApplicationImpl
 		float   display_exposure = -5;
 		bool    apply_crf = true;
 		bool    undistort = true;
+        bool	wb_eq = true;
 	} preview;
 
 	std::map<int, std::function<void()>> key_handlers;
@@ -158,8 +162,8 @@ class ApplicationImpl
 
     bool record = false;
 
-    float align_x = 0;
-    float align_y = 0;
+    float align_x = 10 / 1280.f;
+    float align_y = -100 / 720.f;
 
     std::chrono::milliseconds cvt[12] = {
 			1000ms,
@@ -195,7 +199,7 @@ class ApplicationImpl
 
 	void draw_gui();
 
-	void draw_preview();
+	void draw_preview(const Texture*, const Texture*);
 
 	void start_crf_recovery();
 
@@ -248,10 +252,10 @@ ApplicationImpl::ApplicationImpl(const std::vector<std::string> &args) :
 	left_cam_ctl(left_cam.get_ip()),
 	right_cam_ctl(right_cam.get_ip()),
 #elif defined(E2E_UVC_CAM)
-    left_camera(uvc_ctx.open_camera(uvc_ctx.list_cameras()[0])),
-    right_camera(uvc_ctx.open_camera(uvc_ctx.list_cameras()[1])),
-    left_cam(left_camera, 1280, 720, 24),
-    right_cam(right_camera, 1280, 720, 24),
+    left_camera(uvc_ctx.open_camera(uvc_ctx.list_cameras()[CameraId1])),
+    right_camera(uvc_ctx.open_camera(uvc_ctx.list_cameras()[CameraId2])),
+    left_cam(left_camera, 1280, 720, 20),
+    right_cam(right_camera, 1280, 720, 20),
     left_meta(load_camera_conf(args[0])),
 	right_meta(load_camera_conf(args[1])),
 #endif
@@ -269,10 +273,10 @@ ApplicationImpl::ApplicationImpl(const std::vector<std::string> &args) :
 	left_cam_ctl.set_iso(4);
 	right_cam_ctl.set_iso(4);
 
-	/*left_cam_ctl.set_wb_temp(4000);
-	right_cam_ctl.set_wb_temp(4000);*/
-    left_cam_ctl.set_auto_wb(true);
-    right_cam_ctl.set_auto_wb(true);
+	left_cam_ctl.set_wb_temp(4000);
+	right_cam_ctl.set_wb_temp(4000);
+    /*left_cam_ctl.set_auto_wb(true);
+    right_cam_ctl.set_auto_wb(true);*/
 
     left_cam_ctl.set_shutter_speed(cvt[left.exposure_index]);
     right_cam_ctl.set_shutter_speed(cvt[right.exposure_index]);
@@ -350,6 +354,43 @@ void ApplicationImpl::Run()
 	merger.set_position(0.5, 0.5);
 	merger.set_scale_factor(0.5, 0.5);
 
+	e2e::GLSLProgram average_left, average_right;
+	average_left.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/avg.vert");
+	average_left.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/avg.frag");
+    average_left.link();
+
+    average_right.attachShader(e2e::GLSLProgram::VERTEX_SHADER, "shaders/avg.vert");
+    average_right.attachShader(e2e::GLSLProgram::FRAGMENT_SHADER, "shaders/avg.frag");
+    average_right.link();
+
+	make_undistort_shader(average_left, left_meta);
+	make_undistort_shader(average_right, right_meta);
+
+	Texture average_left_tex, average_right_tex;
+    average_left_tex.createFloat(10, 10, nullptr);
+	average_right_tex.createFloat(10, 10, nullptr);
+
+	e2e::Quad left_avg_quad, right_avg_quad;
+	left_avg_quad.create();
+	right_avg_quad.create();
+
+	left_avg_quad.set_position(0, 0);
+	left_avg_quad.set_scale_factor(1, 1);
+
+	right_avg_quad.set_position(0, 0);
+	right_avg_quad.set_scale_factor(1, 1);
+
+	left_avg_quad.set_program(average_left);
+    left_avg_quad.set_texture(gui.left_tex);
+
+	right_avg_quad.set_program(average_right);
+	right_avg_quad.set_texture(gui.right_tex);
+
+	e2e::Framebuffer fb_left, fb_right;
+
+	merger.set_avg_texs(&average_left_tex, &average_right_tex);
+
+    int viewport[4];
 	while (!gui.w.ShouldClose())
 	{
 		named_profile("Display");
@@ -370,16 +411,29 @@ void ApplicationImpl::Run()
 
 		//gui.w.reset_viewport();
 
-
 		if (running) // && left_cur_frame && right_cur_frame)
 		{
 			auto er = glGetError();
 			//std::cout << "(" << er << ") " << glewGetErrorString(er) << '\n';
-			draw_preview();
 
             merger.get_undistort_left_shader().setUniformFVar("global_align", { align_x, align_y });
             merger.get_undistort_right_shader().setUniformFVar("global_align", { align_x, align_y });
 
+			gui.left_tex.create_mipmaps();
+			gui.right_tex.create_mipmaps();
+
+			glGetIntegerv(GL_VIEWPORT, viewport);
+
+			fb_left.renderToTexture(average_left_tex);
+			left_avg_quad.draw();
+
+			fb_right.renderToTexture(average_right_tex);
+			right_avg_quad.draw();
+
+			glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+			draw_preview(&average_left_tex, &average_right_tex);
             merger.draw(gui.w);
 
             /*auto frames = merger.get_frames();
@@ -435,17 +489,37 @@ void ApplicationImpl::Run()
 	}
 }
 
-std::pair<FrameT, FrameT> ApplicationImpl::get_frame_pair() {
+std::pair<FrameT, FrameT> ApplicationImpl::get_frame_pair()
+{
 	auto& left_queue = left_cam.get_frame_queue();
 	auto& right_queue = right_cam.get_frame_queue();
 
-	auto left_frame = std::move(left_queue.front()); left_queue.pop();
-	auto right_frame = std::move(right_queue.front()); right_queue.pop();
+	auto left_frame = std::move(left_queue.front());
+	left_queue.pop();
+	auto right_frame = std::move(right_queue.front());
+	right_queue.pop();
 
-	auto calc_diff = [](const auto& f1, const auto& f2)
-	{
-		return std::chrono::duration_cast<std::chrono::milliseconds> (f1.get_time() - f2.get_time()).count();
+	auto calc_diff = [](const auto& f1, const auto& f2) {
+		return std::chrono::duration_cast<std::chrono::milliseconds>(f1.get_time()-f2.get_time()).count();
 	};
+
+	auto now = std::chrono::high_resolution_clock::now();
+	auto calc_diff_now = [&now](const auto& f1)
+	{
+		return std::chrono::duration_cast<std::chrono::milliseconds>(now - f1.get_time()).count();
+	};
+
+	while (calc_diff_now(left_frame) >= 20 && left_queue.size()) // at most 60 ms old
+	{
+		left_frame = std::move(left_queue.front()); left_queue.pop();
+	}
+
+	while (calc_diff_now(right_frame) >= 20 && right_queue.size()) // at most 60 ms old
+	{
+		right_frame = std::move(right_queue.front()); right_queue.pop();
+	}
+
+	return std::make_pair(std::move(left_frame), std::move(right_frame));
 
 	auto diff = calc_diff(left_frame, right_frame);
 
@@ -561,6 +635,7 @@ void ApplicationImpl::draw_gui()
 
 	ImGui::Begin("Preview");
 	ImGui::Checkbox("Undistort", &preview.undistort);
+	ImGui::Checkbox("White balance", &preview.wb_eq);
 	ImGui::Checkbox("Apply Crf", &preview.apply_crf);
 	if (preview.apply_crf)
 	{
@@ -733,19 +808,44 @@ void ApplicationImpl::draw_gui()
 	ImGui::Render();
 }
 
-void ApplicationImpl::draw_preview()
+void ApplicationImpl::draw_preview(const Texture* av_l, const Texture* av_r)
 {
 	left_prev_shader.setUniformFVar("prev.exposure", { preview.display_exposure });
 	left_prev_shader.setUniformIVar("prev.undistort", { preview.undistort });
 	left_prev_shader.setUniformIVar("prev.apply_crf", { preview.apply_crf });
     left_prev_shader.setUniformIVar("is_left", {1});
+	left_prev_shader.setUniformIVar("wb_eq", {0});
+
+	left_prev_shader.use();
+	glActiveTexture(GL_TEXTURE1);
+	left_prev_shader.setUniformIVar("left_avg", {1});
+	av_l->use();
+
+	glActiveTexture(GL_TEXTURE2);
+	left_prev_shader.setUniformIVar("right_avg", {2});
+	av_r->use();
+
+	gui.left_quad.draw();
+
+	right_prev_shader.setUniformIVar("wb_eq", {1});
 
 	right_prev_shader.setUniformFVar("prev.exposure", { preview.display_exposure });
 	right_prev_shader.setUniformIVar("prev.undistort", { preview.undistort });
 	right_prev_shader.setUniformIVar("prev.apply_crf", { preview.apply_crf });
     right_prev_shader.setUniformIVar("is_left", {0});
+	right_prev_shader.setUniformIVar("wb_eq", {0});
 
-	gui.left_quad.draw();
+	right_prev_shader.use();
+	glActiveTexture(GL_TEXTURE1);
+	right_prev_shader.setUniformIVar("left_avg", {1});
+	av_l->use();
+
+	glActiveTexture(GL_TEXTURE2);
+	right_prev_shader.setUniformIVar("right_avg", {2});
+	av_r->use();
+
+	right_prev_shader.setUniformIVar("wb_eq", {preview.wb_eq});
+
 	gui.right_quad.draw();
 }
 

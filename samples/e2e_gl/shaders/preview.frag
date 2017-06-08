@@ -3,6 +3,11 @@
 in vec2 tex_coord;
 out vec4 color;
 
+uniform int is_left;
+uniform bool wb_eq;
+uniform sampler2D left_avg;
+uniform sampler2D right_avg;
+
 uniform sampler2D texture0;
 
 struct undistort_params
@@ -91,6 +96,17 @@ void main()
     {
         color = col;
         return;
+    }
+
+    if (wb_eq)
+    {
+        vec3 ratio = vec3(1);
+
+        if (is_left == 0)
+        {
+            ratio = vec3(texture(left_avg, vec2(0.5)) / texture(right_avg, vec2(0.5)));
+            col *= vec4(ratio, 1);
+        }
     }
 
     vec3 cols = apply_crf(vec3(col));
